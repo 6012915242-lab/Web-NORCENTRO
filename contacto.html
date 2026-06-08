@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NORCENTRO - Contacto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/stiles/styless.css">
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-inner wrap">
+        <a href="index.html" class="brand">NORCENTRO</a>
+        <input type="checkbox" id="navToggle" class="nav-toggle">
+        <label for="navToggle" class="nav-burger" aria-label="Abrir menú"><span></span><span></span><span></span></label>
+        <label for="navToggle" class="nav-overlay"></label>
+        <nav class="main-nav">
+            <a href="index.html">Inicio</a>
+            <a href="motos.html">Motos</a>
+            <a href="ofertas.html">Ofertas</a>
+            <a href="contacto.html" class="activo">Contacto</a>
+            <a href="busqueda.html" aria-label="Búsqueda">
+                <svg class="icon-search" viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.32l5.39 5.38 1.41-1.41-5.38-5.39A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>
+                Búsqueda
+            </a>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+    <div class="page-head"><h1>Contacto</h1><p class="section-sub">¿Tienes dudas sobre una moto? Escríbenos y te respondemos lo antes posible.</p></div>
+
+    <section class="contact-layout">
+        <form class="form-card">
+            <div>
+                <label class="meta" style="font-weight:600;color:var(--ink)">Nombre completo</label>
+                <input type="text" class="field" placeholder="Tu nombre">
+            </div>
+            <div>
+                <label class="meta" style="font-weight:600;color:var(--ink)">Correo electrónico</label>
+                <input type="email" class="field" placeholder="tucorreo@email.com">
+            </div>
+            <div>
+                <label class="meta" style="font-weight:600;color:var(--ink)">Teléfono</label>
+                <input type="text" class="field" placeholder="Ej: 999 999 999">
+            </div>
+            <div>
+                <label class="meta" style="font-weight:600;color:var(--ink)">Mensaje</label>
+                <textarea class="field" placeholder="Escribe tu mensaje"></textarea>
+            </div>
+            <button type="submit" class="btn-dark btn-block">Enviar mensaje</button>
+        </form>
+
+        <aside class="info-card">
+            <h3 style="color:var(--ink);margin-bottom:8px">Información de contacto</h3>
+            <div class="info-row">
+                <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                <span>Av. Principal 1234, Norte de la Ciudad</span>
+            </div>
+            <div class="info-row">
+                <svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.46 15.46 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.4 11.4 0 0 0 3.57.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.24 1.02l-2.21 2.2z"/></svg>
+                <!-- ACÁ VA WHATSAPP: reemplaza el número 51999999999 por el tuyo -->
+                <a href="https://wa.me/51999999999" target="_blank" rel="noopener">WhatsApp: +51 999 999 999</a>
+            </div>
+            <div class="info-row">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg>
+                <span>ventas@norcentro.com</span>
+            </div>
+            <div class="info-row">
+                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h-4v-2h2V7h2z"/></svg>
+                <span>Lun a Sáb · 9:00 - 19:00</span>
+            </div>
+        </aside>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-top wrap">
+        <a href="index.html" class="brand" style="color:#fff">NORCENTRO</a>
+        <div class="social">
+            <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.33-.04-1.56-.14-2.86-.14C11.93 2 10 3.66 10 6.7v2.8H7v4h3V22h4v-8.5z"/></svg></a>
+            <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2c2.72 0 3.06.01 4.12.06 1.07.05 1.79.22 2.43.47.66.25 1.22.6 1.77 1.15.51.5.9 1.1 1.15 1.77.25.64.42 1.36.47 2.43.05 1.06.06 1.4.06 4.12s-.01 3.06-.06 4.12c-.05 1.07-.22 1.79-.47 2.43a4.9 4.9 0 0 1-1.15 1.77c-.5.51-1.1.9-1.77 1.15-.64.25-1.36.42-2.43.47-1.06.05-1.4.06-4.12.06s-3.06-.01-4.12-.06c-1.07-.05-1.79-.22-2.43-.47a4.9 4.9 0 0 1-1.77-1.15 4.9 4.9 0 0 1-1.15-1.77c-.25-.64-.42-1.36-.47-2.43C2.01 15.06 2 14.72 2 12s.01-3.06.06-4.12c.05-1.07.22-1.79.47-2.43A4.9 4.9 0 0 1 3.68 3.68 4.9 4.9 0 0 1 5.45 2.53c.64-.25 1.36-.42 2.43-.47C8.94 2.01 9.28 2 12 2zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg></a>
+            <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25H8.08l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg></a>
+        </div>
+        <p style="margin:0;color:#9aa0ab;font-size:.88rem">© 2026 NORCENTRO · Todos los derechos reservados</p>
+    </div>
+    <div class="footer-bottom wrap">
+        <a href="#">Modelos</a><span>·</span><a href="#">Soporte</a><span>·</span><a href="#">Redes Sociales</a>
+    </div>
+</footer>
+
+</body>
+</html>
