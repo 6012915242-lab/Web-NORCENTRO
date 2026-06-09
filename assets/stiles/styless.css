@@ -46,12 +46,13 @@ section{ padding:46px 0; }
 
 
 .section-title{
-  font-weight:700;
-  font-size:1.7rem;          
+  font-weight:900;
+  font-size:1.7rem;
   text-align:center;
   color:var(--ink);
   margin-bottom:26px;
-  letter-spacing:-.01em;
+  letter-spacing:.01em;
+  text-transform:uppercase;
 }
 .section-sub{ text-align:center; color:var(--muted); margin:-14px auto 26px; max-width:620px; }
 
