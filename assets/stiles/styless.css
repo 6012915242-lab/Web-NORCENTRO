@@ -22,10 +22,11 @@
 html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
 body{
   font-family:"Poppins","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
-  background:var(--bg);
+  background:linear-gradient(135deg,#ffffff 0%,#f6f8fc 55%,#eef3fb 100%);
   color:var(--ink-2);
   line-height:1.6;
-  overflow-x:hidden;           
+  overflow-x:hidden;
+  min-height:100vh;
 }
 
 
