@@ -103,9 +103,13 @@ section{ padding:46px 0; }
 
 
 .site-header{
-  background:var(--white);
-  border-bottom:1px solid var(--line);
-  position:sticky; top:0; z-index:900;
+  background:rgba(255,255,255,.96);
+  border-bottom:3px solid var(--red);
+  box-shadow:0 2px 14px rgba(7,20,47,.08);
+  position:sticky;
+  top:0;
+  z-index:900;
+  backdrop-filter:blur(8px);
 }
 .header-inner{
   display:flex;
