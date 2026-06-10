@@ -40,52 +40,84 @@
     </div>
 </header>
 
-<main class="wrap">
-    <div class="page-head"><h1>Contacto</h1><p class="section-sub">¿Tienes dudas sobre una moto? Escríbenos y te respondemos lo antes posible.</p></div>
+<main>
+    
+    <section class="hero">
+        <div class="wrap">
+            <div class="hero-inner">
+                <h2>Encuentra la moto perfecta para ti en NORCENTRO</h2>
+                <p>En NORCENTRO tenemos motos deportivas, urbanas, adventure y de trabajo. Explora nuestro catálogo y descubre modelos con gran potencia, diseño y precio.</p>
+                <a href="motos.html" class="btn-dark">Ver catálogo</a>
+            </div>
+        </div>
+    </section>
+    <section class="wrap">
+        <div class="acciones">
+            <div class="acciones-grid">
+                <a href="motos.html" class="accion-box">Ver motos</a>
+                <a href="ofertas.html" class="accion-box">Ofertas</a>
+                <a href="contacto.html" class="accion-box">Contactar</a>
+            </div>
+        </div>
+    </section>
 
-    <section class="contact-layout">
-        <form class="form-card">
-            <div>
-                <label class="meta" style="font-weight:600;color:var(--ink)">Nombre completo</label>
-                <input type="text" class="field" placeholder="Tu nombre">
-            </div>
-            <div>
-                <label class="meta" style="font-weight:600;color:var(--ink)">Correo electrónico</label>
-                <input type="email" class="field" placeholder="tucorreo@email.com">
-            </div>
-            <div>
-                <label class="meta" style="font-weight:600;color:var(--ink)">Teléfono</label>
-                <input type="text" class="field" placeholder="Ej: 999 999 999">
-            </div>
-            <div>
-                <label class="meta" style="font-weight:600;color:var(--ink)">Mensaje</label>
-                <textarea class="field" placeholder="Escribe tu mensaje"></textarea>
-            </div>
-            <button type="submit" class="btn-dark btn-block">Enviar mensaje</button>
-        </form>
+    <section class="wrap">
+        <h2 class="section-title">Modelos destacados</h2>
 
-        <aside class="info-card">
-            <h3 style="color:var(--ink);margin-bottom:8px">Información de contacto</h3>
-            <div class="info-row">
-                <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
-                <span>jr. Heroes del cenepa 1499, Norte de la Ciudad</span>
+        <!-- PATRÓN COLUMN DROP: .col-12 (móvil) .col-sm-6 (tablet) .col-lg-4 (desktop) -->
+        <div class="row g-4">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <article class="card-moto">
+                    <div class="card-media"><img src="./assets/images/yamahar3.jpg" class="w-100 d-block" style="height: 240px; object-fit: cover;" alt="Yamaha R3"></div>
+                    <div class="card-body">
+                        <h3>Yamaha R3</h3>
+                        <p class="meta">Deportiva ligera, ideal para ciudad y carretera.</p>
+                        <a href="detalles-yamahar3.html" class="btn-dark">Ver más</a>
+                    </div>
+                </article>
             </div>
-            <div class="info-row">
-                <svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.46 15.46 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.4 11.4 0 0 0 3.57.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.24 1.02l-2.21 2.2z"/></svg>
-                
-                <a href="https://wa.me/51922866687" target="_blank" rel="noopener">WhatsApp: +51 922 866 687</a>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <article class="card-moto">
+                    <div class="card-media"><img src="./assets/images/mt15.jpg" class="w-100 d-block" style="height: 240px; object-fit: cover;" alt="Yamaha MT15 2026"></div>
+                    <div class="card-body">
+                        <h3>Yamaha MT15 - 2026</h3>
+                        <p class="meta">Potente, ágil y con diseño deportivo.</p>
+                        <a href="detalles-mt15.html" class="btn-dark">Ver más</a>
+                    </div>
+                </article>
             </div>
-            <div class="info-row">
-                <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z"/></svg>
-                <span>ventas@norcentro.com</span>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <article class="card-moto">
+                    <div class="card-media"><img src="./assets/images/pulsar250.jpg" class="w-100 d-block" style="height: 240px; object-fit: cover;" alt="Pulsar NS 250"></div>
+                    <div class="card-body">
+                        <h3>Pulsar NS 250</h3>
+                        <p class="meta">Diseño premium para uso urbano y diario.</p>
+                        <a href="detalles-pulsar250.html" class="btn-dark">Ver más</a>
+                    </div>
+                </article>
             </div>
-            <div class="info-row">
-                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h-4v-2h2V7h2z"/></svg>
-                <span>Lun a Sáb · 9:00 - 19:00</span>
+        </div>
+    </section>
+
+
+    <section class="wrap">
+        <div class="split">
+            <div class="split-imgs">
+                <img src="./assets/images/ktm250.jpg" alt="Moto urbana">
+                <img src="./assets/images/pulsar250.jpg" alt="Moto adventure">
             </div>
-        </aside>
+            <div class="split-text">
+                <h2>Compra con confianza</h2>
+                <p>Te ayudamos a elegir la moto que mejor se adapte a tu estilo de vida. Tenemos opciones para principiantes, motos deportivas, urbanas y modelos adventure.</p>
+                <div class="acts">
+                    <a href="motos.html" class="btn-dark">Explorar motos</a>
+                    <a href="contacto.html" class="btn-light">Solicitar información</a>
+                </div>
+            </div>
+        </div>
     </section>
 </main>
+
 
 <footer class="site-footer">
     <div class="footer-top wrap">
