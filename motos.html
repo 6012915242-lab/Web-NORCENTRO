@@ -37,6 +37,12 @@
 <main class="wrap">
     <div class="page-head"><h1>Catálogo Completo</h1></div>
 
+    <section class="mb-4 p-3 border rounded bg-light">
+        <h2 id="demoTitulo">Evidencia inicial de DOM</h2>
+        <p id="demoMensaje">Aquí se demuestra cómo cambiar contenido con JavaScript usando selectores del DOM.</p>
+        <button id="btnCambiar" class="btn-dark">Cambiar contenido</button>
+    </section>
+
     
     <input type="checkbox" id="filtToggle" class="filt-toggle">
     <label for="filtToggle" class="btn-filtros">Filtros ☰</label>
@@ -152,6 +158,21 @@
         <a href="#">Modelos</a><span>·</span><a href="#">Soporte</a><span>·</span><a href="#">Redes Sociales</a>
     </div>
 </footer>
+
+<script>
+    // getElementById: selecciona un elemento por su id para modificarlo.
+    const tituloDemo = document.getElementById("demoTitulo");
+    const mensajeDemo = document.getElementById("demoMensaje");
+
+    // querySelector: selecciona el primer elemento que coincida con un selector CSS.
+    const botonCambiar = document.querySelector("#btnCambiar");
+
+    // Al hacer clic, cambiamos el contenido de los elementos seleccionados.
+    botonCambiar.addEventListener("click", () => {
+        tituloDemo.textContent = "DOM manipulado correctamente";
+        mensajeDemo.textContent = "Se usó getElementById para los textos y querySelector para obtener el botón.";
+    });
+</script>
 
 </body>
 </html>
