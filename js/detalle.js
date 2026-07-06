@@ -23,8 +23,34 @@ if (moto) {
         <p><strong>Tipo:</strong> ${moto.tipo}</p>
         <p><strong>Precio:</strong> S/. ${moto.precio}</p>
 
-        <button class="btn-dark">Comprar</button>
+       <button class="btn-dark" onclick="agregarCarrito(${moto.id})">
+    Agregar al carrito
+</button>
     `;
 } else {
     contenedor.innerHTML = `<h2>Moto no encontrada</h2>`;
+}
+function agregarCarrito(id) {
+
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    const moto = motos.find(m => m.id === id);
+
+    const existe = carrito.find(item => item.id === id);
+
+    if (existe) {
+        existe.cantidad += 1;
+    } else {
+        carrito.push({
+            id: moto.id,
+            nombre: moto.nombre,
+            precio: moto.precio,
+            imagen: moto.imagen,
+            cantidad: 1
+        });
+    }
+
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+
+    alert("Agregado al carrito");
 }
