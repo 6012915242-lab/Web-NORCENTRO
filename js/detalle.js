@@ -1,53 +1,142 @@
-const params = new URLSearchParams(window.location.search);
-const id = parseInt(params.get("id"));
+// ===============================
+// DETALLE DINÁMICO PROFESIONAL
+// ===============================
 
-const motoEncontrada = motos.find(m => m.id === id);
+
+const params = new URLSearchParams(window.location.search);
+
+const id = Number(params.get("id"));
+
+
+const moto = motos.find(m => m.id === id);
+
 
 const contenedor = document.getElementById("detalleMoto");
 
-if (motoEncontrada) {
 
-    contenedor.innerHTML = `
-        <h1>${motoEncontrada.nombre}</h1>
+if(moto){
 
-        <img src="${motoEncontrada.imagen}" style="width:400px; max-width:100%;">
 
-        <p><strong>Marca:</strong> ${motoEncontrada.marca}</p>
-        <p><strong>Tipo:</strong> ${motoEncontrada.tipo}</p>
-        <p><strong>Precio:</strong> S/. ${motoEncontrada.precio}</p>
+contenedor.innerHTML = `
 
-        <button class="btn-dark" onclick="agregarCarrito(${motoEncontrada.id})">
-            Agregar al carrito
+
+<div class="detalle-container">
+
+
+    <div class="galeria">
+
+        <img 
+        class="imagen-principal"
+        src="${moto.imagen}"
+        alt="${moto.nombre}">
+
+
+    </div>
+
+
+
+    <div class="info-moto">
+
+
+        <h1>${moto.nombre}</h1>
+
+
+        <h2>
+        S/. ${moto.precio}
+        </h2>
+
+
+
+        <button class="btn-whatsapp">
+        🟢 Comprar por WhatsApp
         </button>
-    `;
 
-} else {
-    contenedor.innerHTML = `<h2>Moto no encontrada</h2>`;
+
+
+        <h3>Descripción</h3>
+
+        <p>
+        ${moto.descripcion || 
+        "Motocicleta de excelente rendimiento, diseñada para ofrecer comodidad y seguridad."}
+        </p>
+
+
+
+        <h3>Especificaciones técnicas</h3>
+
+
+        <table>
+
+
+        <tr>
+        <td>Marca</td>
+        <td>${moto.marca}</td>
+
+        <td>Tipo</td>
+        <td>${moto.tipo}</td>
+        </tr>
+
+
+
+        <tr>
+        <td>Motor</td>
+        <td>
+        ${moto.especificaciones?.motor || "No disponible"}
+        </td>
+
+        <td>Cilindrada</td>
+        <td>
+        ${moto.especificaciones?.cilindrada || "No disponible"}
+        </td>
+        </tr>
+
+
+
+        <tr>
+        <td>Potencia</td>
+        <td>
+        ${moto.especificaciones?.potencia || "No disponible"}
+        </td>
+
+        <td>Peso</td>
+        <td>
+        ${moto.especificaciones?.peso || "No disponible"}
+        </td>
+        </tr>
+
+
+
+        <tr>
+        <td>Transmisión</td>
+        <td>
+        ${moto.especificaciones?.transmision || "No disponible"}
+        </td>
+
+        <td>Tanque</td>
+        <td>
+        ${moto.especificaciones?.tanque || "No disponible"}
+        </td>
+        </tr>
+
+
+
+        </table>
+
+
+    </div>
+
+
+</div>
+
+
+`;
+
+
+
 }
+else{
 
-function agregarCarrito(id) {
+contenedor.innerHTML =
+"<h2>Moto no encontrada</h2>";
 
-    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-
-    const moto = motos.find(m => m.id === id);
-
-    if (!moto) return;
-
-    const existe = carrito.find(item => item.id === id);
-
-    if (existe) {
-        existe.cantidad += 1;
-    } else {
-        carrito.push({
-            id: moto.id,
-            nombre: moto.nombre,
-            precio: moto.precio,
-            imagen: moto.imagen,
-            cantidad: 1
-        });
-    }
-
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-
-    alert("Agregado al carrito ✔");
 }
