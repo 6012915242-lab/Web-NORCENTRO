@@ -20,7 +20,7 @@ function renderResultados(lista) {
                 </div>
                 <div class="card-body">
                     <h3>${m.nombre}</h3>
-                    <p>${m.marca} · ${m.tipo} · ${m.cilindrada}</p>
+                    <p>${m.marca} · ${m.tipo} · ${m.especificaciones.cilindrada}</p>
                     <p class="price">S/. ${m.precio}</p>
                     <a href="detalle.html?id=${m.id}" class="btn-dark">Ver más</a>
                 </div>
@@ -42,8 +42,8 @@ function buscarYFiltrar() {
         const cumplePrecio = Number(m.precio) <= precioMax;
         const cumpleMarca = marcas.length === 0 || marcas.includes(m.marca.toLowerCase());
         const cumpleTipo = tipos.length === 0 || tipos.includes(m.tipo.toLowerCase());
-        const cumpleCilindrada = cilindradas.length === 0 || cilindradas.includes(m.cilindrada.toLowerCase());
-        const cumpleTexto = texto === '' || [m.nombre, m.marca, m.tipo, m.cilindrada].some(field => field.toLowerCase().includes(texto));
+        const cumpleCilindrada = cilindradas.length === 0 || cilindradas.includes(m.especificaciones.cilindrada.toLowerCase());
+        const cumpleTexto = texto === '' || [m.nombre, m.marca, m.tipo, m.especificaciones.cilindrada].some(field => field.toLowerCase().includes(texto));
 
         return cumplePrecio && cumpleMarca && cumpleTipo && cumpleCilindrada && cumpleTexto;
     });
