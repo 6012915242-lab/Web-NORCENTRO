@@ -57,6 +57,7 @@ display:grid;
 grid-template-columns:1fr 1fr;
 gap:40px;
 margin-top:40px;
+align-items:start;
 
 }
 
@@ -89,7 +90,14 @@ height:70px;
 object-fit:contain;
 border:1px solid #ddd;
 border-radius:10px;
+cursor:pointer;
+background:#fff;
+transition:border-color .2s ease;
 
+}
+
+.miniaturas img:hover{
+border-color:var(--red);
 }
 
 
@@ -657,596 +665,237 @@ grid-template-columns:1fr;
         grid-template-columns: 1.4fr 1fr 1fr;
     }
 }
-/* ======================================
-   DETALLE DE MOTO PROFESIONAL
-====================================== */
 
-
-.detalle-container{
-
-display:grid;
-grid-template-columns: 1.1fr 1fr;
-gap:50px;
-margin-top:40px;
-align-items:start;
-
-}
-
-
-
-/* =========================
-   GALERÍA
-========================= */
-
+/* ==========================================================
+   PÁGINA DETALLE DE MOTO (detalle.js)
+   Estilos para las clases generadas dinámicamente que no
+   tenían reglas: .galeria, .marca-detalle, .estrellas,
+   .datos-rapidos, .btn-carrito, .btn-comprar,
+   .caracteristicas, .especificaciones, .recomendadas-grid,
+   .card-mini
+========================================================== */
 
 .galeria{
-
-background:white;
-padding:25px;
-border-radius:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.08);
-
+  display:flex;
+  flex-direction:column;
 }
-
-
-
-.imagen-principal{
-
-width:100%;
-height:450px;
-
-object-fit:contain;
-
-border-radius:15px;
-
-}
-
-
-
-
-.miniaturas{
-
-display:flex;
-gap:15px;
-margin-top:20px;
-
-}
-
-
-
-.miniaturas img{
-
-width:90px;
-height:70px;
-
-object-fit:contain;
-
-border:1px solid #ddd;
-
-border-radius:10px;
-
-cursor:pointer;
-
-}
-
-
-
-
-
-/* =========================
- INFORMACIÓN
-========================= */
-
 
 .info-moto{
-
-background:white;
-
-padding:35px;
-
-border-radius:20px;
-
-box-shadow:0 10px 30px rgba(0,0,0,.08);
-
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px;
+  box-shadow:var(--shadow);
 }
-
-
-
-.info-moto h1{
-
-font-size:40px;
-
-font-weight:800;
-
-margin-bottom:10px;
-
-color:#111827;
-
-}
-
-
 
 .marca-detalle{
-
-font-size:20px;
-
-color:#666;
-
+  color:var(--muted);
+  font-weight:600;
+  margin-top:4px;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+  font-size:.92rem;
 }
-
-
 
 .estrellas{
-
-color:#fbbf24;
-
-font-size:25px;
-
-margin:15px 0;
-
+  color:#f5a623;
+  font-size:1.2rem;
+  letter-spacing:2px;
+  margin:10px 0;
 }
 
-
-
+.datos-rapidos{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:16px 0;
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.datos-rapidos > div{
+  text-align:center;
+  padding:14px 8px;
+  border-right:1px solid var(--line);
+  background:#fbfcfe;
+}
+.datos-rapidos > div:last-child{ border-right:none; }
+.datos-rapidos strong{
+  display:block;
+  color:var(--ink);
+  font-size:1.05rem;
+  font-weight:900;
+}
+.datos-rapidos span{
+  display:block;
+  color:var(--muted);
+  font-size:.78rem;
+  text-transform:uppercase;
+  margin-top:2px;
+}
 
 .precio-detalle{
-
-font-size:42px;
-
-font-weight:800;
-
-color:#dc2626;
-
-margin:20px 0;
-
+  margin:10px 0 18px;
 }
 
-
-
-
-
-/* =========================
- BOTONES
-========================= */
-
-
-.acciones{
-
-display:flex;
-
-gap:15px;
-
-margin:25px 0;
-
+.info-moto .acciones{
+  background:transparent;
+  border:none;
+  box-shadow:none;
+  overflow:visible;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
 }
 
-
-
-
-.btn-carrito,
-.btn-comprar{
-
-padding:15px 25px;
-
-border:none;
-
-border-radius:10px;
-
-font-weight:700;
-
-font-size:16px;
-
-cursor:pointer;
-
+.btn-carrito,.btn-comprar{
+  flex:1;
+  min-width:160px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:14px 18px;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:inherit;
+  font-weight:800;
+  font-size:.94rem;
+  cursor:pointer;
+  text-transform:uppercase;
+  transition:transform .15s ease, box-shadow .2s ease;
 }
-
-
-
 .btn-carrito{
-
-background:#111827;
-
-color:white;
-
+  background:linear-gradient(180deg,var(--red-light),var(--red));
+  color:#fff;
+  box-shadow:0 6px 14px rgba(224,0,18,.26);
 }
-
-
-
+.btn-carrito:hover{ transform:translateY(-2px); box-shadow:0 10px 20px rgba(224,0,18,.34); }
 .btn-comprar{
-
-background:#16a34a;
-
-color:white;
-
+  background:var(--wa);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(31,170,82,.26);
 }
+.btn-comprar:hover{ background:var(--wa-dark); transform:translateY(-2px); }
 
-
-
-.btn-carrito:hover,
-.btn-comprar:hover{
-
-opacity:.85;
-
+.caracteristicas{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px;
+  box-shadow:var(--shadow);
+  margin-top:28px;
 }
-
-
-
-
-/* =========================
- ESPECIFICACIONES
-========================= */
-
+.caracteristicas h2{
+  font-size:1.3rem;
+  color:var(--ink);
+  font-weight:900;
+  margin-bottom:14px;
+}
+.caracteristicas ul{ display:flex; flex-direction:column; gap:10px; }
+.caracteristicas li{
+  color:var(--ink-2);
+  font-size:.96rem;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--line);
+}
+.caracteristicas li:last-child{ border-bottom:none; padding-bottom:0; }
 
 .especificaciones{
-
-background:white;
-
-margin-top:40px;
-
-padding:35px;
-
-border-radius:20px;
-
-box-shadow:0 10px 30px rgba(0,0,0,.08);
-
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:24px;
+  box-shadow:var(--shadow);
+  margin-top:28px;
 }
-
-
-
 .especificaciones h2{
-
-margin-bottom:25px;
-
-font-size:30px;
-
+  font-size:1.3rem;
+  color:var(--ink);
+  font-weight:900;
+  margin-bottom:10px;
 }
-
-
-
-
 .especificaciones table{
-
-width:100%;
-
-border-collapse:collapse;
-
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
 }
-
-
-
 .especificaciones td{
-
-padding:15px;
-
-border-bottom:1px solid #eee;
-
-font-size:17px;
-
+  padding:13px 10px;
+  border-bottom:1px solid var(--line);
+  color:var(--ink-2);
 }
-
-
-
-.especificaciones td:first-child{
-
-font-weight:700;
-
-width:200px;
-
-color:#374151;
-
+.especificaciones tr td:first-child{
+  font-weight:800;
+  color:var(--ink);
+  width:180px;
 }
-
-
-
-
-
-/* =========================
- RECOMENDADOS
-========================= */
-
 
 #recomendadas{
-
-margin-top:50px;
-
+  margin-top:10px;
 }
-
-
-
 #recomendadas h2{
-
-font-size:30px;
-
-margin-bottom:25px;
-
+  font-size:1.3rem;
+  color:var(--ink);
+  font-weight:900;
+  margin-bottom:18px;
+  text-transform:uppercase;
 }
-
-
 
 .recomendadas-grid{
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:25px;
-
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
 }
-
-
-
 
 .card-mini{
-
-background:white;
-
-padding:20px;
-
-border-radius:15px;
-
-box-shadow:0 8px 25px rgba(0,0,0,.08);
-
-text-align:center;
-
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  transition:transform .18s ease, box-shadow .2s ease;
 }
-
-
-
+.card-mini:hover{ transform:translateY(-4px); box-shadow:var(--shadow-h); }
 .card-mini img{
-
-width:100%;
-
-height:160px;
-
-object-fit:contain;
-
+  width:100%;
+  height:130px;
+  object-fit:contain;
+  margin-bottom:10px;
 }
-
-
-
 .card-mini h3{
-
-font-size:18px;
-
-margin-top:15px;
-
+  font-size:.95rem;
+  color:var(--ink);
+  font-weight:800;
+  margin-bottom:4px;
 }
-
-
-
 .card-mini p{
-
-font-size:20px;
-
-font-weight:700;
-
-color:#dc2626;
-
+  color:var(--red);
+  font-weight:900;
+  margin-bottom:10px;
 }
-
-
-
 .card-mini a{
+  display:inline-block;
+  width:100%;
+  padding:9px 0;
+  background:var(--ink);
+  color:#fff;
+  border-radius:var(--radius-sm);
+  font-weight:800;
+  font-size:.85rem;
+  text-transform:uppercase;
+}
+.card-mini a:hover{ background:var(--red); }
 
-display:inline-block;
-
-margin-top:10px;
-
-padding:10px 20px;
-
-background:#111827;
-
-color:white;
-
-text-decoration:none;
-
-border-radius:8px;
-
+@media (min-width:640px){
+  .recomendadas-grid{ grid-template-columns:repeat(4,1fr); }
 }
 
-
-
-
-
-/* =========================
- RESPONSIVE
-========================= */
-
-
-@media(max-width:900px){
-
-
-.detalle-container{
-
-grid-template-columns:1fr;
-
-}
-
-
-
-.recomendadas-grid{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-
-
-.info-moto h1{
-
-font-size:30px;
-
-}
-
-
-}
-
-
-
-@media(max-width:500px){
-
-
-.recomendadas-grid{
-
-grid-template-columns:1fr;
-
-}
-
-
-
-.acciones{
-
-flex-direction:column;
-
-}
-
-
-
-.imagen-principal{
-
-height:300px;
-
-}
-
-
-}
-#contadorCarrito{
-
-background:#dc2626;
-
-color:white;
-
-border-radius:50%;
-
-padding:3px 8px;
-
-font-size:12px;
-
-font-weight:bold;
-
-}
-/* ===============================
-   CARRITO PROFESIONAL
-=============================== */
-
-
-.producto-carrito{
-
-display:flex;
-
-gap:20px;
-
-background:white;
-
-padding:20px;
-
-margin-bottom:15px;
-
-border-radius:15px;
-
-box-shadow:0 5px 20px rgba(0,0,0,.08);
-
-align-items:center;
-
-}
-
-
-
-.producto-carrito img{
-
-width:140px;
-
-height:100px;
-
-object-fit:contain;
-
-}
-
-
-
-
-.producto-info h4{
-
-font-size:20px;
-
-font-weight:700;
-
-}
-
-
-
-.cantidad{
-
-display:flex;
-
-align-items:center;
-
-gap:15px;
-
-margin:10px 0;
-
-}
-
-
-
-.cantidad button{
-
-width:35px;
-
-height:35px;
-
-border:none;
-
-border-radius:50%;
-
-background:#111827;
-
-color:white;
-
-font-size:20px;
-
-}
-
-
-
-.btn-eliminar{
-
-background:#dc2626;
-
-color:white;
-
-border:none;
-
-padding:8px 15px;
-
-border-radius:8px;
-
-}
-
-
-
-.carrito-vacio{
-
-text-align:center;
-
-padding:40px;
-
-background:white;
-
-border-radius:15px;
-
-}
-
-
-
-@media(max-width:600px){
-
-.producto-carrito{
-
-flex-direction:column;
-
-text-align:center;
-
-}
-
+@media (max-width:600px){
+  .datos-rapidos{ grid-template-columns:1fr; }
+  .datos-rapidos > div{ border-right:none; border-bottom:1px solid var(--line); }
+  .datos-rapidos > div:last-child{ border-bottom:none; }
+  .info-moto .acciones{ flex-direction:column; }
 }

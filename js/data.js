@@ -562,6 +562,16 @@ precio:15000,
 tipo:"deportiva",
 imagen:"./assets/images/Yamaha YZF-R3 250c.jpg",
 
+imagenes:[
+
+"./assets/images/Yamaha YZF-R3 250c.jpg",
+
+"./assets/images/Yamaha YZF-R3 250c-2.jpg",
+
+"./assets/images/Yamaha YZF-R3 250c-3.jpg"
+
+],
+
 descripcion:"Motocicleta deportiva Yamaha con excelente equilibrio entre potencia y control.",
 
 especificaciones:{

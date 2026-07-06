@@ -80,11 +80,25 @@ alt="${moto.nombre}">
 
 <div class="miniaturas">
 
-<img src="${moto.imagen}">
+${
+(moto.imagenes || [moto.imagen])
+.map(img => `
 
-<img src="${moto.imagen}">
+<img 
+src="${img}"
+onclick="cambiarImagen('${img}')">
 
-<img src="${moto.imagen}">
+`)
+.join("")
+}
+
+</div>
+
+
+</div>
+<!-- FIN GALERIA -->
+
+
 <div class="info-moto">
 
 <h1>
@@ -193,6 +207,13 @@ ${moto.descripcion}
 
 
 </div>
+<!-- FIN INFO-MOTO -->
+
+
+</div>
+<!-- FIN DETALLE-CONTAINER -->
+
+
 <div class="caracteristicas">
 
 
@@ -478,5 +499,20 @@ JSON.stringify(carrito)
 window.location.href =
 "finalizar-compra.html";
 
+
+}
+// CAMBIAR IMAGEN PRINCIPAL
+
+function cambiarImagen(img){
+
+const principal =
+document.querySelector(".imagen-principal");
+
+
+if(principal){
+
+principal.src = img;
+
+}
 
 }
