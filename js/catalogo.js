@@ -38,21 +38,29 @@ function renderMotos(lista) {
 
 function aplicarFiltros() {
 
-    const precioMax = document.getElementById("filtroPrecio").value;
+    const precioMax = Number(document.getElementById("filtroPrecio").value || 40000);
 
-    const marcasSeleccionadas = [...document.querySelectorAll(".filtros input[type='checkbox']")]
+    const marcasSeleccionadas = [...document.querySelectorAll(".filtros .marca-group input[type='checkbox']")]
+        .filter(c => c.checked)
+        .map(c => c.value.toLowerCase());
+
+    const tiposSeleccionados = [...document.querySelectorAll(".filtros .tipo-group input[type='checkbox']")]
         .filter(c => c.checked)
         .map(c => c.value.toLowerCase());
 
     motosFiltradas = motos.filter(m => {
 
-        const cumplePrecio = m.precio <= precioMax;
+        const cumplePrecio = Number(m.precio) <= precioMax;
 
         const cumpleMarca =
             marcasSeleccionadas.length === 0 ||
             marcasSeleccionadas.includes(m.marca.toLowerCase());
 
-        return cumplePrecio && cumpleMarca;
+        const cumpleTipo =
+            tiposSeleccionados.length === 0 ||
+            tiposSeleccionados.includes(m.tipo.toLowerCase());
+
+        return cumplePrecio && cumpleMarca && cumpleTipo;
     });
 
     renderMotos(motosFiltradas);
@@ -66,7 +74,10 @@ function aplicarFiltros() {
 document.getElementById("filtroPrecio").addEventListener("input", aplicarFiltros);
 
 // checkboxes
-document.querySelectorAll(".filtros input[type='checkbox']")
+document.querySelectorAll(".filtros .marca-group input[type='checkbox']")
+    .forEach(cb => cb.addEventListener("change", aplicarFiltros));
+
+document.querySelectorAll(".filtros .tipo-group input[type='checkbox']")
     .forEach(cb => cb.addEventListener("change", aplicarFiltros));
 
 // ===============================
