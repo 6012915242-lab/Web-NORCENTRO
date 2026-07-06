@@ -1,80 +1,114 @@
-// ===============================
-// CARRITO REAL FUNCIONAL
-// ===============================
+// =================================
+// SISTEMA DE CARRITO
+// =================================
 
-let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-const contenedor = document.getElementById("carritoContenedor");
-const totalSpan = document.getElementById("total");
-const subtotalSpan = document.getElementById("subtotal");
-const envioSpan = document.getElementById("envio");
-const totalFinalSpan = document.getElementById("totalFinal");
-const btnWhatsApp = document.getElementById("btnWhatsApp");
+// AGREGAR PRODUCTO
 
-const ENVIO = 50;
+function agregarCarrito(id){
 
-// ===============================
-// RENDER CARRITO
-// ===============================
-function renderCarrito() {
 
-    contenedor.innerHTML = "";
+let carrito =
+JSON.parse(localStorage.getItem("carrito")) || [];
 
-    let subtotal = 0;
 
-    carrito.forEach(item => {
 
-        subtotal += item.precio * item.cantidad;
+const moto =
+motos.find(m => m.id === id);
 
-        contenedor.innerHTML += `
-            <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-                
-                <img src="${item.imagen}" width="60">
 
-                <div>
-                    <b>${item.nombre}</b>
-                    <p style="margin:0">S/. ${item.precio}</p>
-                    <p style="margin:0">Cant: ${item.cantidad}</p>
-                </div>
 
-                <button onclick="eliminar(${item.id})">❌</button>
-            </div>
-        `;
-    });
+const existe =
+carrito.find(item => item.id === id);
 
-    // cálculos
-    let envio = carrito.length > 0 ? ENVIO : 0;
-    let total = subtotal + envio;
 
-    // actualizar UI
-    subtotalSpan.textContent = subtotal.toFixed(2);
-    envioSpan.textContent = envio.toFixed(2);
-    totalFinalSpan.textContent = total.toFixed(2);
-    totalSpan.textContent = total.toFixed(2);
 
-    // WhatsApp dinámico
-    let mensaje = "Hola NORCENTRO, quiero comprar:%0A";
+if(existe){
 
-    carrito.forEach(item => {
-        mensaje += `- ${item.nombre} x${item.cantidad} (S/. ${item.precio})%0A`;
-    });
+existe.cantidad++;
 
-    mensaje += `%0ATotal: S/. ${total}`;
+}
+else{
 
-    btnWhatsApp.href = `https://wa.me/51922866687?text=${mensaje}`;
+
+carrito.push({
+
+id:moto.id,
+
+nombre:moto.nombre,
+
+precio:moto.precio,
+
+imagen:moto.imagen,
+
+cantidad:1
+
+});
+
+
 }
 
-// ===============================
-// ELIMINAR PRODUCTO
-// ===============================
-function eliminar(id) {
 
-    carrito = carrito.filter(item => item.id !== id);
 
-    localStorage.setItem("carrito", JSON.stringify(carrito));
+localStorage.setItem(
+"carrito",
+JSON.stringify(carrito)
+);
 
-    renderCarrito();
+
+
+actualizarContador();
+
+
+
+alert(
+moto.nombre + " agregado al carrito"
+);
+
+
 }
 
-// inicial
-renderCarrito();
+
+
+
+// =================================
+// CONTADOR DEL MENU
+// =================================
+
+
+function actualizarContador(){
+
+
+const carrito =
+JSON.parse(localStorage.getItem("carrito")) || [];
+
+
+
+const total = carrito.reduce(
+(sum,item)=>sum + item.cantidad,
+0
+);
+
+
+
+const contador =
+document.getElementById("contadorCarrito");
+
+
+
+if(contador){
+
+contador.textContent = total;
+
+}
+
+
+}
+
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+actualizarContador
+);

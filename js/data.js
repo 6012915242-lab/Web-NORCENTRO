@@ -1,3 +1,7 @@
+// ===============================
+// BASE DE DATOS DE MOTOS
+// ===============================
+
 const motos = [
 
 {
@@ -8,15 +12,15 @@ precio:6500,
 tipo:"trabajo",
 imagen:"./assets/images/Bajaj CT 125.jpg",
 
-descripcion:"Motocicleta económica, resistente y confiable para trabajo diario y transporte urbano.",
+descripcion:"Motocicleta económica y resistente ideal para trabajo diario y transporte urbano.",
 
 especificaciones:{
-motor:"Monocilíndrico 4 tiempos",
+motor:"Monocilíndrico",
 cilindrada:"125 cc",
 potencia:"10 HP",
 peso:"115 kg",
 transmision:"5 velocidades",
-tanque:"10.5 litros",
+tanque:"10 litros",
 frenos:"Tambor",
 suspension:"Telescópica"
 }
@@ -32,17 +36,17 @@ precio:18000,
 tipo:"deportiva",
 imagen:"./assets/images/Bajaj Dominar 400.jpg",
 
-descripcion:"Moto deportiva de gran potencia ideal para carretera y viajes largos.",
+descripcion:"Motocicleta deportiva de gran potencia para ciudad y carretera.",
 
 especificaciones:{
-motor:"Monocilíndrico DOHC",
+motor:"Monocilíndrico",
 cilindrada:"373 cc",
 potencia:"40 HP",
 peso:"184 kg",
 transmision:"6 velocidades",
 tanque:"13 litros",
-frenos:"ABS doble canal",
-suspension:"Monoamortiguador"
+frenos:"ABS",
+suspension:"Telescópica"
 }
 
 },
@@ -56,17 +60,17 @@ precio:12000,
 tipo:"deportiva",
 imagen:"./assets/images/cb190.jpg",
 
-descripcion:"Motocicleta urbana deportiva con excelente equilibrio entre consumo y rendimiento.",
+descripcion:"Moto deportiva Honda con diseño moderno y excelente rendimiento.",
 
 especificaciones:{
-motor:"Monocilíndrico 4 tiempos",
+motor:"Monocilíndrico",
 cilindrada:"184 cc",
-potencia:"15.7 HP",
+potencia:"15 HP",
 peso:"140 kg",
 transmision:"5 velocidades",
 tanque:"12 litros",
-frenos:"Disco delantero",
-suspension:"Horquilla telescópica"
+frenos:"Disco",
+suspension:"Telescópica"
 }
 
 },
@@ -80,13 +84,13 @@ precio:13500,
 tipo:"deportiva",
 imagen:"./assets/images/Honda CB190R.jpg",
 
-descripcion:"Diseño deportivo, manejo ágil y tecnología Honda para ciudad.",
+descripcion:"Naked deportiva Honda con excelente equilibrio entre potencia y comodidad.",
 
 especificaciones:{
-motor:"Monocilíndrico DOHC",
+motor:"Monocilíndrico",
 cilindrada:"184 cc",
 potencia:"16 HP",
-peso:"140 kg",
+peso:"142 kg",
 transmision:"5 velocidades",
 tanque:"12 litros",
 frenos:"ABS",
@@ -98,7 +102,7 @@ suspension:"Telescópica"
 
 {
 id:5,
-nombre:"Honda CRF 300L",
+nombre:"Honda CRF300L",
 marca:"Honda",
 precio:25000,
 tipo:"offroad",
@@ -107,13 +111,13 @@ imagen:"./assets/images/Honda CRF300L.jpg",
 descripcion:"Moto doble propósito preparada para caminos difíciles y aventura.",
 
 especificaciones:{
-motor:"Monocilíndrico 4 tiempos",
+motor:"Monocilíndrico",
 cilindrada:"286 cc",
 potencia:"27 HP",
 peso:"138 kg",
 transmision:"6 velocidades",
 tanque:"7.8 litros",
-frenos:"Disco ABS",
+frenos:"Disco",
 suspension:"Largo recorrido"
 }
 
@@ -122,19 +126,19 @@ suspension:"Largo recorrido"
 
 {
 id:6,
-nombre:"Honda GL 125",
+nombre:"Honda GL125",
 marca:"Honda",
 precio:5500,
 tipo:"trabajo",
 imagen:"./assets/images/Honda GL125.jpg",
 
-descripcion:"Moto económica y durable para uso diario y trabajo.",
+descripcion:"Motocicleta confiable y económica para uso diario.",
 
 especificaciones:{
 motor:"Monocilíndrico",
 cilindrada:"125 cc",
 potencia:"11 HP",
-peso:"110 kg",
+peso:"115 kg",
 transmision:"5 velocidades",
 tanque:"10 litros",
 frenos:"Tambor",
@@ -152,15 +156,15 @@ precio:4800,
 tipo:"urbana",
 imagen:"./assets/images/Honda Navi.jpg",
 
-descripcion:"Moto compacta, práctica y fácil de manejar para ciudad.",
+descripcion:"Scooter compacta práctica para movilidad urbana.",
 
 especificaciones:{
 motor:"Monocilíndrico",
-cilindrada:"109 cc",
+cilindrada:"110 cc",
 potencia:"8 HP",
-peso:"107 kg",
+peso:"101 kg",
 transmision:"Automática",
-tanque:"3.8 litros",
+tanque:"3.5 litros",
 frenos:"Tambor",
 suspension:"Telescópica"
 }
@@ -170,22 +174,22 @@ suspension:"Telescópica"
 
 {
 id:8,
-nombre:"Honda NX 500",
+nombre:"Honda NX500",
 marca:"Honda",
 precio:28000,
 tipo:"adventure",
 imagen:"./assets/images/Honda NX500.jpg",
 
-descripcion:"Adventure moderna diseñada para viajes y recorridos largos.",
+descripcion:"Adventure Honda diseñada para viajes largos y terrenos variados.",
 
 especificaciones:{
-motor:"Bicilíndrico paralelo",
+motor:"Bicilíndrico",
 cilindrada:"471 cc",
 potencia:"47 HP",
 peso:"196 kg",
 transmision:"6 velocidades",
 tanque:"17 litros",
-frenos:"ABS doble canal",
+frenos:"ABS",
 suspension:"Telescópica"
 }
 
@@ -200,7 +204,7 @@ precio:10500,
 tipo:"deportiva",
 imagen:"./assets/images/Honda X-Blade 160.jpg",
 
-descripcion:"Moto deportiva urbana con diseño agresivo y bajo consumo.",
+descripcion:"Moto deportiva urbana con bajo consumo y buen desempeño.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -218,16 +222,16 @@ suspension:"Telescópica"
 
 {
 id:10,
-nombre:"Honda XR 150L",
+nombre:"Honda XR150L",
 marca:"Honda",
 precio:9800,
 tipo:"offroad",
 imagen:"./assets/images/Honda XR150L.jpg",
 
-descripcion:"Moto todo terreno reconocida por su resistencia y confiabilidad.",
+descripcion:"Moto resistente para ciudad, campo y caminos rurales.",
 
 especificaciones:{
-motor:"Monocilíndrico 4 tiempos",
+motor:"Monocilíndrico",
 cilindrada:"149 cc",
 potencia:"12 HP",
 peso:"129 kg",
@@ -247,7 +251,7 @@ precio:32000,
 tipo:"deportiva",
 imagen:"./assets/images/Kawasaki Ninja 400.jpg",
 
-descripcion:"Motocicleta deportiva Kawasaki con gran rendimiento, diseño aerodinámico y excelente manejo.",
+descripcion:"Motocicleta deportiva Kawasaki con diseño aerodinámico y excelente rendimiento.",
 
 especificaciones:{
 motor:"Bicilíndrico paralelo",
@@ -265,13 +269,13 @@ suspension:"Horquilla telescópica"
 
 {
 id:12,
-nombre:"Kawasaki Versys 300",
+nombre:"Kawasaki Versys-X 300",
 marca:"Kawasaki",
 precio:26000,
 tipo:"adventure",
 imagen:"./assets/images/Kawasaki Versys-X 300.jpg",
 
-descripcion:"Moto adventure versátil para ciudad, carretera y caminos de aventura.",
+descripcion:"Moto adventure versátil para viajes, ciudad y caminos de aventura.",
 
 especificaciones:{
 motor:"Bicilíndrico paralelo",
@@ -280,7 +284,7 @@ potencia:"39 HP",
 peso:"184 kg",
 transmision:"6 velocidades",
 tanque:"17 litros",
-frenos:"Disco ABS",
+frenos:"ABS",
 suspension:"Largo recorrido"
 }
 
@@ -295,7 +299,7 @@ precio:9000,
 tipo:"urbana",
 imagen:"./assets/images/kawasaki125.jpg",
 
-descripcion:"Motocicleta compacta ideal para desplazamientos urbanos diarios.",
+descripcion:"Motocicleta compacta y económica ideal para desplazamientos urbanos.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -319,7 +323,7 @@ precio:29000,
 tipo:"adventure",
 imagen:"./assets/images/KTM Adventure 390.jpg",
 
-descripcion:"Moto preparada para aventura con tecnología moderna y gran desempeño.",
+descripcion:"Motocicleta KTM preparada para aventura con tecnología moderna.",
 
 especificaciones:{
 motor:"Monocilíndrico DOHC",
@@ -343,7 +347,7 @@ precio:14000,
 tipo:"deportiva",
 imagen:"./assets/images/KTM Duke 200.jpg",
 
-descripcion:"Naked deportiva ligera con excelente respuesta y maniobrabilidad.",
+descripcion:"Naked deportiva ligera con gran maniobrabilidad y estilo agresivo.",
 
 especificaciones:{
 motor:"Monocilíndrico DOHC",
@@ -367,7 +371,7 @@ precio:17000,
 tipo:"deportiva",
 imagen:"./assets/images/ktm250.jpg",
 
-descripcion:"Motocicleta deportiva KTM con equilibrio entre potencia y control.",
+descripcion:"Moto deportiva KTM equilibrada entre potencia, control y comodidad.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -408,7 +412,7 @@ suspension:"Horquilla invertida"
 
 {
 id:18,
-nombre:"Yamaha FZ 25",
+nombre:"Yamaha FZ25",
 marca:"Yamaha",
 precio:12500,
 tipo:"deportiva",
@@ -462,7 +466,7 @@ precio:11500,
 tipo:"urbana",
 imagen:"./assets/images/Yamaha NMAX.jpg",
 
-descripcion:"Scooter urbano cómodo, económico y perfecto para movilidad diaria.",
+descripcion:"Scooter urbano cómodo y económico para movilidad diaria.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -486,7 +490,7 @@ precio:35000,
 tipo:"deportiva",
 imagen:"./assets/images/Yamaha R7.jpg",
 
-descripcion:"Moto deportiva Yamaha de alto rendimiento inspirada en competición.",
+descripcion:"Motocicleta deportiva Yamaha de alto rendimiento inspirada en competición.",
 
 especificaciones:{
 motor:"Bicilíndrico CP2",
@@ -528,7 +532,7 @@ suspension:"Largo recorrido"
 
 {
 id:23,
-nombre:"Yamaha XTZ 125",
+nombre:"Yamaha XTZ125",
 marca:"Yamaha",
 precio:8500,
 tipo:"offroad",
@@ -552,13 +556,23 @@ suspension:"Largo recorrido"
 
 {
 id:24,
-nombre:"Yamaha R3",
+nombre:"Yamaha YZF-R3 250",
 marca:"Yamaha",
 precio:15000,
 tipo:"deportiva",
-imagen:"./assets/images/yamahar3.jpg",
+imagen:"./assets/images/Yamaha YZF-R3 250c.jpg",
 
-descripcion:"Deportiva Yamaha con motor bicilíndrico ideal para carretera y ciudad.",
+imagenes:[
+
+"./assets/images/Yamaha YZF-R3 250c.jpg",
+
+"./assets/images/Yamaha YZF-R3 250c-2.jpg",
+
+"./assets/images/Yamaha YZF-R3 250c-3.jpg"
+
+],
+
+descripcion:"Motocicleta deportiva Yamaha con excelente equilibrio entre potencia y control.",
 
 especificaciones:{
 motor:"Bicilíndrico paralelo",
