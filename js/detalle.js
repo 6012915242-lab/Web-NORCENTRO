@@ -1,4 +1,24 @@
 // ===============================
+// VOLVER SEGÚN PÁGINA ANTERIOR
+// ===============================
+
+const btnVolver = document.getElementById("btnVolver");
+
+
+if(btnVolver){
+
+    if(document.referrer.includes("ofertas.html")){
+
+        btnVolver.href = "ofertas.html";
+
+    }
+    else{
+
+        btnVolver.href = "motos.html";
+
+    }
+
+}// ===============================
 // DETALLE DINÁMICO PROFESIONAL
 // ===============================
 
