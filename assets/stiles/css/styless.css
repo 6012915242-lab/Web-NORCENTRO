@@ -197,23 +197,27 @@ section{ padding:46px 0; }
 
 .hero{
   position:relative;
-  min-height: 100vh;
+  min-height: 600px;
   display:flex;
   align-items:center;
-  background: 
-    linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0.75) 0%,
-        rgba(0, 0, 0, 0.45) 35%,
-        rgba(0, 0, 0, 0.15) 55%,
-        rgba(0, 0, 0, 0) 70%
-    ),
+  background:
+    linear-gradient(90deg,rgba(7,20,47,.82),rgba(7,20,47,.44)),
     url("../images/principal.jpg") center/cover no-repeat;
-  overflow: hidden;
-  background-position: center;
-  background-size: cover;
+  background-color:#101a2f;
+  color:#fff;
+  padding:58px 0;
+  overflow:hidden;
 }
-
+.hero::after{
+  content:"";
+  position:absolute;
+  right:-140px;
+  bottom:-120px;
+  width:420px;
+  height:420px;
+  border-radius:50%;
+  border:42px solid rgba(224,0,18,.25);
+}
 .hero .wrap{ position:relative; z-index:1; }
 .hero-inner{ max-width:650px; }
 .hero h2{
@@ -492,17 +496,6 @@ section{ padding:46px 0; }
   .searchbar{ grid-template-columns:1fr auto 240px; }
   .searchbar .order{ grid-column:auto; }
   .footer-top{ flex-direction:row; justify-content:space-between; text-align:left; }
-  .hero{
-    background: 
-      linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0.75) 0%,
-        rgba(0, 0, 0, 0.45) 35%,
-        rgba(0, 0, 0, 0.15) 55%,
-        rgba(0, 0, 0, 0) 70%
-    ),
-      url("../images/pagina-principal.jpg") center/cover no-repeat;
-  }
 }
 
 @media (max-width:767px){
@@ -556,43 +549,3 @@ section{ padding:46px 0; }
         grid-template-columns: 1.4fr 1fr 1fr;
     }
 }
-
-
-/* ==============================
-   HEADER TRANSPARENTE SOBRE EL HERO
-   Solo afecta páginas que tengan .hero (ej. index.html)
-   Se activa/desactiva junto con header-scroll.js
-============================== */
-
-body:has(.hero) .site-header{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  width:100%;
-  background:transparent;
-  border-bottom-color:transparent;
-  box-shadow:none;
-  transition:background .3s ease, box-shadow .3s ease, border-color .3s ease;
-}
-
-/* Menú y buscador en blanco mientras el header es transparente */
-body:has(.hero) .main-nav a{ color:#fff; }
-body:has(.hero) .main-nav a:hover{ color:var(--red); }
-body:has(.hero) .icon-search{ fill:#fff; }
-body:has(.hero) .nav-burger span{ background:#fff; }
-
-/* El hero, al perder el header del flujo normal (fixed), pasa a
-   ocupar desde el tope real de la ventana -> la imagen se ve
-   continua debajo del menú, tal como en el mockup */
-
-/* Estado "scrolled" que agrega header-scroll.js */
-body:has(.hero) .site-header.scrolled{
-  background:rgba(255,255,255,.96);
-  border-bottom-color:var(--red);
-  box-shadow:0 2px 14px rgba(7,20,47,.08);
-}
-body:has(.hero) .site-header.scrolled .main-nav a{ color:var(--ink); }
-body:has(.hero) .site-header.scrolled .main-nav a:hover{ color:var(--red); }
-body:has(.hero) .site-header.scrolled .icon-search{ fill:currentColor; }
-body:has(.hero) .site-header.scrolled .nav-burger span{ background:var(--ink); }
