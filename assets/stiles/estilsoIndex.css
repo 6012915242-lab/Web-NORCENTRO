@@ -1,0 +1,159 @@
+
+/* ==============================
+   HEADER TRANSPARENTE SOBRE EL HERO
+   Solo afecta páginas que tengan .hero (ej. index.html)
+   Se activa/desactiva junto con header-scroll.js
+============================== */
+
+body:has(.hero) .site-header{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  width:100%;
+  background:transparent;
+  border-bottom-color:transparent;
+  box-shadow:none;
+  transition:background .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+
+/* Menú y buscador en blanco mientras el header es transparente */
+body:has(.hero) .main-nav a{ color:#fff; }
+body:has(.hero) .main-nav a:hover{ color:var(--red); }
+body:has(.hero) .icon-search{ fill:#fff; }
+body:has(.hero) .nav-burger span{ background:#fff; }
+
+/* El hero, al perder el header del flujo normal (fixed), pasa a
+   ocupar desde el tope real de la ventana -> la imagen se ve
+   continua debajo del menú, tal como en el mockup */
+
+/* Estado "scrolled" que agrega header-scroll.js */
+body:has(.hero) .site-header.scrolled{
+  background:rgba(255,255,255,.96);
+  border-bottom-color:var(--red);
+  box-shadow:0 2px 14px rgba(7,20,47,.08);
+}
+body:has(.hero) .site-header.scrolled .main-nav a{ color:var(--ink); }
+body:has(.hero) .site-header.scrolled .main-nav a:hover{ color:var(--red); }
+body:has(.hero) .site-header.scrolled .icon-search{ fill:currentColor; }
+body:has(.hero) .site-header.scrolled .nav-burger span{ background:var(--ink); }
+
+
+.destacados-slider{ position:relative; }
+.slider-dots{ display:none; }
+
+/* ===================== MÓVIL: swipe 1 card centrada ===================== */
+@media (max-width: 767px){
+
+  .destacados-slider{
+    overflow:hidden;
+    padding-bottom:36px;
+  }
+
+  .destacados-slider .row{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    gap:16px;
+    margin:0 !important;
+    padding:6px 11% 14px;
+    scroll-padding-inline:11%;
+  }
+  .destacados-slider .row::-webkit-scrollbar{ display:none; }
+
+  .destacados-slider .row > [class*="col-"]{
+    flex:0 0 78% !important;
+    max-width:78% !important;
+    width:78% !important;
+    scroll-snap-align:center;
+    padding-inline:0;
+    transition:transform .3s ease, opacity .3s ease;
+    opacity:.45;
+    transform:scale(.86);
+  }
+
+  .destacados-slider .row > [class*="col-"].activa{
+    opacity:1;
+    transform:scale(1);
+  }
+
+  .slider-dots{
+    display:flex;
+    position:absolute;
+    left:0; right:0; bottom:6px;
+    justify-content:center;
+    gap:8px;
+  }
+  .slider-dots .dot{
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--line-2);
+    transition:.25s;
+    cursor:pointer;
+  }
+  .slider-dots .dot.activo{
+    width:22px;
+    border-radius:999px;
+    background:var(--red);
+  }
+}
+
+@media (max-width: 420px){
+  .destacados-slider .row{
+    padding-inline:7.5%;
+    scroll-padding-inline:7.5%;
+  }
+  .destacados-slider .row > [class*="col-"]{
+    flex:0 0 85% !important;
+    max-width:85% !important;
+    width:85% !important;
+  }
+}
+
+/* ===================== TABLET: 3 cards visibles + barra scroll ===================== */
+@media (min-width: 768px) and (max-width: 991px){
+
+  .destacados-slider{ overflow:hidden; padding-bottom:14px; }
+
+  .destacados-slider .row{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;
+    gap:16px;
+    margin:0 !important;
+    padding:6px 2px 14px;
+  }
+
+  .destacados-slider .row > [class*="col-"]{
+    flex:0 0 calc(33.333% - 11px) !important;
+    max-width:calc(33.333% - 11px) !important;
+    width:calc(33.333% - 11px) !important;
+    scroll-snap-align:start;
+    opacity:1 !important;
+    transform:none !important;
+    padding-inline:0;
+  }
+
+  .destacados-slider .card-moto{ pointer-events:auto; }
+
+  .destacados-slider .row::-webkit-scrollbar{ height:6px; }
+  .destacados-slider .row::-webkit-scrollbar-track{
+    background:var(--line);
+    border-radius:999px;
+  }
+  .destacados-slider .row::-webkit-scrollbar-thumb{
+    background:var(--red);
+    border-radius:999px;
+  }
+}
+
+/* ===================== DESKTOP: grid fijo 4 columnas ===================== */
+@media (min-width: 992px){
+  .slider-dots{ display:none; }
+}

@@ -11,14 +11,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./assets/stiles/styless.css">
+    <link rel="stylesheet" href="./assets/stiles/estilsoIndex.css">
 </head>
 <body>
 <!-- prueba git -->
 <header class="site-header">
     <div class="header-inner wrap">
         <a href="index.html" class="navbar-brand">
-            <img src="/assets/images/norcentro_logo.jpg" alt="NORCENTRO" class="img-fluid d-md-none" style="max-height: 55px;">
-            <img src="/assets/images/norcentro_logo_completo.jpg" alt="NORCENTRO" class="img-fluid d-none d-md-block" style="max-height: 65px;">
+            <img src="./assets/images/norcentro_logo.jpg" alt="NORCENTRO" class="img-fluid d-md-none" style="max-height: 55px;">
+            <img src="./assets/images/norcentro_logo_completo.jpg" alt="NORCENTRO" class="img-fluid d-none d-md-block" style="max-height: 65px;">
         </a>   
 
     
@@ -63,9 +64,9 @@
     <section class="wrap">
         <h2 class="section-title">Modelos destacados</h2>
 
-        <!-- PATRÓN COLUMN DROP: .col-12 (móvil) .col-sm-6 (tablet) .col-lg-4 (desktop) -->
+    <div class="destacados-slider">
         <div class="row g-4">
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-6 col-md-4 col-lg-3">
                 <article class="card-moto">
                     <div class="card-media"><img src="./assets/images/yamahar3.jpg" class="w-100 d-block" style="height: 240px; object-fit: cover;" alt="Yamaha R3"></div>
                     <div class="card-body">
@@ -75,7 +76,7 @@
                     </div>
                 </article>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-6 col-md-4 col-lg-3">
                 <article class="card-moto">
                     <div class="card-media"><img src="./assets/images/mt15.jpg" class="w-100 d-block" style="height: 240px; object-fit: cover;" alt="Yamaha MT15 2026"></div>
                     <div class="card-body">
@@ -85,7 +86,7 @@
                     </div>
                 </article>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-6 col-md-4 col-lg-3">
                 <article class="card-moto">
                     <div class="card-media"><img src="./assets/images/pulsar250.jpg" class="w-100 d-block" style="height: 240px; object-fit: cover;" alt="Pulsar NS 250"></div>
                     <div class="card-body">
@@ -95,10 +96,20 @@
                     </div>
                 </article>
             </div>
+            <div class="col-6 col-md-4 col-lg-3">
+                <article class="card-moto">
+                    <div class="card-media"><img src="./assets/images/Kawasaki Ninja 400.jpg" class="w-100 d-block" style="height: 240px; object-fit: cover;" alt="Kawasaki Ninja 400"></div>
+                    <div class="card-body">
+                        <h3>Kawasaki Ninja 400</h3>
+                        <p class="meta">Deportiva ágil, gran relación potencia-peso.</p>
+                        <a href="detalles-kawasaki-ninja400.html" class="btn-dark">Ver más</a>
+                    </div>
+                </article>
+            </div>
         </div>
+    </div>
+</section>
     </section>
-
-
     <section class="wrap">
         <div class="split">
             <div class="split-imgs">
@@ -117,7 +128,7 @@
     </section>
 </main>
 
-<footer class="site-footer">
+<footer class="site-footer">    
     <div class="footer-top wrap">
         <a href="index.html" class="brand" style="color:#fff">NORCENTRO</a>
         <div class="social">
@@ -132,5 +143,6 @@
     </div>
 </footer>
 <script src="./assets/stiles/js/header-scroll.js"></script>
+<script src="./assets/stiles/js/slider-destacados.js"></script>
 </body>
 </html>
