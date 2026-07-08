@@ -9,15 +9,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./assets/stiles/styless.css">
+    <link rel="stylesheet" href="/assets/images/norcentro_logo.jpg">
+
 </head>
 <body>
 
 <header class="site-header">
     <div class="header-inner wrap">
         <a href="index.html" class="navbar-brand">
-            <img src="./assets/images/norcentro_logo.jpg" alt="NORCENTRO" class="img-fluid d-md-none" style="max-height: 55px;">
-            <img src="./assets/images/norcentro_logo_completo.jpg" alt="NORCENTRO" class="img-fluid d-none d-md-block" style="max-height: 65px;">
-        </a>
+            <img src="/assets/images/norcentro_logo.jpg" alt="NORCENTRO" class="img-fluid d-md-none" style="max-height: 55px;">
+            <img src="/assets/images/norcentro_logo_completo.jpg" alt="NORCENTRO" class="img-fluid d-none d-md-block" style="max-height: 65px;">
+        </a>  
         <input type="checkbox" id="navToggle" class="nav-toggle">
         <label for="navToggle" class="nav-burger" aria-label="Abrir menú"><span></span><span></span><span></span></label>
         <label for="navToggle" class="nav-overlay"></label>
@@ -38,24 +40,40 @@
     <div class="page-head"><h1>Contacto</h1><p class="section-sub">¿Tienes dudas sobre una moto? Escríbenos y te respondemos lo antes posible.</p></div>
 
     <section class="contact-layout">
-        <form class="form-card">
+        <form id="form-contacto" class="form-card" novalidate>
             <div>
                 <label class="meta" style="font-weight:600;color:var(--ink)">Nombre completo</label>
-                <input type="text" class="field" placeholder="Tu nombre">
+                <input type="text" id="nombre" name="nombre" class="field" placeholder="Tu nombre">
+                <span class="error-msg" id="error-nombre"></span>
             </div>
             <div>
                 <label class="meta" style="font-weight:600;color:var(--ink)">Correo electrónico</label>
-                <input type="email" class="field" placeholder="tucorreo@email.com">
+                <input type="email" id="email" name="email" class="field" placeholder="tucorreo@email.com">
+                <span class="error-msg" id="error-email"></span>
             </div>
             <div>
                 <label class="meta" style="font-weight:600;color:var(--ink)">Teléfono</label>
-                <input type="text" class="field" placeholder="Ej: 999 999 999">
+                <input type="text" id="telefono" name="telefono" class="field" placeholder="Ej: 999 999 999">
+                <span class="error-msg" id="error-telefono"></span>
+            </div>
+            <div>
+                <label class="meta" style="font-weight:600;color:var(--ink)">Asunto</label>
+                <select id="asunto" name="asunto" class="field">
+                    <option value="">Selecciona un asunto</option>
+                    <option value="consulta">Consulta general</option>
+                    <option value="cotizacion">Cotización de moto</option>
+                    <option value="postventa">Servicio postventa</option>
+                    <option value="otro">Otro</option>
+                </select>
+                <span class="error-msg" id="error-asunto"></span>
             </div>
             <div>
                 <label class="meta" style="font-weight:600;color:var(--ink)">Mensaje</label>
-                <textarea class="field" placeholder="Escribe tu mensaje"></textarea>
+                <textarea id="mensaje" name="mensaje" class="field" placeholder="Escribe tu mensaje"></textarea>
+                <span class="error-msg" id="error-mensaje"></span>
             </div>
             <button type="submit" class="btn-dark btn-block">Enviar mensaje</button>
+            <p id="mensaje-exito" class="mensaje-exito oculto">¡Tu mensaje fue enviado correctamente! Te responderemos pronto.</p>
         </form>
 
         <aside class="info-card">
@@ -109,5 +127,6 @@
     </div>
 </footer>
 
+<script src="./assets/script.js"></script>
 </body>
-</html>
+</html>v
