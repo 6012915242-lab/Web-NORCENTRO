@@ -1003,3 +1003,24 @@ grid-template-columns:1fr;
 }
 
 }
+.btn-volver{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin:25px 0;
+    padding:10px 20px;
+    background:#07142f;
+    color:white;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:16px;
+    transition:0.3s;
+}
+
+
+.btn-volver:hover{
+    background:#e30613;
+    color:white;
+    transform:translateX(-5px);
+}
