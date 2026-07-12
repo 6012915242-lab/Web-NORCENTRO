@@ -36,13 +36,10 @@
             <a href="motos.html" class="activo">Motos</a>
             <a href="ofertas.html">Ofertas</a>
             <a href="contacto.html">Contacto</a>
-            <a href="finalizar-compra.html">
+          
 
 
 
-<span id="contadorCarrito">
-0
-</span>
 
 </a>
             <a href="busqueda.html">Búsqueda</a>
@@ -57,12 +54,7 @@
         <h1>Catálogo Completo</h1>
     </div>
 
-    <!-- DEMO DOM -->
-    <section class="mb-4 p-3 border rounded bg-light">
-        <h2 id="demoTitulo">Evidencia inicial de DOM</h2>
-        <p id="demoMensaje">Aquí se demuestra cómo cambiar contenido con JavaScript.</p>
-        <button id="btnCambiar" class="btn-dark">Cambiar contenido</button>
-    </section>
+    
 
     <!-- FILTROS -->
     <input type="checkbox" id="filtToggle" class="filt-toggle">
@@ -77,7 +69,11 @@
             <div class="filt-group">
                 <h4>Precio máximo</h4>
                 <input type="range" id="filtroPrecio" min="0" max="40000" value="40000">
-                <div class="range-val"><span>$0</span><span>$40,000</span></div>
+
+<div class="range-val">
+    <span>$0</span>
+    <span id="valorPrecio">$40,000</span>
+</div>
             </div>
 
             <div class="filt-group marca-group">

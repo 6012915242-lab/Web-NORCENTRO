@@ -84,3 +84,14 @@ document.querySelectorAll(".filtros .tipo-group input[type='checkbox']")
 // INICIO
 // ===============================
 renderMotos(motos);
+const filtroPrecio = document.getElementById("filtroPrecio");
+const valorPrecio = document.getElementById("valorPrecio");
+
+filtroPrecio.addEventListener("input", function(){
+
+    let precio = Number(this.value);
+
+    valorPrecio.textContent = 
+        "$" + precio.toLocaleString();
+
+});
