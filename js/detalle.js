@@ -180,7 +180,7 @@ class="btn-comprar"
 href="https://wa.me/51900286035?text=Hola%20NORCENTRO,%20deseo%20información%20sobre%20la%20${moto.nombre}"
 target="_blank">
 
-🟢 Más información
+<i class="fa-brands fa-whatsapp"></i> Más información
 
 </a>
 
