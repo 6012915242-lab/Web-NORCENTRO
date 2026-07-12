@@ -172,23 +172,17 @@ S/. ${moto.precio}
 <div class="acciones">
 
 
-<button 
-class="btn-carrito"
-onclick="agregarCarrito(${moto.id})">
-
-🛒 Agregar al carrito
-
-</button>
 
 
 
-<button 
+<a 
 class="btn-comprar"
-onclick="comprarAhora(${moto.id})">
+href="https://wa.me/51900286035?text=Hola%20NORCENTRO,%20deseo%20información%20sobre%20la%20${moto.nombre}"
+target="_blank">
 
-🟢 Comprar ahora
+🟢 Más información
 
-</button>
+</a>
 
 
 </div>
@@ -477,6 +471,8 @@ id:moto.id,
 nombre:moto.nombre,
 
 precio:moto.precio,
+
+
 
 imagen:moto.imagen,
 

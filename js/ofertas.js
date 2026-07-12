@@ -8,14 +8,14 @@ document.getElementById("contenedorOfertas");
 
 
 // motos seleccionadas para oferta
-const ofertas = motos.slice(0,9);
+const ofertas = motos.slice(0,6);
 
 
 
 contenedorOfertas.innerHTML = ofertas.map(m => {
 
+let precioOferta = m.precioOferta;
 
-let precioOferta = m.precio - (m.precio * 0.10);
 
 
 return `

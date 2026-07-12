@@ -2,6 +2,7 @@
 // BASE DE DATOS DE MOTOS
 // ===============================
 
+
 const motos = [
 
 {
@@ -9,6 +10,7 @@ id:1,
 nombre:"Bajaj CT 125",
 marca:"Bajaj",
 precio:6500,
+precioOferta:5990,
 tipo:"trabajo",
 imagen:"./assets/images/Bajaj CT 125.jpg",
 
@@ -33,6 +35,7 @@ id:2,
 nombre:"Bajaj Dominar 400",
 marca:"Bajaj",
 precio:18000,
+precioOferta:16990,
 tipo:"deportiva",
 imagen:"./assets/images/Bajaj Dominar 400.jpg",
 
@@ -57,6 +60,7 @@ id:3,
 nombre:"Honda CB 190",
 marca:"Honda",
 precio:12000,
+precioOferta:10800,
 tipo:"deportiva",
 imagen:"./assets/images/cb190.jpg",
 
@@ -81,6 +85,7 @@ id:4,
 nombre:"Honda CB190R",
 marca:"Honda",
 precio:13500,
+precioOferta:12500,
 tipo:"deportiva",
 imagen:"./assets/images/Honda CB190R.jpg",
 
@@ -105,6 +110,7 @@ id:5,
 nombre:"Honda CRF300L",
 marca:"Honda",
 precio:25000,
+precioOferta:22500,
 tipo:"offroad",
 imagen:"./assets/images/Honda CRF300L.jpg",
 
@@ -129,6 +135,7 @@ id:6,
 nombre:"Honda GL125",
 marca:"Honda",
 precio:5500,
+precioOferta:4950,
 tipo:"trabajo",
 imagen:"./assets/images/Honda GL125.jpg",
 
