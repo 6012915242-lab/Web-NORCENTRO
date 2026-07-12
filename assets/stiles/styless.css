@@ -906,3 +906,100 @@ grid-template-columns:1fr;
   .datos-rapidos > div:last-child{ border-bottom:none; }
   .info-moto .acciones{ flex-direction:column; }
 }
+/* ==================================
+   FICHA TECNICA DOS COLUMNAS
+================================== */
+
+
+.ficha-tecnica{
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:25px;
+margin-top:28px;
+
+}
+
+
+.bloque-ficha{
+
+background:var(--surface);
+border:1px solid var(--line);
+border-radius:var(--radius);
+padding:24px;
+box-shadow:var(--shadow);
+
+}
+
+
+
+.bloque-ficha h2{
+
+font-size:1.3rem;
+font-weight:900;
+color:var(--ink);
+margin-bottom:18px;
+text-transform:uppercase;
+
+}
+
+
+
+.bloque-ficha ul{
+
+display:flex;
+flex-direction:column;
+gap:12px;
+
+}
+
+
+
+.bloque-ficha li{
+
+padding:12px 0;
+border-bottom:1px solid var(--line);
+color:var(--ink-2);
+
+}
+
+
+
+.bloque-ficha table{
+
+width:100%;
+border-collapse:collapse;
+
+}
+
+
+
+.bloque-ficha td{
+
+padding:12px 10px;
+border-bottom:1px solid var(--line);
+
+}
+
+
+
+.bloque-ficha td:first-child{
+
+font-weight:800;
+color:var(--ink);
+
+}
+
+
+
+/* CELULAR */
+
+@media(max-width:768px){
+
+.ficha-tecnica{
+
+grid-template-columns:1fr;
+
+}
+
+}

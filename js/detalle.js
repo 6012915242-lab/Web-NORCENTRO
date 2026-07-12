@@ -42,12 +42,9 @@ const moto = motos.find(m => m.id === id);
 
 // Contenedores
 
-const detalle =
-document.getElementById("detalleMoto");
+const detalle = document.getElementById("detalleMoto");
 
-const recomendadas =
-document.getElementById("recomendadas");
-
+const recomendadas = document.getElementById("recomendadas");
 
 
 
@@ -96,10 +93,13 @@ onclick="cambiarImagen('${img}')">
 
 
 </div>
-<!-- FIN GALERIA -->
 
+
+
+<!-- INFORMACION -->
 
 <div class="info-moto">
+
 
 <h1>
 ${moto.nombre}
@@ -114,6 +114,7 @@ ${moto.marca} · ${moto.tipo}
 <div class="estrellas">
 ★★★★★
 </div>
+
 
 
 <div class="datos-rapidos">
@@ -131,8 +132,8 @@ Cilindrada
 </div>
 
 
-<div>
 
+<div>
 <strong>
 ${moto.especificaciones.potencia}
 </strong>
@@ -144,8 +145,8 @@ Potencia
 </div>
 
 
-<div>
 
+<div>
 <strong>
 ${moto.especificaciones.frenos}
 </strong>
@@ -161,6 +162,7 @@ Seguridad
 
 
 
+
 <h2 class="precio-detalle">
 
 S/. ${moto.precio}
@@ -169,10 +171,8 @@ S/. ${moto.precio}
 
 
 
+
 <div class="acciones">
-
-
-
 
 
 <a 
@@ -189,6 +189,8 @@ target="_blank">
 
 
 
+
+
 <h3>
 Descripción
 </h3>
@@ -201,14 +203,23 @@ ${moto.descripcion}
 
 
 </div>
-<!-- FIN INFO-MOTO -->
-
 
 </div>
-<!-- FIN DETALLE-CONTAINER -->
 
 
-<div class="caracteristicas">
+
+
+
+<!-- =================================
+     FICHA TECNICA DOS COLUMNAS
+================================== -->
+
+
+<div class="ficha-tecnica">
+
+
+
+<div class="bloque-ficha">
 
 
 <h2>
@@ -217,6 +228,7 @@ Características destacadas
 
 
 <ul>
+
 
 <li>
 ✓ Motor ${moto.especificaciones.motor}
@@ -246,10 +258,9 @@ Características destacadas
 
 
 
-<!-- ESPECIFICACIONES -->
 
 
-<div class="especificaciones">
+<div class="bloque-ficha">
 
 
 <h2>
@@ -257,108 +268,67 @@ Especificaciones técnicas
 </h2>
 
 
+
 <table>
 
 
 <tr>
-
 <td>Motor</td>
-
-<td>
-${moto.especificaciones.motor}
-</td>
-
+<td>${moto.especificaciones.motor}</td>
 </tr>
 
 
-
 <tr>
-
 <td>Cilindrada</td>
-
-<td>
-${moto.especificaciones.cilindrada}
-</td>
-
+<td>${moto.especificaciones.cilindrada}</td>
 </tr>
 
 
-
 <tr>
-
 <td>Potencia</td>
-
-<td>
-${moto.especificaciones.potencia}
-</td>
-
+<td>${moto.especificaciones.potencia}</td>
 </tr>
 
 
-
 <tr>
-
 <td>Peso</td>
-
-<td>
-${moto.especificaciones.peso}
-</td>
-
+<td>${moto.especificaciones.peso}</td>
 </tr>
 
 
-
 <tr>
-
 <td>Transmisión</td>
-
-<td>
-${moto.especificaciones.transmision}
-</td>
-
+<td>${moto.especificaciones.transmision}</td>
 </tr>
 
 
-
 <tr>
-
 <td>Tanque</td>
-
-<td>
-${moto.especificaciones.tanque}
-</td>
-
+<td>${moto.especificaciones.tanque}</td>
 </tr>
 
 
-
 <tr>
-
 <td>Frenos</td>
-
-<td>
-${moto.especificaciones.frenos}
-</td>
-
+<td>${moto.especificaciones.frenos}</td>
 </tr>
-
 
 
 <tr>
-
 <td>Suspensión</td>
-
-<td>
-${moto.especificaciones.suspension}
-</td>
-
+<td>${moto.especificaciones.suspension}</td>
 </tr>
+
 
 
 </table>
 
 
 </div>
+
+
+</div>
+
 
 
 `;
@@ -380,15 +350,19 @@ const similares = motos
 
 recomendadas.innerHTML = `
 
+
 <h2>
 También te puede interesar
 </h2>
 
 
+
 <div class="recomendadas-grid">
 
 
+
 ${similares.map(m=>`
+
 
 
 <div class="card-mini">
@@ -397,9 +371,11 @@ ${similares.map(m=>`
 <img src="${m.imagen}">
 
 
+
 <h3>
 ${m.nombre}
 </h3>
+
 
 
 <p>
@@ -407,12 +383,15 @@ S/. ${m.precio}
 </p>
 
 
+
 <a href="detalle.html?id=${m.id}">
 Ver moto
 </a>
 
 
+
 </div>
+
 
 
 `).join("")}
@@ -420,6 +399,8 @@ Ver moto
 
 
 </div>
+
+
 
 `;
 
@@ -434,6 +415,7 @@ detalle.innerHTML =
 "<h2>Moto no encontrada</h2>";
 
 }
+
 
 
 
@@ -472,8 +454,6 @@ nombre:moto.nombre,
 
 precio:moto.precio,
 
-
-
 imagen:moto.imagen,
 
 cantidad:1
@@ -497,12 +477,21 @@ window.location.href =
 
 
 }
+
+
+
+
+// -------------------------------
 // CAMBIAR IMAGEN PRINCIPAL
+// -------------------------------
+
 
 function cambiarImagen(img){
 
+
 const principal =
 document.querySelector(".imagen-principal");
+
 
 
 if(principal){
