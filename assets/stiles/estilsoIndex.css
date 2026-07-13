@@ -17,6 +17,19 @@ body:has(.hero) .site-header{
   transition:background .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
+body:has(.hero) .nav-toggle:checked ~ .main-nav a{
+  color:var(--ink);
+}
+body:has(.hero) .nav-toggle:checked ~ .main-nav a:hover{
+  color:var(--red);
+}
+body:has(.hero) .nav-toggle:checked ~ .main-nav a.activo{
+  color:var(--red);
+}
+body:has(.hero) .nav-toggle:checked ~ .main-nav .icon-search{
+  fill:var(--ink);
+}
+
 /* Menú y buscador en blanco mientras el header es transparente */
 body:has(.hero) .main-nav a{ color:#fff; }
 body:has(.hero) .main-nav a:hover{ color:var(--red); }
