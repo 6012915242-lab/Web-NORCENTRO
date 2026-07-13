@@ -3,7 +3,7 @@
    HEADER TRANSPARENTE SOBRE EL HERO
    Solo afecta páginas que tengan .hero (ej. index.html)
    Se activa/desactiva junto con header-scroll.js
-============================== */
+*/
 
 body:has(.hero) .site-header{
   position:fixed;
@@ -29,7 +29,6 @@ body:has(.hero) .nav-toggle:checked ~ .main-nav a.activo{
 body:has(.hero) .nav-toggle:checked ~ .main-nav .icon-search{
   fill:var(--ink);
 }
-
 /* Menú y buscador en blanco mientras el header es transparente */
 body:has(.hero) .main-nav a{ color:#fff; }
 body:has(.hero) .main-nav a:hover{ color:var(--red); }
