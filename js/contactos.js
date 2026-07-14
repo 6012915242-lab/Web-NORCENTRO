@@ -62,15 +62,41 @@ document.addEventListener('DOMContentLoaded', function () {
     campos[campo].classList.remove('campo-invalido');
   }
 
-  function validarNombre() {
+ function validarNombre() {
+
     const valor = campos.nombre.value.trim();
-    if (valor.length < 3) {
-      mostrarError('nombre', 'El nombre debe tener al menos 3 caracteres.');
-      return false;
+
+    const REGEX_NOMBRE = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+
+
+    if(valor.length < 3){
+
+        mostrarError(
+            'nombre',
+            'El nombre debe tener al menos 3 caracteres.'
+        );
+
+        return false;
+
     }
+
+
+    if(!REGEX_NOMBRE.test(valor)){
+
+        mostrarError(
+            'nombre',
+            'El nombre no debe contener números ni símbolos.'
+        );
+
+        return false;
+
+    }
+
+
     limpiarError('nombre');
+
     return true;
-  }
+}
 
   function validarEmail() {
     const valor = campos.email.value.trim();
@@ -104,6 +130,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function validarMensaje() {
     const valor = campos.mensaje.value.trim();
+    if(valor.length > 500){
+
+ mostrarError(
+ 'mensaje',
+ 'El mensaje no puede superar los 500 caracteres.'
+ );
+
+ return false;
+
+}
     if (valor.length < 10) {
       mostrarError('mensaje', 'El mensaje debe tener al menos 10 caracteres.');
       return false;
@@ -131,21 +167,37 @@ document.addEventListener('DOMContentLoaded', function () {
     const formularioValido = nombreValido && emailValido && telefonoValido && asuntoValido && mensajeValido;
 
     if (formularioValido) {
-      const urlWhatsApp = construirMensajeWhatsApp();
 
-      mensajeExito.classList.remove('oculto');
 
-      // Abre WhatsApp (app o web) con el mensaje ya redactado hacia el negocio
-      window.open(urlWhatsApp, '_blank', 'noopener');
+    const confirmar = confirm(
+        "¿Deseas enviar este mensaje a NORCENTRO por WhatsApp?"
+    );
 
-      form.reset();
-      Object.keys(campos).forEach(limpiarError);
 
-      setTimeout(function () {
-        mensajeExito.classList.add('oculto');
-      }, 4000);
-    } else {
-      mensajeExito.classList.add('oculto');
+    if(confirmar){
+
+        const urlWhatsApp = construirMensajeWhatsApp();
+
+        mensajeExito.classList.remove('oculto');
+
+
+        // Abre WhatsApp con el mensaje preparado
+        window.open(urlWhatsApp, '_blank', 'noopener');
+
+
+        form.reset();
+
+        Object.keys(campos).forEach(limpiarError);
+
+
+        setTimeout(function () {
+            mensajeExito.classList.add('oculto');
+        }, 4000);
+
+
     }
+
+
+}
   });
 });
