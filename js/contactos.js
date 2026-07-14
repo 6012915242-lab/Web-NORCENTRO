@@ -1,4 +1,3 @@
-
 //12
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('form-contacto');
@@ -21,6 +20,34 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   const mensajeExito = document.getElementById('mensaje-exito');
+
+  // Número de WhatsApp del negocio (formato internacional, sin "+", espacios ni guiones)
+  const WHATSAPP_NUMERO = '51900286035';
+
+  const ETIQUETAS_ASUNTO = {
+    consulta: 'Consulta general',
+    cotizacion: 'Cotización de moto',
+    postventa: 'Servicio postventa',
+    otro: 'Otro',
+  };
+
+  function construirMensajeWhatsApp() {
+    const nombre = campos.nombre.value.trim();
+    const email = campos.email.value.trim();
+    const telefono = campos.telefono.value.trim();
+    const asunto = ETIQUETAS_ASUNTO[campos.asunto.value] || campos.asunto.value;
+    const mensaje = campos.mensaje.value.trim();
+
+    const texto =
+      'Hola NORCENTRO, quisiera hacer una consulta desde la web:\n\n' +
+      `*Nombre:* ${nombre}\n` +
+      `*Correo:* ${email}\n` +
+      `*Teléfono:* ${telefono}\n` +
+      `*Asunto:* ${asunto}\n` +
+      `*Mensaje:* ${mensaje}`;
+
+    return `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(texto)}`;
+  }
 
   const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const REGEX_TELEFONO = /^[0-9+\-\s()]{6,15}$/;
@@ -104,7 +131,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const formularioValido = nombreValido && emailValido && telefonoValido && asuntoValido && mensajeValido;
 
     if (formularioValido) {
+      const urlWhatsApp = construirMensajeWhatsApp();
+
       mensajeExito.classList.remove('oculto');
+
+      // Abre WhatsApp (app o web) con el mensaje ya redactado hacia el negocio
+      window.open(urlWhatsApp, '_blank', 'noopener');
+
       form.reset();
       Object.keys(campos).forEach(limpiarError);
 
