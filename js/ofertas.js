@@ -16,7 +16,9 @@ contenedorOfertas.innerHTML = ofertas.map(m => {
 
 let precioOferta = m.precioOferta;
 
-
+// HACK: guardar precio de oferta en el link para que al ver "Ver oferta" se mantenga
+// el precio con descuento (sin tocar el botón ni estilos existentes).
+const urlOferta = `detalle.html?id=${m.id}&oferta=1`;
 
 return `
 
@@ -64,8 +66,8 @@ S/. ${precioOferta.toFixed(0)}
 
 
 
-<a href="detalle.html?id=${m.id}" 
-class="btn-dark">
+<a href="${urlOferta}"
+class="btn-dark"> 
 
 Ver oferta
 
@@ -84,3 +86,4 @@ Ver oferta
 
 
 }).join("");
+

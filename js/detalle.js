@@ -165,7 +165,7 @@ Seguridad
 
 <h2 class="precio-detalle">
 
-S/. ${moto.precio}
+${(moto.precioOferta && params.get("oferta") === "1") ? `S/. ${moto.precioOferta}` : `S/. ${moto.precio}`}
 
 </h2>
 
