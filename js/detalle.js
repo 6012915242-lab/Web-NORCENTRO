@@ -165,7 +165,11 @@ Seguridad
 
 <h2 class="precio-detalle">
 
-${(moto.precioOferta && params.get("oferta") === "1") ? `S/. ${moto.precioOferta}` : `S/. ${moto.precio}`}
+${
+  (moto.precioOferta && (params.get("oferta") === "1" || document.referrer.includes("ofertas.html"))) 
+    ? `<span style="text-decoration: line-through; color: #999; margin-right: 10px;">S/. ${moto.precio}</span>S/. ${moto.precioOferta}` 
+    : `S/. ${moto.precio}`
+}
 
 </h2>
 

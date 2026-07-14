@@ -14,7 +14,7 @@ precioOferta:5990,
 tipo:"trabajo",
 imagen:"./assets/images/Bajaj CT 125.jpg",
 
-descripcion:"Motocicleta económica y resistente ideal para trabajo diario y transporte urbano.",
+descripcion:"La Bajaj CT 125 es la opción perfecta para quienes necesitan una motocicleta confiable y económica. Con su motor de 125 cc, ofrece un excelente desempeño en ciudad y para trabajo diario. Su consumo de combustible es muy bajo, lo que la hace ideal para trabajadores y repartidores. Diseñada con una estructura resistente, es perfecta para quienes necesitan durabilidad y bajo mantenimiento. El tanque de 10 litros le permite realizar jornadas completas sin necesidad de recargar constantemente.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -39,7 +39,7 @@ precioOferta:16990,
 tipo:"deportiva",
 imagen:"./assets/images/Bajaj Dominar 400.jpg",
 
-descripcion:"Motocicleta deportiva de gran potencia para ciudad y carretera.",
+descripcion:"La Bajaj Dominar 400 es una motocicleta deportiva de clase media que combina potencia, estilo y seguridad. Con su motor monocilíndrico de 373 cc y 40 HP, ofrece un desempeño deportivo excepcional tanto en ciudad como en carretera. Equipada con frenos ABS, garantiza una frenada segura incluso en condiciones de emergencia. Su chasis robusto y suspensión de calidad proporcionan estabilidad en cualquier tipo de camino. Ideal para motociclistas que buscan una moto versátil con carácter deportivo.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -64,7 +64,7 @@ precioOferta:10800,
 tipo:"deportiva",
 imagen:"./assets/images/cb190.jpg",
 
-descripcion:"Moto deportiva Honda con diseño moderno y excelente rendimiento.",
+descripcion:"La Honda CB 190 representa la excelencia en el segmento de motos deportivas de clase media. Con su motor de 184 cc y 15 HP, brinda un rendimiento ágil y eficiente. Su diseño moderno y agresivo refleja la identidad deportiva de Honda. Los frenos de disco delantero garantizan un control seguro, mientras que su estructura ligera facilita la maniobrabilidad urbana. Perfecta para principiantes y experimentados que buscan una moto confiable y de bajo mantenimiento.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -89,7 +89,7 @@ precioOferta:12500,
 tipo:"deportiva",
 imagen:"./assets/images/Honda CB190R.jpg",
 
-descripcion:"Naked deportiva Honda con excelente equilibrio entre potencia y comodidad.",
+descripcion:"La Honda CB190R es la versión Naked de la exitosa familia CB190 de Honda. Esta motocicleta combina un diseño agresivo y sin carenado con un motor de 184 cc que entrega 16 HP de potencia constante. Sistema de frenos ABS en ambas ruedas proporciona máxima seguridad en cualquier condición de conducción. Su posición de conducción más erguida la hace cómoda para viajes largos sin sacrificar la adrenalina en las curvas. Excelente relación entre precio, calidad y desempeño.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -114,7 +114,7 @@ precioOferta:22500,
 tipo:"offroad",
 imagen:"./assets/images/Honda CRF300L.jpg",
 
-descripcion:"Moto doble propósito preparada para caminos difíciles y aventura.",
+descripcion:"La Honda CRF300L es una aventurera versátil diseñada para conquistar cualquier tipo de terreno. Con su motor de 286 cc generando 27 HP, ofrece suficiente potencia para enfrentar caminos rusticos y montañosos. Su suspensión de largo recorrido absorbe los impactos de caminos irregulares proporcionando comodidad y control. Ideal para viajes de aventura, exploradores de rutas alternas y quienes buscan escapar de la rutina urbana. Chasis liviano y maniobrabilidad excepcional la hacen una compañera perfecta para cualquier viaje.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -139,7 +139,7 @@ precioOferta:4950,
 tipo:"trabajo",
 imagen:"./assets/images/Honda GL125.jpg",
 
-descripcion:"Motocicleta confiable y económica para uso diario.",
+descripcion:"La Honda GL125 es una motocicleta de trabajo versátil y extremadamente confiable. Conocida por su durabilidad legendaria en todo el mundo, esta moto de 125 cc es perfecta para repartidores, trabajadores y usuarios urbanos que necesitan economía de combustible superior. Su motor desarrolla 11 HP de forma consistente y eficiente. Diseño robusto y simple facilita el mantenimiento y reparaciones. Tanque de 10 litros permite jornadas completas sin necesidad de recargar. Una inversión inteligente para quienes valoran la confiabilidad.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -163,7 +163,7 @@ precio:4800,
 tipo:"urbana",
 imagen:"./assets/images/Honda Navi.jpg",
 
-descripcion:"Scooter compacta práctica para movilidad urbana.",
+descripcion:"La Honda Navi es la solución perfecta para la movilidad urbana compacta. Este scooter innovador de 110 cc combina funcionalidad con un diseño adorable y retro-moderno. Con transmisión automática, es ideal para principiantes y usuarios que prefieren conducción sin cambios de velocidad. Su tamaño compacto permite estacionar en cualquier espacio reducido, mientras que su motor de 8 HP proporciona suficiente potencia para movimientos ágiles en ciudad. Consumo de combustible ultra eficiente y bajo mantenimiento la hacen perfecta para estudiantes y profesionales urbanos.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -187,7 +187,7 @@ precio:28000,
 tipo:"adventure",
 imagen:"./assets/images/Honda NX500.jpg",
 
-descripcion:"Adventure Honda diseñada para viajes largos y terrenos variados.",
+descripcion:"La Honda NX500 es una motocicleta adventure de clase media-alta diseñada para viajes largos y exploración. Con su motor bicilíndrico de 471 cc y 47 HP, ofrece potencia constante en cualquier terreno. Su tanque grande de 17 litros permite recorrer largas distancias entre recargas, ideal para aventuras en ruta. Sistema ABS avanzado garantiza máxima seguridad incluso en superficies mojadas o irregulares. Suspensión telescópica con buen recorrido absorbe impactos de caminos variados. Posición de conducción erguida proporciona comodidad en viajes extendidos. Perfecta para exploradores y amantes del viaje en motocicleta.",
 
 especificaciones:{
 motor:"Bicilíndrico",
@@ -211,7 +211,7 @@ precio:10500,
 tipo:"deportiva",
 imagen:"./assets/images/Honda X-Blade 160.jpg",
 
-descripcion:"Moto deportiva urbana con bajo consumo y buen desempeño.",
+descripcion:"La Honda X-Blade 160 es una motocicleta deportiva compacta que combina agresividad visual con practicidad urbana. Su motor de 160 cc genera 13 HP de potencia pura, proporcionando aceleración emocionante sin ser excesiva. Consumo de combustible muy bajo la hace económica de mantener día a día. Diseño deportivo moderno con líneas agresivas la diferencia de la competencia. Frenos de disco delantero garantizan frenadas seguras y precisas. Ideal para conductores jóvenes, repartidores deportivos y entusiastas que buscan una moto ágil y versátil.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -235,7 +235,7 @@ precio:9800,
 tipo:"offroad",
 imagen:"./assets/images/Honda XR150L.jpg",
 
-descripcion:"Moto resistente para ciudad, campo y caminos rurales.",
+descripcion:"La Honda XR150L es la moto offroad más versátil y práctica del mercado. Diseñada para ser dual purpose auténtica, se desempeña perfectamente tanto en carreteras como en caminos rurales. Su motor de 149 cc y 12 HP proporciona potencia suficiente para cualquier terreno. Suspensión con largo recorrido absorbe impactos de caminos ásperos. Ruedas con tacos proporcionan tracción excepcional en tierra y grava. Estructura simple y confiable hace el mantenimiento muy económico. Perfecta para mochileros, exploradores rurales y aventureros de fin de semana.",
 
 especificaciones:{
 motor:"Monocilíndrico",
@@ -258,7 +258,7 @@ precio:32000,
 tipo:"deportiva",
 imagen:"./assets/images/Kawasaki Ninja 400.jpg",
 
-descripcion:"Motocicleta deportiva Kawasaki con diseño aerodinámico y excelente rendimiento.",
+descripcion:"La Kawasaki Ninja 400 es una máquina deportiva pura que trae el ADN de la legendaria familia Ninja a una cilindrada accesible. Con su motor bicilíndrico paralelo de 399 cc y 45 HP, ofrece desempeño deportivo auténtico. Diseño aerodinámico agresivo con carenado completo reduce resistencia del viento a alta velocidad. Sistema de frenos ABS de doble canal proporciona máxima seguridad en frenadas de emergencia. Suspensión deportiva precisamente calibrada permite conducción en circuito. Perfecta para principiantes experimentados y entusiastas de las curvas que buscan emociones auténticas.",
 
 especificaciones:{
 motor:"Bicilíndrico paralelo",
@@ -282,7 +282,7 @@ precio:26000,
 tipo:"adventure",
 imagen:"./assets/images/Kawasaki Versys-X 300.jpg",
 
-descripcion:"Moto adventure versátil para viajes, ciudad y caminos de aventura.",
+descripcion:"La Kawasaki Versys-X 300 es una moto adventure compacta versátil para viajeros modernos. Su motor bicilíndrico paralelo de 296 cc y 39 HP ofrece potencia equilibrada para ciudad y carretera. Posición de conducción sport-tourer proporciona comodidad en viajes largos manteniendo dinamismo en curvas. Tanque de 17 litros permite recorrer distancias significativas entre recargas. Sistema ABS avanzado aumenta la seguridad en cualquier condición climática. Suspensión con largo recorrido maneja bien caminos irregulares. Diseño modular y práctico facilita ajustes personalizados. Ideal para aventureros urbanos que buscan versatilidad real.",
 
 especificaciones:{
 motor:"Bicilíndrico paralelo",
