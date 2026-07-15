@@ -673,14 +673,6 @@ grid-template-columns:1fr;
     }
 }
 
-/* ==========================================================
-   PÁGINA DETALLE DE MOTO (detalle.js)
-   Estilos para las clases generadas dinámicamente que no
-   tenían reglas: .galeria, .marca-detalle, .estrellas,
-   .datos-rapidos, .btn-carrito, .btn-comprar,
-   .caracteristicas, .especificaciones, .recomendadas-grid,
-   .card-mini
-========================================================== */
 
 .galeria{
   display:flex;
@@ -756,29 +748,8 @@ grid-template-columns:1fr;
   margin-bottom:20px;
 }
 
-.btn-carrito,.btn-comprar{
-  flex:1;
-  min-width:160px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:14px 18px;
-  border:none;
-  border-radius:var(--radius-sm);
-  font-family:inherit;
-  font-weight:800;
-  font-size:.94rem;
-  cursor:pointer;
-  text-transform:uppercase;
-  transition:transform .15s ease, box-shadow .2s ease;
-}
-.btn-carrito{
-  background:linear-gradient(180deg,var(--red-light),var(--red));
-  color:#fff;
-  box-shadow:0 6px 14px rgba(224,0,18,.26);
-}
-.btn-carrito:hover{ transform:translateY(-2px); box-shadow:0 10px 20px rgba(224,0,18,.34); }
+
+
 .btn-comprar{
   background:var(--wa);
   color:#fff;
