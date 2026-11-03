@@ -3,29 +3,37 @@ declare(strict_types=1);
 
 namespace App\Middlewares;
 
-use PDO;
+use App\AccesoDatos\AuditoriaDAO;
+use Throwable;
 
-/** Registra accesos y acciones sensibles sin interrumpir la operación. */
+/** Registra acciones sensibles sin mezclar SQL con el middleware. */
 final class AuditoriaMiddleware
 {
-    public static function registrar(PDO $conexion, ?array $usuario, string $accion, string $recurso): void
+    public function __construct(private AuditoriaDAO $auditoriaDAO)
+    {
+    }
+
+    public function registrar(?array $usuario, string $accion, string $recurso): void
     {
         try {
-            $consulta = $conexion->prepare(
-                'INSERT INTO auditoria_seguridad
-                    (usuario_id, accion, recurso, metodo_http, direccion_ip, datos)
-                 VALUES (:usuario, :accion, :recurso, :metodo, :ip, :datos)'
-            );
-            $consulta->execute([
-                'usuario' => $usuario['id'] ?? null,
+            $this->auditoriaDAO->registrar([
+                'usuario_id' => $usuario['id'] ?? null,
                 'accion' => mb_substr($accion !== '' ? $accion : 'visita', 0, 80),
                 'recurso' => mb_substr($recurso, 0, 120),
-                'metodo' => mb_substr((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'), 0, 10),
-                'ip' => mb_substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45),
-                'datos' => json_encode(['pagina' => $_GET['page'] ?? 'inicio'], JSON_UNESCAPED_UNICODE),
+                'metodo_http' => mb_substr(
+                    (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'),
+                    0,
+                    10
+                ),
+                'direccion_ip' => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45),
+                'resultado' => 'Exitoso',
+                'datos' => json_encode(
+                    ['pagina' => $_GET['page'] ?? 'inicio'],
+                    JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+                ),
             ]);
-        } catch (\Throwable) {
-            // La auditoría no bloquea el funcionamiento si aún no se instaló su migración.
+        } catch (Throwable) {
+            // La auditoría no debe interrumpir una operación válida del usuario.
         }
     }
 }

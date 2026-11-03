@@ -79,8 +79,12 @@ final class Herramientas
         $tokenGuardado = $_SESSION['_csrf'] ?? '';
         $tokenRecibido = $_POST['_csrf'] ?? '';
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !hash_equals($tokenGuardado, $tokenRecibido)) {
-            http_response_code(419);
+        $peticionPost = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+        $tokenAusente = $tokenGuardado === '' || $tokenRecibido === '';
+        $tokenDiferente = !$tokenAusente && !hash_equals($tokenGuardado, $tokenRecibido);
+
+        if ($peticionPost && ($tokenAusente || $tokenDiferente)) {
+            http_response_code(403);
             exit('La sesión del formulario venció. Regresa e inténtalo de nuevo.');
         }
     }

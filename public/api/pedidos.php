@@ -53,7 +53,7 @@ try {
     if (!is_array($datosRecibidos))responder(400, ['ok' => false,
             'message' => 'Solicitud JSON no válida.']);
     $csrf = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? $datosRecibidos['csrf'] ?? '');
-    if (empty($_SESSION['_csrf']) || !hash_equals((string)$_SESSION['_csrf'], $csrf))responder(419, ['ok' => false,
+    if (empty($_SESSION['_csrf']) || !hash_equals((string)$_SESSION['_csrf'], $csrf))responder(403, ['ok' => false,
             'message' => 'La sesión venció. Recarga la página e inténtalo otra vez.']);
     $idSolicitud = (string)($datosRecibidos['request_id'] ?? '');
     if (!preg_match('/^[0-9a-f-]{36}$/i', $idSolicitud))responder(422, ['ok' => false,

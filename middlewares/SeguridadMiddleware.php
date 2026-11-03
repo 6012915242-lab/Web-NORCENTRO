@@ -24,6 +24,8 @@ final class SeguridadMiddleware
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
+
+        self::validarTiempoSesion();
     }
 
     public static function sanearArregloEntrada(array $entrada): array
@@ -44,5 +46,24 @@ final class SeguridadMiddleware
     public static function validarPeticionPostCsrf(): void
     {
         Herramientas::verificarCsrf();
+    }
+
+    private static function validarTiempoSesion(): void
+    {
+        if (empty($_SESSION['user'])) {
+            return;
+        }
+
+        $ultimaActividad = (int) ($_SESSION['_ultima_actividad'] ?? time());
+        $tiempoMaximoInactivo = 30 * 60;
+
+        if (time() - $ultimaActividad > $tiempoMaximoInactivo) {
+            $_SESSION = [];
+            session_regenerate_id(true);
+            $_SESSION['_flash'] = ['error', 'La sesión terminó por inactividad. Inicia sesión nuevamente.'];
+            return;
+        }
+
+        $_SESSION['_ultima_actividad'] = time();
     }
 }
