@@ -87,7 +87,7 @@ endif;
 endif;
 ?>
 <footer class="footer"><span>Norcentro S.A.C.</span><span>Precios y disponibilidad sujetos a confirmación.</span></footer>
-<script src="js/app.js?v=20260929-credit-payment-actions" defer></script><script src="js/cart.js?v=20260929-credit-review" defer></script><?php
+<script src="js/app.js?v=20261103-recargo-credito" defer></script><script src="js/cart.js?v=20260929-credit-review" defer></script><?php
 if ($pagina === 'compra'):?><script src="js/order-status.js?v=20260927-mp" defer></script><?php
 endif;
 ?><?php
@@ -97,4 +97,5 @@ endif;
 if ($pagina === 'motos'):?><script src="js/admin-motos.js?v=20261103-gallery-admin" defer></script><?php
 endif;
 ?>
+<?php if ($pagina === 'clientes'): ?><script src="js/consulta-dni.js" defer></script><?php endif; ?>
 </body></html>

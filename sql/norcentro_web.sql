@@ -59,6 +59,8 @@ CREATE TABLE `creditos` (
   `venta_id` bigint(20) UNSIGNED NOT NULL,
   `inicial` decimal(10,2) NOT NULL DEFAULT 0.00,
   `monto_financiado` decimal(10,2) NOT NULL,
+  `porcentaje_recargo` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `importe_recargo` decimal(10,2) NOT NULL DEFAULT 0.00,
   `numero_cuotas` smallint(5) UNSIGNED NOT NULL,
   `saldo` decimal(10,2) NOT NULL,
   `estado` enum('Activo','Cancelado') NOT NULL DEFAULT 'Activo',

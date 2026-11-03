@@ -72,6 +72,7 @@ endif;
 ?></td></tr><?php
 endforeach;
 ?></tbody></table></div>
+  <p class="muted small">Recargo único por crédito: <?= Herramientas::escaparHtml($cr['porcentaje_recargo']) ?> % · <?= Herramientas::formatearDinero($cr['importe_recargo']) ?>. Total en cuotas: <?= Herramientas::formatearDinero($cr['monto_financiado']) ?>.</p>
   <div class="payment-history"><div class="panel-head"><h3>Historial de pagos</h3><small><?= count($pagosCredito[$cr['id']] ?? [])?> movimiento(s)</small></div><?php
 if (!empty($pagosCredito[$cr['id']])):?><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Concepto</th><th>Cuota</th><th>Importe</th></tr></thead><tbody><?php
 foreach ($pagosCredito[$cr['id']] as $pago):?><tr><td><?= date('d/m/Y', strtotime($pago['fecha']))?></td><td><?= Herramientas::escaparHtml($pago['concepto'])?></td><td><?= $pago['cuota_numero']?('#' . (int)$pago['cuota_numero']):'Inicial'?></td><td><?= Herramientas::formatearDinero($pago['monto'])?></td></tr><?php

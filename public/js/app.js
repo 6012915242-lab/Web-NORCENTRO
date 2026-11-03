@@ -54,11 +54,15 @@
     const total = Math.max(0, price - discount);
     const isCredit = mode?.value === "Crédito";
     const initial = Math.max(0, Number(initialInput?.value || 0));
-    const financed = Math.max(0, total - initial);
-    const installments = Math.max(1, Number(installmentInput?.value || 1));
-    const baseInstallment = installments ? Math.floor((financed / installments) * 100) / 100 : 0;
-    const lastInstallment =
-      Math.round((financed - baseInstallment * (installments - 1)) * 100) / 100;
+    const capitalCents = Math.max(0, Math.round(total * 100) - Math.round(initial * 100));
+    const surchargeRate = Number(quote.dataset.porcentajeRecargo || 0);
+    const surchargeCents = Math.floor((capitalCents * surchargeRate + 50) / 100);
+    const financedCents = capitalCents + surchargeCents;
+    const installments = Math.max(1, Math.floor(Number(installmentInput?.value || 1)));
+    const baseCents = Math.floor(financedCents / installments);
+    const remainderCents = financedCents % installments;
+    const firstInstallment = (baseCents + (remainderCents > 0 ? 1 : 0)) / 100;
+    const lastInstallment = baseCents / 100;
     const clientName = selectedClient?.value ? selectedClient.dataset.name : "";
     const clientDni = selectedClient?.value ? selectedClient.dataset.dni : "";
     const put = (id, value) => {
@@ -83,11 +87,14 @@
       line.hidden = !isCredit;
     });
     put("#quote-initial", formatMoney(initial));
-    put("#quote-financed", formatMoney(financed));
+    put("#quote-capital", formatMoney(capitalCents / 100));
+    put("#quote-surcharge", formatMoney(surchargeCents / 100));
+    put("#quote-financed", formatMoney(financedCents / 100));
+    put("#quote-credit-total", formatMoney((Math.round(initial * 100) + financedCents) / 100));
     put(
       "#quote-installment",
-      financed > 0
-        ? `${installments} × ${formatMoney(baseInstallment)} aprox.; última ${formatMoney(lastInstallment)}`
+      baseCents > 0
+        ? `${installments} cuotas de ${formatMoney(firstInstallment)} aprox.; última ${formatMoney(lastInstallment)}`
         : "Ingresa una inicial menor al total.",
     );
     const due = dueInput?.value || "";
@@ -95,7 +102,7 @@
     put(
       "#quote-footnote",
       isCredit
-        ? "Simulación sin intereses. La última cuota puede ajustarse por redondeo; la evaluación y aprobación las realiza el personal Norcentro."
+        ? "Recargo único del 5 % sobre el saldo después de la inicial. Algunas cuotas pueden variar un centavo por redondeo."
         : "Cotización referencial. El total final se confirma al registrar la venta y validar nuevamente la disponibilidad.",
     );
   };

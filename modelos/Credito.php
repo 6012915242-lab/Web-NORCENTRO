@@ -16,7 +16,9 @@ final class Credito implements EntidadORM
         public int $numeroCuotas,
         public float $saldo,
         public string $estado,
-        public string $creadoEn
+        public string $creadoEn,
+        public float $porcentajeRecargo = 0.0,
+        public float $importeRecargo = 0.0
     ) {
     }
 
@@ -30,7 +32,9 @@ final class Credito implements EntidadORM
             (int) ($registro['numero_cuotas'] ?? 0),
             (float) ($registro['saldo'] ?? 0),
             (string) ($registro['estado'] ?? 'Activo'),
-            (string) ($registro['creado_en'] ?? '')
+            (string) ($registro['creado_en'] ?? ''),
+            (float) ($registro['porcentaje_recargo'] ?? 0),
+            (float) ($registro['importe_recargo'] ?? 0)
         );
     }
 }

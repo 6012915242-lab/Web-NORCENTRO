@@ -64,16 +64,19 @@ endif;
         <label>Número de cuotas<input name="numero_cuotas" id="sale-installments" type="number" min="1" max="36" value="6"></label>
         <label class="full">Primera fecha de vencimiento<input name="fecha_primera_cuota" id="sale-first-due" type="date" value="<?= date('Y-m-d', strtotime('+1 month'))?>"></label>
       </div>
-      <section class="sale-quote full" id="sale-quote" aria-live="polite">
+      <section class="sale-quote full" id="sale-quote" data-porcentaje-recargo="<?= (int) \App\Modelos\PlanCredito::PORCENTAJE_RECARGO ?>" aria-live="polite">
         <div class="sale-quote-heading"><div><span class="eyebrow">Cotización de la operación</span><h3>Resumen de venta</h3></div><span class="pill gray" id="quote-mode">Contado</span></div>
         <dl class="sale-quote-lines">
           <div><dt>Cliente</dt><dd id="quote-client">Pendiente de seleccionar</dd></div>
           <div><dt>Motocicleta y serie</dt><dd id="quote-unit">Pendiente de seleccionar</dd></div>
           <div><dt>Precio de lista</dt><dd id="quote-price">S/ 0.00</dd></div>
           <div><dt>Descuento</dt><dd id="quote-discount">− S/ 0.00</dd></div>
-          <div class="quote-total"><dt>Total de venta</dt><dd id="quote-total">S/ 0.00</dd></div>
+          <div class="quote-total"><dt>Precio después del descuento</dt><dd id="quote-total">S/ 0.00</dd></div>
           <div class="quote-credit-line" hidden><dt>Inicial</dt><dd id="quote-initial">S/ 0.00</dd></div>
-          <div class="quote-credit-line" hidden><dt>Monto financiado</dt><dd id="quote-financed">S/ 0.00</dd></div>
+          <div class="quote-credit-line" hidden><dt>Saldo antes del recargo</dt><dd id="quote-capital">S/ 0.00</dd></div>
+          <div class="quote-credit-line" hidden><dt>Recargo único por crédito (5 %)</dt><dd id="quote-surcharge">S/ 0.00</dd></div>
+          <div class="quote-credit-line" hidden><dt>Total en cuotas</dt><dd id="quote-financed">S/ 0.00</dd></div>
+          <div class="quote-credit-line" hidden><dt>Total a pagar incluida la inicial</dt><dd id="quote-credit-total">S/ 0.00</dd></div>
           <div class="quote-credit-line" hidden><dt>Cuotas mensuales aproximadas</dt><dd id="quote-installment">—</dd></div>
           <div class="quote-credit-line" hidden><dt>Primera fecha</dt><dd id="quote-due">—</dd></div>
         </dl>
@@ -87,7 +90,7 @@ endif;
     <div class="panel-head"><div><h2>Historial de ventas</h2><small>Las ventas a crédito tienen un enlace directo a su seguimiento.</small></div></div>
     <div class="table-wrap"><table><thead><tr><th>Operación</th><th>Cliente</th><th>Moto</th><th>Total</th><th>Modalidad</th><th>Seguimiento</th></tr></thead><tbody>
       <?php
-foreach ($elementos as $ventaRegistro):?><tr><td><b>#<?= (int)$ventaRegistro['id']?></b><small><?= date('d/m/Y', strtotime($ventaRegistro['fecha']))?></small></td><td><?= Herramientas::escaparHtml($ventaRegistro['nombres'] . ' ' . $ventaRegistro['apellidos'])?></td><td><?= Herramientas::escaparHtml($ventaRegistro['marca'] . ' ' . $ventaRegistro['modelo'])?></td><td><?= Herramientas::formatearDinero($ventaRegistro['total'])?></td><td><span class="pill <?= $ventaRegistro['modalidad'] === 'Crédito'?'amber':'blue'?>"><?= Herramientas::escaparHtml($ventaRegistro['modalidad'])?></span></td><td><?= $ventaRegistro['modalidad'] === 'Crédito'?'<a class="text-link" href="index.php?page=creditos&amp;venta_id=' . (int)$ventaRegistro['id'] . '">Ver cuotas →</a>':'—'?></td></tr><?php
+foreach ($elementos as $ventaRegistro):?><tr><td><b>#<?= (int)$ventaRegistro['id']?></b><small><?= date('d/m/Y', strtotime($ventaRegistro['fecha']))?></small></td><td><?= Herramientas::escaparHtml($ventaRegistro['nombres'] . ' ' . $ventaRegistro['apellidos'])?></td><td><?= Herramientas::escaparHtml($ventaRegistro['marca'] . ' ' . $ventaRegistro['modelo'])?></td><td><?= Herramientas::formatearDinero((float)$ventaRegistro['total'] + (float)$ventaRegistro['recargo_credito'])?></td><td><span class="pill <?= $ventaRegistro['modalidad'] === 'Crédito'?'amber':'blue'?>"><?= Herramientas::escaparHtml($ventaRegistro['modalidad'])?></span></td><td><?= $ventaRegistro['modalidad'] === 'Crédito'?'<a class="text-link" href="index.php?page=creditos&amp;venta_id=' . (int)$ventaRegistro['id'] . '">Ver cuotas →</a>':'—'?></td></tr><?php
 endforeach;
 ?>
       <?php

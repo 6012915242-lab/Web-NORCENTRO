@@ -8,8 +8,8 @@ use App\Configuracion\Herramientas;
     <section class="panel credit-purchase-summary"><div class="panel-head"><div><span class="eyebrow">Tu selección</span><h2>Motocicletas del carrito</h2></div><a class="text-link" href="index.php?page=catalogo">Seguir viendo motos</a></div>
       <div class="credit-cart-lines" data-credit-lines aria-live="polite"></div>
       <div class="credit-cart-empty" data-credit-empty hidden>Tu carrito está vacío. Agrega una moto antes de solicitar el crédito.</div>
-      <div class="credit-cart-total"><span>Total referencial</span><strong data-credit-total>S/ 0.00</strong></div>
-      <p class="credit-price-note">El precio y la disponibilidad se verifican nuevamente al recibir la solicitud.</p>
+      <div class="credit-cart-total"><span>Precio referencial de las motos</span><strong data-credit-total>S/ 0.00</strong></div>
+      <p class="credit-price-note">Este precio no incluye el recargo único por crédito del 5 % sobre el saldo después de la inicial. El asesor confirmará el precio, el recargo y las cuotas antes de registrar la venta.</p>
     </section>
     <section class="panel credit-application"><span class="eyebrow">La revisión la hace nuestro equipo</span><h2>Datos para contactarte</h2>
       <div class="credit-evaluation-note"><strong>¿Qué pasa después?</strong><p>Tu solicitud llegará al panel privado de NORCENTRO con la moto y el plan que propongas. Un administrador o vendedor revisará tus datos, te contactará para evaluar la inicial y las cuotas y te confirmará las condiciones. Las propuestas son referenciales; enviar la solicitud no significa que el crédito esté aprobado.</p></div>

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace App\AccesoDatos;
 use PDO;
 use App\Nucleo\ModeloBaseORM;
+use App\Modelos\PlanCredito;
 use DateInterval;
 use DateTimeImmutable;
 /** Registra ventas, créditos, cuotas y pagos dentro de transacciones. */
@@ -10,7 +11,7 @@ final class VentaDAO extends ModeloBaseORM
 {
     public function listar(): array
     {
-        return $this->conexion->query('SELECT v.*,c.nombres,c.apellidos,u.codigo_serie,m.modelo,ma.nombre marca,us.nombre vendedor FROM ventas v JOIN clientes c ON c.id=v.cliente_id JOIN unidades_moto u ON u.id=v.unidad_id JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id JOIN usuarios us ON us.id=v.usuario_id ORDER BY v.fecha DESC')->fetchAll();
+        return $this->conexion->query('SELECT v.*,c.nombres,c.apellidos,u.codigo_serie,m.modelo,ma.nombre marca,us.nombre vendedor, COALESCE((SELECT SUM(cr.importe_recargo) FROM creditos cr WHERE cr.venta_id=v.id),0) AS recargo_credito FROM ventas v JOIN clientes c ON c.id=v.cliente_id JOIN unidades_moto u ON u.id=v.unidad_id JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id JOIN usuarios us ON us.id=v.usuario_id ORDER BY v.fecha DESC')->fetchAll();
     }
 
     public function crear(array $datos): int
@@ -53,27 +54,26 @@ final class VentaDAO extends ModeloBaseORM
     private function crearCredito(int $venta, array $datos, float $total): void
     {
         $inicial = (float)$datos['inicial'];
-        $financiado = round($total - $inicial, 2);
-        $n = (int)$datos['numero_cuotas'];
-        if ($inicial >= $total || $financiado <= 0 || $n < 1 || $n > 36) throw new \DomainException('La inicial debe ser menor al total y el crédito debe tener entre 1 y 36 cuotas.');
-        $consulta = $this->conexion->prepare('INSERT INTO creditos(venta_id,inicial,monto_financiado,numero_cuotas,saldo,estado) VALUES(:venta,:inicial,:financiado,:n,:saldo,"Activo")');
+        $n = (int) $datos['numero_cuotas'];
+        $plan = PlanCredito::calcular($total, $inicial, $n);
+        $financiado = $plan['financiado'];
+        $consulta = $this->conexion->prepare('INSERT INTO creditos(venta_id,inicial,monto_financiado,numero_cuotas,saldo,estado,porcentaje_recargo,importe_recargo) VALUES(:venta,:inicial,:financiado,:n,:saldo,"Activo",:porcentaje,:recargo)');
         $consulta->execute(['venta' => $venta,
                 'inicial' => $inicial,
                 'financiado' => $financiado,
                 'n' => $n,
-                'saldo' => $financiado]);
+                'saldo' => $financiado,
+                'porcentaje' => PlanCredito::PORCENTAJE_RECARGO,
+                'recargo' => $plan['recargo']]);
         $credito = (int)$this->conexion->lastInsertId();
         $vencimiento = new DateTimeImmutable($datos['fecha_primera_cuota']);
-        $base = round($financiado / $n, 2);
-        $rest = $financiado;
         $instancia = $this->conexion->prepare('INSERT INTO cuotas(credito_id,numero,fecha_vencimiento,monto,estado) VALUES(:credito,:numero,:fecha,:monto,"Pendiente")');
         for ($i = 1; $i <= $n; $i++) {
-            $monto = $i === $n?$rest:$base;
+            $monto = $plan['cuotas'][$i - 1];
             $instancia->execute(['credito' => $credito,
                     'numero' => $i,
                     'fecha' => $vencimiento->format('Y-m-d'),
                     'monto' => $monto]);
-            $rest = round($rest - $monto, 2);
             $vencimiento = $vencimiento->add(new DateInterval('P1M'));
         }
         if ($inicial > 0) {
