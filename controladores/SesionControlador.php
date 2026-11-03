@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controladores;
 
 use App\AccesoDatos\UsuarioDAO;
+use App\AccesoDatos\SesionDAO;
 use App\Configuracion\Herramientas;
 use App\Servicios\AutenticacionServicio;
 use DomainException;
@@ -15,6 +16,7 @@ final class SesionControlador
 
     public function __construct(
         private UsuarioDAO $usuarioDAO,
+        private SesionDAO $sesionDAO,
         ?AutenticacionServicio $servicioAutenticacion = null
     ) {
         $this->servicioAutenticacion = $servicioAutenticacion ?? new AutenticacionServicio();
@@ -31,6 +33,7 @@ final class SesionControlador
             );
 
             session_regenerate_id(true);
+            $this->sesionDAO->registrar($usuario->id, session_id());
             $_SESSION['_csrf'] = bin2hex(random_bytes(32));
             $_SESSION['_ultima_actividad'] = time();
             $_SESSION['user'] = [
@@ -49,6 +52,12 @@ final class SesionControlador
 
     public function cerrarSesion(): never
     {
+        $usuarioId = (int) ($_SESSION['user']['id'] ?? 0);
+
+        if ($usuarioId > 0) {
+            $this->sesionDAO->revocar($usuarioId, session_id());
+        }
+
         $_SESSION = [];
         session_regenerate_id(true);
         $_SESSION['_csrf'] = bin2hex(random_bytes(32));

@@ -4,7 +4,7 @@ use App\Configuracion\Herramientas;
 <div class="page-head"><div><span class="eyebrow">Unidades físicas</span><h1>Inventario</h1><p>Registra cada unidad por su código de serie y consulta su estado actual.</p></div><span class="inventory-total"><?= count($elementos)?> unidades registradas</span></div>
 
 <?php
-if ($usuarioActual['rol'] === 'Administrador'):?>
+if ($usuarioPuede('motos.gestionar')):?>
 <section class="panel inventory-register">
   <div class="panel-head"><div><h2>Registrar unidad</h2><p class="muted">La unidad se guardará en la base de datos como disponible.</p></div></div>
   <form method="post" class="form-grid">

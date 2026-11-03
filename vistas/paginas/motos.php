@@ -2,7 +2,7 @@
 use App\Configuracion\Herramientas;
 
 $formularioMoto = $editMoto ?? [];
-$esAdministrador = ($usuarioActual['rol'] ?? '') === 'Administrador';
+$esAdministrador = $usuarioPuede('motos.gestionar');
 ?>
 <div class="page-head">
   <div>

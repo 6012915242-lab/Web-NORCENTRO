@@ -23,7 +23,12 @@ final class PaginaControlador
     ) {
     }
 
-    public function preparar(string $pagina, array $consulta, ?array $usuarioActual): array
+    public function preparar(
+        string $pagina,
+        array $consulta,
+        ?array $usuarioActual,
+        array $permisosUsuario = []
+    ): array
     {
         $datos = [
             'ofertas' => [],
@@ -56,7 +61,7 @@ final class PaginaControlador
         }
 
         if ($pagina === 'ofertas') {
-            $datos = array_replace($datos, $this->prepararOfertas($usuarioActual));
+            $datos = array_replace($datos, $this->prepararOfertas($permisosUsuario));
         }
 
         if ($pagina === 'dashboard') {
@@ -73,7 +78,7 @@ final class PaginaControlador
 
         if ($pagina === 'inventario') {
             $datos['elementos'] = $this->motoDAO->inventario();
-            $datos['motosInventario'] = ($usuarioActual['rol'] ?? '') === 'Administrador'
+            $datos['motosInventario'] = in_array('motos.gestionar', $permisosUsuario, true)
                 ? $this->motoDAO->listar()
                 : [];
         }
@@ -223,11 +228,11 @@ final class PaginaControlador
         return ['idSolicitud' => $requestId, 'pedidoCompra' => $pedidoCompra];
     }
 
-    private function prepararOfertas(?array $usuarioActual): array
+    private function prepararOfertas(array $permisosUsuario): array
     {
         $datos = ['ofertas' => $this->ofertaDAO->activas()];
 
-        if (($usuarioActual['rol'] ?? '') === 'Administrador') {
+        if (in_array('ofertas.gestionar', $permisosUsuario, true)) {
             $datos['listaOfertas'] = $this->ofertaDAO->listar();
             $datos['motosOferta'] = $this->motoDAO->listar();
         }

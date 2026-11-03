@@ -27,6 +27,14 @@ final class GestionComercialServicio
             throw new DomainException('El identificador del cliente a editar no es válido.');
         }
 
+        if ($esEdicion) {
+            $clienteExistente = $clienteDAO->obtenerEntidad((int) $id);
+
+            if ($clienteExistente === null || $clienteExistente->estado !== 'Activo') {
+                throw new DomainException('No se encontró un cliente activo con ese identificador.');
+            }
+        }
+
         if (!preg_match('/^\d{8}$/', $dni)) {
             throw new DomainException('El DNI debe contener exactamente 8 dígitos numéricos.');
         }
@@ -127,10 +135,10 @@ final class GestionComercialServicio
             throw new DomainException('Selecciona una marca activa.');
         }
 
-        $registroAnterior = $esEdicion ? $motoDAO->obtener((int) $id) : null;
+        $registroAnterior = $esEdicion ? $motoDAO->obtenerEntidad((int) $id) : null;
 
-        if ($esEdicion && !$registroAnterior) {
-            throw new DomainException('No se encontró la motocicleta que quieres editar.');
+        if ($esEdicion && ($registroAnterior === null || $registroAnterior->estado !== 'Activo')) {
+            throw new DomainException('No se encontró una motocicleta activa con ese identificador.');
         }
 
         $colores = $this->procesarColoresMoto(
@@ -153,10 +161,10 @@ final class GestionComercialServicio
         }
 
         $imagen = $imagenPrincipal
-            ?? ($registroAnterior['imagen'] ?? 'img/motos/Bajaj Pulsar NS200.jpg');
+            ?? ($registroAnterior?->imagen ?? 'img/motos/Bajaj Pulsar NS200.jpg');
         $nombresColores = array_column($colores, 'nombre');
         $color = $esEdicion
-            ? (string) ($registroAnterior['color'] ?? 'Varios')
+            ? (string) ($registroAnterior?->color ?? 'Varios')
             : (count($nombresColores) === 1 ? $nombresColores[0] : 'Varios');
 
         $datos = [

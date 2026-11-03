@@ -7,6 +7,7 @@ use App\AccesoDatos\ClienteDAO;
 use App\AccesoDatos\MotoDAO;
 use App\AccesoDatos\OfertaDAO;
 use App\AccesoDatos\PedidoDAO;
+use App\AccesoDatos\SesionDAO;
 use App\AccesoDatos\UsuarioDAO;
 use App\AccesoDatos\VentaDAO;
 use App\Configuracion\Herramientas;
@@ -26,7 +27,8 @@ final class DespachadorAcciones
         private ClienteDAO $clienteDAO,
         private VentaDAO $ventaDAO,
         private OfertaDAO $ofertaDAO,
-        private PedidoDAO $pedidoDAO
+        private PedidoDAO $pedidoDAO,
+        private SesionDAO $sesionDAO
     ) {
     }
 
@@ -38,7 +40,7 @@ final class DespachadorAcciones
     ): void {
         switch ($accion) {
             case 'cerrar_sesion':
-                (new SesionControlador($this->usuarioDAO))->cerrarSesion();
+                (new SesionControlador($this->usuarioDAO, $this->sesionDAO))->cerrarSesion();
                 break;
 
             case 'guardar_moto':

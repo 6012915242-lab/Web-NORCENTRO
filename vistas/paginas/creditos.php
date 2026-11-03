@@ -26,8 +26,7 @@ endif;
 </section>
 
 <?php
-if (in_array(($usuarioActual['rol'] ?? ''), ['Administrador',
-        'Vendedor'], true)):?>
+if ($usuarioPuede('creditos.revisar')):?>
 <section class="panel credit-requests-panel">
   <div class="panel-head"><div><span class="eyebrow">Gestión de administrador y vendedor</span><h2>Solicitudes de compra a crédito</h2></div><span class="pill amber"><?= $creditosPendientes?> por revisar</span></div>
   <?php

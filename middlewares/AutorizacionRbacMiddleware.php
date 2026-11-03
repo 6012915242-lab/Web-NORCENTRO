@@ -4,7 +4,10 @@ declare(strict_types=1);
 namespace App\Middlewares;
 
 use App\AccesoDatos\PermisoDAO;
+use App\AccesoDatos\AuditoriaDAO;
 use App\Configuracion\Herramientas;
+use App\Nucleo\MotorVistas;
+use Throwable;
 
 /** Protege acciones y páginas usando permisos almacenados en la base. */
 final class AutorizacionRbacMiddleware
@@ -14,7 +17,7 @@ final class AutorizacionRbacMiddleware
         'desactivar_moto' => 'motos.gestionar',
         'agregar_unidad_inventario' => 'inventario.gestionar',
         'guardar_cliente' => 'clientes.gestionar',
-        'desactivar_cliente' => 'clientes.gestionar',
+        'desactivar_cliente' => 'clientes.desactivar',
         'guardar_oferta' => 'ofertas.gestionar',
         'desactivar_oferta' => 'ofertas.gestionar',
         'crear_venta' => 'ventas.registrar',
@@ -33,8 +36,21 @@ final class AutorizacionRbacMiddleware
 
     private array $permisosUsuario = [];
 
-    public function __construct(private PermisoDAO $permisoDAO)
+    public function __construct(
+        private PermisoDAO $permisoDAO,
+        private ?AuditoriaDAO $auditoriaDAO = null
+    )
     {
+    }
+
+    /** Devuelve los permisos vigentes para controlar las opciones de la interfaz. */
+    public function permisosDeUsuario(int $usuarioId): array
+    {
+        if (!array_key_exists($usuarioId, $this->permisosUsuario)) {
+            $this->permisosUsuario[$usuarioId] = $this->permisoDAO->codigosPorUsuario($usuarioId);
+        }
+
+        return $this->permisosUsuario[$usuarioId];
     }
 
     public function verificarPermisoAccion(string $accion, ?array $usuario): void
@@ -42,7 +58,7 @@ final class AutorizacionRbacMiddleware
         $permiso = self::PERMISOS_POR_ACCION[$accion] ?? null;
 
         if ($permiso !== null) {
-            $this->exigirPermiso($usuario, $permiso);
+            $this->exigirPermiso($usuario, $permiso, $accion);
         }
     }
 
@@ -51,11 +67,11 @@ final class AutorizacionRbacMiddleware
         $permiso = self::PERMISOS_POR_PAGINA[$pagina] ?? null;
 
         if ($permiso !== null) {
-            $this->exigirPermiso($usuario, $permiso);
+            $this->exigirPermiso($usuario, $permiso, $pagina);
         }
     }
 
-    private function exigirPermiso(?array $usuario, string $codigoPermiso): void
+    private function exigirPermiso(?array $usuario, string $codigoPermiso, string $recurso): void
     {
         if ($usuario === null) {
             $this->denegar(true);
@@ -63,31 +79,59 @@ final class AutorizacionRbacMiddleware
 
         $usuarioId = (int) ($usuario['id'] ?? 0);
 
-        if ($usuarioId > 0 && $this->tienePermiso($usuarioId, $codigoPermiso)) {
+        if ($usuarioId > 0 && in_array($codigoPermiso, $this->permisosDeUsuario($usuarioId), true)) {
             return;
         }
 
-        $this->denegar(false);
+        $this->denegar(false, $usuario, $recurso);
     }
 
-    private function tienePermiso(int $usuarioId, string $codigoPermiso): bool
+    private function denegar(bool $requiereSesion, ?array $usuario = null, string $recurso = ''): never
     {
-        if (!array_key_exists($usuarioId, $this->permisosUsuario)) {
-            $this->permisosUsuario[$usuarioId] = $this->permisoDAO->codigosPorUsuario($usuarioId);
+        if ($requiereSesion) {
+            http_response_code(401);
+            Herramientas::mostrarAviso('error', 'Inicia sesión para acceder.');
+            Herramientas::redirigir('login');
         }
 
-        return in_array($codigoPermiso, $this->permisosUsuario[$usuarioId], true);
-    }
+        try {
+            $this->auditoriaDAO?->registrar([
+                'usuario_id' => $usuario['id'] ?? null,
+                'accion' => 'acceso_denegado',
+                'recurso' => mb_substr($recurso, 0, 120),
+                'metodo_http' => mb_substr((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'), 0, 10),
+                'direccion_ip' => mb_substr((string) ($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45),
+                'resultado' => 'Denegado',
+                'datos' => json_encode(['recurso' => $recurso], JSON_UNESCAPED_UNICODE),
+            ]);
+        } catch (Throwable) {
+            // Un fallo de auditoría no debe habilitar ni ocultar el rechazo.
+        }
 
-    private function denegar(bool $requiereSesion): never
-    {
-        http_response_code($requiereSesion ? 401 : 403);
-        Herramientas::mostrarAviso(
-            'error',
-            $requiereSesion
-                ? 'Inicia sesión para acceder.'
-                : 'Tu usuario no tiene el permiso necesario para esta operación.'
-        );
-        Herramientas::redirigir($requiereSesion ? 'login' : 'dashboard');
+        http_response_code(403);
+        $pagina = 'acceso_denegado';
+        $titulo = 'Acceso denegado | Norcentro';
+        $usuarioActual = $usuario;
+        $mensajeError = '';
+        $aviso = null;
+        $solicitudesCreditoPendientes = 0;
+        $permisosActuales = $usuario !== null
+            ? $this->permisosDeUsuario((int) ($usuario['id'] ?? 0))
+            : [];
+        $usuarioPuede = static fn (string $codigo): bool => in_array($codigo, $permisosActuales, true);
+        $vista = dirname(__DIR__) . '/vistas/paginas/acceso_denegado.php';
+
+        echo (new MotorVistas(dirname(__DIR__) . '/vistas'))->renderizar($pagina, compact(
+            'pagina',
+            'titulo',
+            'usuarioActual',
+            'mensajeError',
+            'aviso',
+            'solicitudesCreditoPendientes',
+            'permisosActuales',
+            'usuarioPuede',
+            'vista'
+        ));
+        exit;
     }
 }

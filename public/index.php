@@ -8,6 +8,7 @@ use App\AccesoDatos\ClienteDAO;
 use App\AccesoDatos\AuditoriaDAO;
 use App\AccesoDatos\PanelDAO;
 use App\AccesoDatos\PermisoDAO;
+use App\AccesoDatos\SesionDAO;
 use App\AccesoDatos\MotoDAO;
 use App\AccesoDatos\OfertaDAO;
 use App\AccesoDatos\PedidoDAO;
@@ -49,13 +50,14 @@ try {
     $ofertasDAO = new OfertaDAO($conexion);
     $resumenDAO = new PanelDAO($conexion);
     $pedidosDAO = new PedidoDAO($conexion);
+    $sesionesDAO = new SesionDAO($conexion);
     $permisosDAO = new PermisoDAO($conexion);
     $auditoriaDAO = new AuditoriaDAO($conexion);
-    $autorizacionRbac = new AutorizacionRbacMiddleware($permisosDAO);
-    (new AuditoriaMiddleware($auditoriaDAO))->registrar(
+    $auditoria = new AuditoriaMiddleware($auditoriaDAO);
+    $autorizacionRbac = new AutorizacionRbacMiddleware($permisosDAO, $auditoriaDAO);
+    $usuarioActual = AutenticacionMiddleware::validarSesionPersistida(
         $usuarioActual,
-        (string)($_POST['action'] ?? 'visita'),
-        $pagina
+        $sesionesDAO
     );
     $ofertasDAO->actualizarEstadoFechas();
     $pedidosDAO->liberarPedidosVencidos();
@@ -64,17 +66,19 @@ try {
         $datosPost = SeguridadMiddleware::sanearArregloEntrada($_POST);
         $accion = (string)($datosPost['action'] ?? '');
         if ($accion === 'iniciar_sesion') {
-            (new SesionControlador($usuariosDAO))->iniciarSesion($datosPost);
+            (new SesionControlador($usuariosDAO, $sesionesDAO))->iniciarSesion($datosPost);
         }
         AutenticacionMiddleware::exigirSesionParaAccion($usuarioActual);
         $autorizacionRbac->verificarPermisoAccion($accion, $usuarioActual);
+        $auditoria->registrar($usuarioActual, $accion, $pagina);
         $despachador = new DespachadorAcciones(
             $usuariosDAO,
             $motosDAO,
             $clientesDAO,
             $ventasDAO,
             $ofertasDAO,
-            $pedidosDAO
+            $pedidosDAO,
+            $sesionesDAO
         );
         $despachador->despachar($accion, $datosPost, $_FILES, $usuarioActual);
 
@@ -84,6 +88,15 @@ try {
         AutenticacionMiddleware::protegerRutaPrivada($pagina, $usuarioActual);
     }
     $autorizacionRbac->verificarAccesoPagina($pagina, $usuarioActual);
+    $auditoria->registrar($usuarioActual, 'visita', $pagina);
+    $permisosActuales = $usuarioActual !== null
+        ? $autorizacionRbac->permisosDeUsuario((int) $usuarioActual['id'])
+        : [];
+    $usuarioPuede = static fn (string $codigoPermiso): bool => in_array(
+        $codigoPermiso,
+        $permisosActuales,
+        true
+    );
     $paginaControlador = new PaginaControlador(
         $motosDAO,
         $clientesDAO,
@@ -92,11 +105,18 @@ try {
         $resumenDAO,
         $pedidosDAO
     );
-    extract($paginaControlador->preparar($pagina, $_GET, $usuarioActual), EXTR_OVERWRITE);
+    extract($paginaControlador->preparar(
+        $pagina,
+        $_GET,
+        $usuarioActual,
+        $permisosActuales
+    ), EXTR_OVERWRITE);
 } catch (Throwable $e) {
     error_log((string)$e);
-    $mensajeError = $e instanceof PDOException ? $e->getMessage() : 'No se pudo completar la solicitud. Revisa los datos y vuelve a intentarlo.';
-    if (str_contains($mensajeError, 'No se pudo conectar')) {
+    $esErrorDeConexion = $e instanceof PDOException
+        && str_contains($e->getMessage(), 'No se pudo conectar');
+    $mensajeError = 'No se pudo completar la solicitud. Revisa los datos y vuelve a intentarlo.';
+    if ($esErrorDeConexion) {
         $baseDatosNoDisponible = true;
         $mensajeError = 'MySQL no está disponible. Inicia MySQL en XAMPP; si es la primera instalación, importa sql/norcentro_web.sql.';
     }

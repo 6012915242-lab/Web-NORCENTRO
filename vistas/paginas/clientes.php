@@ -1,7 +1,7 @@
 <?php
 use App\Configuracion\Herramientas;
 $formularioCliente = $editCliente ?? [];
-$esAdministrador = $usuarioActual['rol'] === 'Administrador';
+$puedeDesactivarCliente = $usuarioPuede('clientes.desactivar');
 $continuarVenta = ($_GET['next'] ?? '') === 'venta';
 ?>
 <div class="page-head"><div><span class="eyebrow">Atención comercial</span><h1>Clientes</h1><p>Registra y consulta datos para el seguimiento de ventas.</p></div></div>
@@ -41,7 +41,7 @@ endif;
     <div class="table-wrap"><table><thead><tr><th>Cliente</th><th>DNI</th><th>Contacto</th><th>Acciones</th></tr></thead><tbody>
       <?php
 foreach ($elementos as $registroCliente):?><tr><td><b><?= Herramientas::escaparHtml($registroCliente['nombres'] . ' ' . $registroCliente['apellidos'])?></b></td><td><?= Herramientas::escaparHtml($registroCliente['dni'])?></td><td><?= Herramientas::escaparHtml($registroCliente['telefono'])?><small><?= Herramientas::escaparHtml($registroCliente['correo'])?></small></td><td><div class="actions"><a href="index.php?page=ventas&amp;cliente_id=<?= (int)$registroCliente['id']?>">Nueva venta</a><a href="index.php?page=clientes&amp;edit=<?= (int)$registroCliente['id']?>">Editar</a><?php
-if ($esAdministrador):?><form method="post" onsubmit="return confirm('¿Desactivar este cliente?')"><?= Herramientas::campoCsrf()?><input type="hidden" name="action" value="desactivar_cliente"><input type="hidden" name="id" value="<?= (int)$registroCliente['id']?>"><button class="danger-link">Desactivar</button></form><?php
+if ($puedeDesactivarCliente):?><form method="post" onsubmit="return confirm('¿Desactivar este cliente?')"><?= Herramientas::campoCsrf()?><input type="hidden" name="action" value="desactivar_cliente"><input type="hidden" name="id" value="<?= (int)$registroCliente['id']?>"><button class="danger-link">Desactivar</button></form><?php
 endif;
 ?></div></td></tr><?php
 endforeach;

@@ -50,27 +50,28 @@ $paginasSinPanelLateral = [
     'moto',
     'compra',
     'compra_credito',
+    'acceso_denegado',
 ];
 if ($usuarioActual && !in_array($pagina, $paginasSinPanelLateral, true)):?>
 <div class="app-shell">
   <aside class="sidebar"><div class="side-label">Área privada · <?= Herramientas::escaparHtml($usuarioActual['rol'])?></div>
     <a href="index.php?page=dashboard" class="<?= $pagina === 'dashboard'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="11" width="7" height="10" rx="1"/><rect x="3" y="14" width="8" height="7" rx="1"/></svg></span><span>Mi panel</span></a>
     <?php
-if ($usuarioActual['rol'] === 'Administrador'):?><a href="index.php?page=motos" class="<?= $pagina === 'motos'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="m6 17 4-7h4l4 7M9 13h7m-5-3-2-3H6m9 6 2-3h2"/></svg></span><span>Gestionar motos</span></a><?php
+if ($usuarioPuede('motos.gestionar')):?><a href="index.php?page=motos" class="<?= $pagina === 'motos'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="m6 17 4-7h4l4 7M9 13h7m-5-3-2-3H6m9 6 2-3h2"/></svg></span><span>Gestionar motos</span></a><?php
 endif;
 ?>
-    <a href="index.php?page=clientes" class="<?= $pagina === 'clientes'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-1.5a5.5 5.5 0 0 1 11 0V20zM16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8V20"/></svg></span><span>Clientes</span></a>
-    <a href="index.php?page=inventario" class="<?= $pagina === 'inventario'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 7 9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10M7.5 5l9 4"/></svg></span><span>Inventario</span></a>
-    <a href="index.php?page=ventas" class="<?= $pagina === 'ventas'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h17M7 15l4-4 3 2 6-7"/><path d="M16 6h4v4"/></svg></span><span>Ventas</span></a>
-    <a href="index.php?page=creditos" class="<?= $pagina === 'creditos'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span>Créditos y cuotas</span><?php
+    <?php if ($usuarioPuede('clientes.gestionar')):?><a href="index.php?page=clientes" class="<?= $pagina === 'clientes'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-1.5a5.5 5.5 0 0 1 11 0V20zM16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8V20"/></svg></span><span>Clientes</span></a><?php endif;?>
+    <?php if ($usuarioPuede('inventario.gestionar')):?><a href="index.php?page=inventario" class="<?= $pagina === 'inventario'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 7 9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10M7.5 5l9 4"/></svg></span><span>Inventario</span></a><?php endif;?>
+    <?php if ($usuarioPuede('ventas.registrar')):?><a href="index.php?page=ventas" class="<?= $pagina === 'ventas'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5m0 14h17M7 15l4-4 3 2 6-7"/><path d="M16 6h4v4"/></svg></span><span>Ventas</span></a><?php endif;?>
+    <?php if ($usuarioPuede('creditos.revisar')):?><a href="index.php?page=creditos" class="<?= $pagina === 'creditos'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span>Créditos y cuotas</span><?php
 if (($solicitudesCreditoPendientes ?? 0) > 0):?><span class="sidebar-count" aria-label="<?= (int)$solicitudesCreditoPendientes?> solicitudes por revisar"><?= (int)$solicitudesCreditoPendientes?></span><?php
 endif;
-?></a>
+?></a><?php endif;?>
     <?php
-if ($usuarioActual['rol'] === 'Administrador'):?><a href="index.php?page=ofertas" class="<?= $pagina === 'ofertas'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 13 12 21 3 12V4h8z"/><circle cx="7.5" cy="8" r="1"/></svg></span><span>Gestionar ofertas</span></a><?php
+if ($usuarioPuede('ofertas.gestionar')):?><a href="index.php?page=ofertas" class="<?= $pagina === 'ofertas'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 13 12 21 3 12V4h8z"/><circle cx="7.5" cy="8" r="1"/></svg></span><span>Gestionar ofertas</span></a><?php
 endif;
 ?>
-    <div class="side-foot"><?= $usuarioActual['rol'] === 'Administrador'?'Administración completa':'Atención y ventas'?> · NORCENTRO</div>
+    <div class="side-foot"><?= $usuarioPuede('motos.gestionar')?'Administración completa':'Atención y ventas'?> · NORCENTRO</div>
   </aside>
   <main class="workspace"><?php
 require $vista;

@@ -2,7 +2,7 @@
 use App\Configuracion\Herramientas;
 ?>
 <?php
-$esAdministrador = $usuarioActual['rol'] === 'Administrador';
+$esAdministrador = $usuarioPuede('motos.gestionar');
 ?>
 <div class="page-head"><div><span class="eyebrow">Norcentro · <?= $esAdministrador?'Administración':'Ventas'?></span><h1><?= $esAdministrador?'Panel de administración':'Panel de vendedor'?></h1><p><?= $esAdministrador?'Gestiona el catálogo, el inventario y la operación comercial.':'Registra clientes y ventas, y atiende las solicitudes de crédito.'?></p></div><a class="button primary" href="index.php?page=ventas">+ Nueva venta</a></div>
 <?php

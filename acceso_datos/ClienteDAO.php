@@ -1,6 +1,8 @@
 <?php
 declare(strict_types = 1);
 namespace App\AccesoDatos;
+
+use App\Modelos\Cliente;
 use App\Nucleo\ModeloBaseORM;
 /** Guarda y consulta la información de los clientes en MySQL. */
 final class ClienteDAO extends ModeloBaseORM
@@ -53,6 +55,18 @@ final class ClienteDAO extends ModeloBaseORM
         $consulta = $this->conexion->prepare('SELECT * FROM clientes WHERE id=:id');
         $consulta->execute(['id' => $id]);
         return $consulta->fetch()?:null;
+    }
+
+    /** Recupera un cliente como entidad para aplicar reglas de negocio tipadas. */
+    public function obtenerEntidad(int $id): ?Cliente
+    {
+        return $this->hidratarEntidad(
+            Cliente::class,
+            'SELECT id, dni, nombres, apellidos, telefono, direccion, correo, estado
+             FROM clientes
+             WHERE id = :id',
+            ['id' => $id]
+        );
     }
 
     public function existeDni(string $dni, ?int $excepto = null): bool {
