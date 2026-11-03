@@ -364,3 +364,172 @@
     min-width: 690px;
   }
 }
+
+/* Administración de fotografías por color de cada motocicleta. */
+.moto-admin-layout {
+  grid-template-columns: minmax(430px, 0.95fr) minmax(520px, 1.25fr);
+  align-items: start;
+}
+.moto-admin-form {
+  gap: 16px;
+}
+.upload-principal small,
+.moto-angle-files small,
+.moto-gallery-help {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.moto-gallery-admin {
+  padding: 18px;
+  border: 1px solid #dfe2e7;
+  border-radius: 12px;
+  background: #f8f9fb;
+}
+.moto-gallery-admin-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 15px;
+}
+.moto-gallery-admin-head h3 {
+  margin: 3px 0 5px;
+  font-size: 18px;
+}
+.moto-gallery-admin-head p {
+  max-width: 560px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.moto-existing-colors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.moto-existing-colors article {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #e0e3e8;
+  border-radius: 9px;
+  background: #fff;
+}
+.moto-existing-colors strong,
+.moto-existing-colors small {
+  display: block;
+}
+.moto-existing-colors strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.moto-existing-colors small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.moto-existing-swatch {
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--existing-color);
+  box-shadow: 0 0 0 1px #c9ced6;
+}
+.moto-color-groups {
+  display: grid;
+  gap: 12px;
+}
+.moto-color-upload {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #d9dde4;
+  border-radius: 10px;
+  background: #fff;
+}
+.moto-color-upload legend {
+  padding: 0 7px;
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+.moto-color-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 12px;
+}
+.moto-color-fields input[type="color"] {
+  width: 100%;
+  min-height: 45px;
+  padding: 5px;
+  cursor: pointer;
+}
+.moto-angle-files {
+  display: block;
+  margin-top: 12px;
+}
+.moto-angle-files input[type="file"],
+.upload-principal input[type="file"] {
+  width: 100%;
+  margin-top: 6px;
+  padding: 9px;
+  border: 1px dashed #bfc5ce;
+  border-radius: 8px;
+  background: #fff;
+}
+.moto-remove-color {
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #a01424;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 750;
+}
+.moto-remove-color[hidden] {
+  display: none;
+}
+.error-text {
+  color: #a01424 !important;
+  font-weight: 750;
+}
+@media (max-width: 1100px) {
+  .moto-admin-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .moto-gallery-admin {
+    padding: 14px 11px;
+  }
+  .moto-gallery-admin-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .moto-gallery-admin-head .button {
+    width: 100%;
+  }
+  .moto-existing-colors,
+  .moto-color-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .moto-color-fields label:last-child {
+    max-width: 120px;
+  }
+}

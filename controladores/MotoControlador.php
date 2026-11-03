@@ -19,11 +19,18 @@ final class MotoControlador
         $this->servicioComercial = $servicioComercial ?? new GestionComercialServicio();
     }
 
-    public function guardar(array $post, ?array $archivo, bool $esEdicion = false): never
+    public function guardar(array $post, array $archivos, bool $esEdicion = false): never
     {
         try {
-            $this->servicioComercial->validarYGuardarMoto($this->dao, $post, $archivo, $esEdicion);
-            $mensaje = $esEdicion ? 'Motocicleta actualizada.' : 'Motocicleta registrada con sus unidades disponibles.';
+            $this->servicioComercial->validarYGuardarMoto(
+                $this->dao,
+                $post,
+                $archivos,
+                $esEdicion
+            );
+            $mensaje = $esEdicion
+                ? 'Motocicleta y galería actualizadas.'
+                : 'Motocicleta registrada con colores, fotografías y unidades disponibles.';
             Herramientas::mostrarAviso('success', $mensaje);
         } catch (DomainException $error) {
             Herramientas::mostrarAviso('error', $error->getMessage());

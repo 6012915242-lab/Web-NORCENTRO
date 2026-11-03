@@ -237,12 +237,17 @@ final class PaginaControlador
 
     private function prepararMotos(array $consulta): array
     {
+        $editMoto = isset($consulta['edit'])
+            ? $this->motoDAO->obtener((int) $consulta['edit'])
+            : null;
+
         return [
             'elementos' => $this->motoDAO->listar(trim((string) ($consulta['q'] ?? ''))),
             'marcas' => $this->motoDAO->marcas(),
-            'editMoto' => isset($consulta['edit'])
-                ? $this->motoDAO->obtener((int) $consulta['edit'])
-                : null,
+            'editMoto' => $editMoto,
+            'coloresEdicion' => $editMoto !== null
+                ? $this->motoDAO->coloresPublicos((int) $editMoto['id'])
+                : [],
         ];
     }
 

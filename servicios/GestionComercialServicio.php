@@ -74,30 +74,53 @@ final class GestionComercialServicio
         return $clienteDAO->guardar($datos);
     }
 
-    public function validarYGuardarMoto(MotoDAO $motoDAO, array $entrada, ?array $archivo, bool $esEdicion = false): void
+    public function validarYGuardarMoto(
+        MotoDAO $motoDAO,
+        array $entrada,
+        array $archivos,
+        bool $esEdicion = false
+    ): void
     {
-        $id          = filter_var($entrada['id'] ?? 0, FILTER_VALIDATE_INT);
-        $marcaId     = filter_var($entrada['marca_id'] ?? null, FILTER_VALIDATE_INT);
-        $modelo      = trim((string) ($entrada['modelo'] ?? ''));
-        $color       = trim((string) ($entrada['color'] ?? 'Varios'));
+        $id = filter_var($entrada['id'] ?? 0, FILTER_VALIDATE_INT);
+        $marcaId = filter_var($entrada['marca_id'] ?? null, FILTER_VALIDATE_INT);
+        $modelo = trim((string) ($entrada['modelo'] ?? ''));
         $descripcion = trim((string) ($entrada['descripcion'] ?? ''));
-        $precio      = filter_var($entrada['precio'] ?? null, FILTER_VALIDATE_FLOAT);
-        $cantidad    = filter_var($entrada['cantidad'] ?? 1, FILTER_VALIDATE_INT);
-        $cc          = filter_var($entrada['cilindrada'] ?? null, FILTER_VALIDATE_INT);
-        $anio        = filter_var($entrada['anio'] ?? null, FILTER_VALIDATE_INT);
+        $precio = filter_var($entrada['precio'] ?? null, FILTER_VALIDATE_FLOAT);
+        $cantidad = filter_var($entrada['cantidad'] ?? 1, FILTER_VALIDATE_INT);
+        $cc = filter_var($entrada['cilindrada'] ?? null, FILTER_VALIDATE_INT);
+        $anio = filter_var($entrada['anio'] ?? null, FILTER_VALIDATE_INT);
 
         $anioValido = ($anio !== false && $anio >= 1970 && $anio <= (int) date('Y') + 2);
 
-        if (($esEdicion && (!$id || $id < 1)) || !$marcaId || $marcaId < 1 || mb_strlen($modelo) < 2 || mb_strlen($modelo) > 120) {
+        if (
+            ($esEdicion && (!$id || $id < 1))
+            || !$marcaId
+            || $marcaId < 1
+            || mb_strlen($modelo) < 2
+            || mb_strlen($modelo) > 120
+        ) {
             throw new DomainException('Revisa la marca y el nombre del modelo (2 a 120 caracteres).');
         }
 
-        if ($precio === false || $precio <= 0 || $precio > 1000000 || $cc === false || $cc < 1 || $cc > 2000 || !$anioValido) {
+        if (
+            $precio === false
+            || $precio <= 0
+            || $precio > 1000000
+            || $cc === false
+            || $cc < 1
+            || $cc > 2000
+            || !$anioValido
+        ) {
             throw new DomainException('Revisa la cilindrada, el año y el precio de la motocicleta.');
         }
 
-        if ($cantidad === false || $cantidad < 1 || (!$esEdicion && $cantidad > 200) || mb_strlen($color) > 60 || mb_strlen($descripcion) > 1200) {
-            throw new DomainException('Revisa la cantidad de unidades iniciales, el color y la descripción.');
+        if (
+            $cantidad === false
+            || $cantidad < 1
+            || (!$esEdicion && $cantidad > 200)
+            || mb_strlen($descripcion) > 1200
+        ) {
+            throw new DomainException('Revisa la cantidad de unidades iniciales y la descripción.');
         }
 
         if (!$motoDAO->marcaActiva((int) $marcaId)) {
@@ -110,52 +133,185 @@ final class GestionComercialServicio
             throw new DomainException('No se encontró la motocicleta que quieres editar.');
         }
 
-        $imagen = $registroAnterior['imagen'] ?? 'img/motos/Bajaj Pulsar NS200.jpg';
+        $colores = $this->procesarColoresMoto(
+            is_array($entrada['colores'] ?? null) ? $entrada['colores'] : [],
+            is_array($archivos['imagenes_color'] ?? null)
+                ? $archivos['imagenes_color']
+                : [],
+            $modelo
+        );
+        $imagenPrincipal = $this->guardarImagenSubida($archivos['imagen_principal'] ?? null);
 
-        if ($archivo && ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-            if (($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || (int) ($archivo['size'] ?? 0) > 5 * 1024 * 1024 || empty($archivo['tmp_name']) || !is_uploaded_file($archivo['tmp_name'])) {
-                throw new DomainException('La imagen no pudo cargarse (máximo 5 MB).');
-            }
-
-            $tipoMime = (new \finfo(FILEINFO_MIME_TYPE))->file($archivo['tmp_name']);
-            $mapaExt  = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-            $ext      = $mapaExt[$tipoMime] ?? null;
-
-            if (!$ext || @getimagesize($archivo['tmp_name']) === false) {
-                throw new DomainException('Usa una imagen JPG, PNG o WEBP válida.');
-            }
-
-            $carpeta = dirname(__DIR__) . '/public/img/motos/uploads';
-            if (!is_dir($carpeta) && !mkdir($carpeta, 0775, true) && !is_dir($carpeta)) {
-                throw new DomainException('No se pudo preparar la carpeta de imágenes.');
-            }
-
-            $nombre = bin2hex(random_bytes(12)) . '.' . $ext;
-            if (!move_uploaded_file($archivo['tmp_name'], $carpeta . '/' . $nombre)) {
-                throw new DomainException('No se pudo guardar la imagen.');
-            }
-
-            $imagen = 'img/motos/uploads/' . $nombre;
+        if (!$esEdicion && $imagenPrincipal === null && $colores !== []) {
+            $imagenPrincipal = $colores[0]['imagenes'][0]['ruta'];
         }
 
+        if (!$esEdicion && $imagenPrincipal === null) {
+            throw new DomainException(
+                'Sube una foto principal o al menos una toma dentro de un color.'
+            );
+        }
+
+        $imagen = $imagenPrincipal
+            ?? ($registroAnterior['imagen'] ?? 'img/motos/Bajaj Pulsar NS200.jpg');
+        $nombresColores = array_column($colores, 'nombre');
+        $color = $esEdicion
+            ? (string) ($registroAnterior['color'] ?? 'Varios')
+            : (count($nombresColores) === 1 ? $nombresColores[0] : 'Varios');
+
         $datos = [
-            'marca_id'    => (int) $marcaId,
-            'modelo'      => $modelo,
-            'cilindrada'  => (int) $cc,
-            'color'       => $color,
-            'precio'      => (float) $precio,
+            'marca_id' => (int) $marcaId,
+            'modelo' => $modelo,
+            'cilindrada' => (int) $cc,
+            'color' => $color,
+            'precio' => (float) $precio,
             'descripcion' => $descripcion,
-            'anio'        => (int) $anio,
-            'imagen'      => $imagen,
-            'cantidad'    => (int) $cantidad,
+            'anio' => (int) $anio,
+            'imagen' => $imagen,
+            'cantidad' => (int) $cantidad,
         ];
 
         if ($esEdicion) {
             $motoDAO->actualizar((int) $id, $datos);
+            $motoDAO->guardarGaleriaColores((int) $id, $colores);
             return;
         }
 
-        $motoDAO->guardar($datos);
+        $motoId = $motoDAO->guardar($datos);
+        $motoDAO->guardarGaleriaColores($motoId, $colores);
+    }
+
+    private function procesarColoresMoto(
+        array $coloresEntrada,
+        array $grupoArchivos,
+        string $modelo
+    ): array {
+        if (count($coloresEntrada) > 6) {
+            throw new DomainException('Puedes registrar como máximo 6 colores por operación.');
+        }
+
+        $colores = [];
+        foreach ($coloresEntrada as $indice => $datosColor) {
+            if (!is_array($datosColor)) {
+                continue;
+            }
+
+            $nombreColor = trim((string) ($datosColor['nombre'] ?? ''));
+            $codigoHex = strtolower(trim((string) ($datosColor['codigo_hex'] ?? '#cccccc')));
+            $archivosColor = $this->normalizarArchivosColor($grupoArchivos, $indice);
+            $archivosSeleccionados = array_values(array_filter(
+                $archivosColor,
+                static fn (array $archivo): bool =>
+                    (int) ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
+            ));
+
+            if ($nombreColor === '' && $archivosSeleccionados === []) {
+                continue;
+            }
+
+            if (mb_strlen($nombreColor) < 2 || mb_strlen($nombreColor) > 60) {
+                throw new DomainException('Cada color debe tener un nombre de 2 a 60 caracteres.');
+            }
+
+            if (!preg_match('/^#[0-9a-f]{6}$/', $codigoHex)) {
+                throw new DomainException('El código de cada color debe tener el formato #RRGGBB.');
+            }
+
+            if ($archivosSeleccionados === []) {
+                throw new DomainException('Selecciona al menos una fotografía para ' . $nombreColor . '.');
+            }
+
+            if (count($archivosSeleccionados) > 10) {
+                throw new DomainException('Puedes subir como máximo 10 tomas por color.');
+            }
+
+            $imagenes = [];
+            foreach ($archivosSeleccionados as $posicion => $archivo) {
+                $ruta = $this->guardarImagenSubida($archivo);
+                if ($ruta === null) {
+                    continue;
+                }
+
+                $imagenes[] = [
+                    'ruta' => $ruta,
+                    'texto_alt' => sprintf(
+                        '%s %s, vista %02d',
+                        $modelo,
+                        $nombreColor,
+                        $posicion + 1
+                    ),
+                ];
+            }
+
+            $colores[] = [
+                'nombre' => $nombreColor,
+                'codigo_hex' => $codigoHex,
+                'imagenes' => $imagenes,
+            ];
+        }
+
+        return $colores;
+    }
+
+    private function normalizarArchivosColor(array $grupo, int|string $indice): array
+    {
+        $nombres = $grupo['name'][$indice] ?? [];
+        if (!is_array($nombres)) {
+            $nombres = [$nombres];
+        }
+
+        $archivos = [];
+        foreach (array_keys($nombres) as $posicion) {
+            $archivos[] = [
+                'name' => $grupo['name'][$indice][$posicion] ?? '',
+                'type' => $grupo['type'][$indice][$posicion] ?? '',
+                'tmp_name' => $grupo['tmp_name'][$indice][$posicion] ?? '',
+                'error' => $grupo['error'][$indice][$posicion] ?? UPLOAD_ERR_NO_FILE,
+                'size' => $grupo['size'][$indice][$posicion] ?? 0,
+            ];
+        }
+
+        return $archivos;
+    }
+
+    private function guardarImagenSubida(?array $archivo): ?string
+    {
+        if ($archivo === null || ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        if (
+            ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
+            || (int) ($archivo['size'] ?? 0) > 5 * 1024 * 1024
+            || empty($archivo['tmp_name'])
+            || !is_uploaded_file($archivo['tmp_name'])
+        ) {
+            throw new DomainException('Una imagen no pudo cargarse o supera el máximo de 5 MB.');
+        }
+
+        $tipoMime = (new \finfo(FILEINFO_MIME_TYPE))->file($archivo['tmp_name']);
+        $extensiones = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ];
+        $extension = $extensiones[$tipoMime] ?? null;
+
+        if ($extension === null || @getimagesize($archivo['tmp_name']) === false) {
+            throw new DomainException('Usa únicamente imágenes JPG, PNG o WEBP válidas.');
+        }
+
+        $carpeta = dirname(__DIR__) . '/public/img/motos/uploads';
+        if (!is_dir($carpeta) && !mkdir($carpeta, 0775, true) && !is_dir($carpeta)) {
+            throw new DomainException('No se pudo preparar la carpeta de imágenes.');
+        }
+
+        $nombreArchivo = bin2hex(random_bytes(12)) . '.' . $extension;
+        if (!move_uploaded_file($archivo['tmp_name'], $carpeta . '/' . $nombreArchivo)) {
+            throw new DomainException('No se pudo guardar una de las imágenes.');
+        }
+
+        return 'img/motos/uploads/' . $nombreArchivo;
     }
 
     public function validarYGuardarOferta(OfertaDAO $ofertaDAO, array $entrada): void

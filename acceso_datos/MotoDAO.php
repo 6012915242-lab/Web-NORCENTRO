@@ -137,6 +137,63 @@ final class MotoDAO extends ModeloBaseORM
         $consulta->execute();
     }
 
+    /** Guarda colores y varias tomas por color sin eliminar la galería existente. */
+    public function guardarGaleriaColores(int $motoId, array $colores): void
+    {
+        if ($colores === []) {
+            return;
+        }
+
+        $this->ejecutarEnTransaccion(function () use ($motoId, $colores): void {
+            $consultaOrdenColor = $this->conexion->prepare(
+                'SELECT COALESCE(MAX(orden), 0) FROM moto_colores WHERE moto_id = :moto_id'
+            );
+            $consultaOrdenColor->execute(['moto_id' => $motoId]);
+            $ordenColor = (int) $consultaOrdenColor->fetchColumn();
+
+            $guardarColor = $this->conexion->prepare(
+                'INSERT INTO moto_colores (moto_id, nombre, codigo_hex, orden)
+                 VALUES (:moto_id, :nombre, :codigo_hex, :orden)
+                 ON DUPLICATE KEY UPDATE
+                    id = LAST_INSERT_ID(id),
+                    codigo_hex = VALUES(codigo_hex)'
+            );
+            $consultarOrdenImagen = $this->conexion->prepare(
+                'SELECT COALESCE(MAX(orden), 0)
+                 FROM moto_color_imagenes
+                 WHERE color_id = :color_id'
+            );
+            $guardarImagen = $this->conexion->prepare(
+                'INSERT INTO moto_color_imagenes (color_id, ruta, texto_alt, orden)
+                 VALUES (:color_id, :ruta, :texto_alt, :orden)'
+            );
+
+            foreach ($colores as $color) {
+                $ordenColor++;
+                $guardarColor->execute([
+                    'moto_id' => $motoId,
+                    'nombre' => $color['nombre'],
+                    'codigo_hex' => $color['codigo_hex'],
+                    'orden' => $ordenColor,
+                ]);
+                $colorId = (int) $this->conexion->lastInsertId();
+
+                $consultarOrdenImagen->execute(['color_id' => $colorId]);
+                $ordenImagen = (int) $consultarOrdenImagen->fetchColumn();
+
+                foreach ($color['imagenes'] as $imagen) {
+                    $ordenImagen++;
+                    $guardarImagen->execute([
+                        'color_id' => $colorId,
+                        'ruta' => $imagen['ruta'],
+                        'texto_alt' => $imagen['texto_alt'],
+                        'orden' => $ordenImagen,
+                    ]);
+                }
+            }
+        });
+    }
+
     public function desactivar(int $id): void {
         $consulta = $this->conexion->prepare('UPDATE motos SET estado="Inactivo" WHERE id=:id');
         $consulta->execute(['id' => $id]);

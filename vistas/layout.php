@@ -8,7 +8,7 @@ use App\Configuracion\Herramientas;
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Sistema web Norcentro para motocicletas, clientes, ventas, créditos y ofertas.">
   <title><?= Herramientas::escaparHtml($titulo)?></title>
-  <link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix"><link rel="stylesheet" href="css/listing.css?v=20260929-credit-summary"><link rel="stylesheet" href="css/responsive.css?v=20261103-gallery-fix">
+  <link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix"><link rel="stylesheet" href="css/listing.css?v=20261103-gallery-admin"><link rel="stylesheet" href="css/responsive.css?v=20261103-gallery-fix">
 </head>
 <body class="page-<?= Herramientas::escaparHtml($pagina)?><?= $mensajeError ? ' page-error' : ''?>">
 <?php
@@ -41,10 +41,17 @@ if ($aviso):?><div class="toast <?= Herramientas::escaparHtml($aviso[0])?>" role
 endif;
 ?>
 <?php
-if ($usuarioActual && !in_array($pagina, ['inicio',
-        'ofertas',
-        'login',
-        'compra_credito'], true)):?>
+$paginasSinPanelLateral = [
+    'inicio',
+    'catalogo',
+    'ofertas',
+    'contacto',
+    'login',
+    'moto',
+    'compra',
+    'compra_credito',
+];
+if ($usuarioActual && !in_array($pagina, $paginasSinPanelLateral, true)):?>
 <div class="app-shell">
   <aside class="sidebar"><div class="side-label">Área privada · <?= Herramientas::escaparHtml($usuarioActual['rol'])?></div>
     <a href="index.php?page=dashboard" class="<?= $pagina === 'dashboard'?'active':''?>"><span class="side-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="11" width="7" height="10" rx="1"/><rect x="3" y="14" width="8" height="7" rx="1"/></svg></span><span>Mi panel</span></a>
@@ -84,6 +91,9 @@ if ($pagina === 'compra'):?><script src="js/order-status.js?v=20260927-mp" defer
 endif;
 ?><?php
 if ($pagina === 'compra_credito'):?><script src="js/credit-checkout.js?v=20260929-credit-review" defer></script><?php
+endif;
+?><?php
+if ($pagina === 'motos'):?><script src="js/admin-motos.js?v=20261103-gallery-admin" defer></script><?php
 endif;
 ?>
 </body></html>

@@ -44,7 +44,7 @@ final class DespachadorAcciones
             case 'guardar_moto':
                 (new MotoControlador($this->motoDAO))->guardar(
                     $datos,
-                    $archivos['imagen'] ?? null,
+                    $archivos,
                     (int) ($datos['id'] ?? 0) > 0
                 );
                 break;
