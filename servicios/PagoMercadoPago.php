@@ -9,8 +9,13 @@ final class PagoMercadoPago
     public function __construct(?string $tokenAcceso = null)
     {
         $this->tokenAcceso = trim($tokenAcceso ?? (getenv('MP_ACCESS_TOKEN')?:''));
-        if ($this->tokenAcceso === '') throw new \RuntimeException('Falta configurar MP_ACCESS_TOKEN en el servidor.');
-        if (!function_exists('curl_init')) throw new \RuntimeException('PHP necesita la extensión cURL para conectar con Mercado Pago.');
+        if ($this->tokenAcceso === '') {
+            throw new \RuntimeException('Falta configurar MP_ACCESS_TOKEN en el servidor.');
+        }
+
+        if (!function_exists('curl_init')) {
+            throw new \RuntimeException('PHP necesita la extensión cURL para conectar con Mercado Pago.');
+        }
     }
 
     public function crearOrden(array $pedido): array
@@ -52,10 +57,16 @@ final class PagoMercadoPago
         $checkout = (string)($resultado['checkout_url'] ?? '');
         $parts = parse_url($checkout);
         $host = strtolower((string)($parts['host'] ?? ''));
-        if (($parts['scheme'] ?? '') !== 'https' || !in_array($host, ['www.mercadopago.com.pe',
-                'mercadopago.com.pe',
-                'www.mercadopago.com',
-                'mercadopago.com'], true)) throw new \RuntimeException('Mercado Pago no devolvió una URL de checkout válida.');
+        $dominiosPermitidos = [
+            'www.mercadopago.com.pe',
+            'mercadopago.com.pe',
+            'www.mercadopago.com',
+            'mercadopago.com',
+        ];
+
+        if (($parts['scheme'] ?? '') !== 'https' || !in_array($host, $dominiosPermitidos, true)) {
+            throw new \RuntimeException('Mercado Pago no devolvió una URL de checkout válida.');
+        }
         return ['mp_order_id' => (string)($resultado['id'] ?? ''),
             'checkout_url' => $checkout,
             'response' => $resultado];
@@ -63,7 +74,9 @@ final class PagoMercadoPago
 
     public function obtenerOrden(string $idPedido): array
     {
-        if (!preg_match('/^[A-Za-z0-9_-]{8,80}$/', $idPedido)) throw new \InvalidArgumentException('Identificador de pago no válido.');
+        if (!preg_match('/^[A-Za-z0-9_-]{8,80}$/', $idPedido)) {
+            throw new \InvalidArgumentException('Identificador de pago no válido.');
+        }
         return $this->enviarSolicitud('GET', 'https://api.mercadopago.com/v1/orders/' . rawurlencode($idPedido));
     }
 
@@ -72,7 +85,9 @@ final class PagoMercadoPago
         $encabezados = ['Accept: application/json',
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->tokenAcceso];
-        if ($idempotency !== null)$encabezados[] = 'X-Idempotency-Key: ' . $idempotency;
+        if ($idempotency !== null) {
+            $encabezados[] = 'X-Idempotency-Key: ' . $idempotency;
+        }
         $curl = curl_init($url);
         curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_CUSTOMREQUEST => $metodo,
@@ -81,12 +96,20 @@ final class PagoMercadoPago
                 CURLOPT_TIMEOUT => 20,
                 CURLOPT_SSL_VERIFYPEER => true,
                 CURLOPT_SSL_VERIFYHOST => 2]);
-        if ($body !== null)curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($body, JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR));
+        if ($body !== null) {
+            curl_setopt(
+                $curl,
+                CURLOPT_POSTFIELDS,
+                json_encode($body, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)
+            );
+        }
         $valorOriginal = curl_exec($curl);
         $estado = (int)curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         $error = curl_error($curl);
         curl_close($curl);
-        if ($valorOriginal === false)throw new \RuntimeException('No se pudo conectar con Mercado Pago: ' . $error);
+        if ($valorOriginal === false) {
+            throw new \RuntimeException('No se pudo conectar con Mercado Pago: ' . $error);
+        }
         $datosDecodificados = json_decode($valorOriginal, true);
         if ($estado < 200 || $estado >= 300 || !is_array($datosDecodificados)) {
             $motivo = is_array($datosDecodificados)?(string)($datosDecodificados['message'] ?? $datosDecodificados['error'] ?? 'respuesta no válida'):'respuesta no válida';

@@ -1,12 +1,10 @@
 <?php
 declare(strict_types = 1);
 namespace App\AccesoDatos;
-use PDO;
+use App\Nucleo\ModeloBaseORM;
 /** Guarda y consulta la información de los clientes en MySQL. */
-final class ClienteDAO
+final class ClienteDAO extends ModeloBaseORM
 {
-    public function __construct(private PDO $conexion) {}
-
     public function listar(string $buscar = ''): array
     {
         $consultaSQL = 'SELECT * FROM clientes WHERE estado="Activo"';

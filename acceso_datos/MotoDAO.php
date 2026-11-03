@@ -3,11 +3,10 @@ declare(strict_types = 1);
 namespace App\AccesoDatos;
 use PDO;
 use App\Modelos\Moto;
+use App\Nucleo\ModeloBaseORM;
 /** Ejecuta consultas de catálogo, modelos, fotos e inventario de motos. */
-final class MotoDAO
+final class MotoDAO extends ModeloBaseORM
 {
-    public function __construct(private PDO $conexion) {}
-
     public function listar(string $buscar = ''): array
     {
         $consultaSQL = "SELECT m.*, ma.nombre marca, (SELECT COUNT(*) FROM unidades_moto u WHERE u.moto_id=m.id AND u.estado='Disponible') disponibles FROM motos m JOIN marcas ma ON ma.id=m.marca_id WHERE m.estado='Activo' AND ma.estado='Activo'";
@@ -35,24 +34,13 @@ final class MotoDAO
     /** Mapea una fila de motos a una entidad del dominio. */
     public function obtenerEntidad(int $id): ?Moto
     {
-        $registro = $this->obtener($id);
-        return $registro ? $this->mapearEntidad($registro) : null;
-    }
-
-    private function mapearEntidad(array $registro): Moto
-    {
-        return new Moto(
-            (int)$registro['id'],
-            (int)$registro['marca_id'],
-            (string)$registro['marca'],
-            (string)$registro['modelo'],
-            (int)$registro['cilindrada'],
-            (string)$registro['color'],
-            (float)$registro['precio'],
-            (string)$registro['descripcion'],
-            (int)$registro['anio'],
-            (string)$registro['imagen'],
-            (string)$registro['estado']
+        return $this->hidratarEntidad(
+            Moto::class,
+            'SELECT m.*, ma.nombre AS marca
+             FROM motos m
+             INNER JOIN marcas ma ON ma.id = m.marca_id
+             WHERE m.id = :id',
+            ['id' => $id]
         );
     }
 

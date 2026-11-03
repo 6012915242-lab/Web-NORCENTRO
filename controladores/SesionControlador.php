@@ -1,33 +1,58 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 namespace App\Controladores;
+
 use App\AccesoDatos\UsuarioDAO;
 use App\Configuracion\Herramientas;
-/** Valida el acceso y coordina el inicio y cierre de sesión. */
+use App\Servicios\AutenticacionServicio;
+use DomainException;
+
+/** Coordina la sesión HTTP y delega las credenciales al servicio. */
 final class SesionControlador
 {
-    public function __construct(private UsuarioDAO $dao) {}
+    private AutenticacionServicio $servicioAutenticacion;
 
-    public function iniciarSesion(array $post): never
-    {
-        $usuario = trim((string)($post['usuario'] ?? ''));
-        $clave = (string)($post['password'] ?? '');
-        $fila = $usuario !== ''?$this->dao->buscarActivo($usuario):null;
-        if (!$fila || !password_verify($clave, $fila['password_hash'])) {
-            Herramientas::mostrarAviso('error', 'Usuario o contraseña incorrectos.');
-            Herramientas::redirigir('login');
-        }
-        session_regenerate_id(true);
-        $_SESSION['user'] = ['id' => (int)$fila['id'],
-            'nombre' => $fila['nombre'],
-            'usuario' => $fila['usuario'],
-            'rol' => $fila['rol']];
-        Herramientas::redirigir('dashboard');
+    public function __construct(
+        private UsuarioDAO $usuarioDAO,
+        ?AutenticacionServicio $servicioAutenticacion = null
+    ) {
+        $this->servicioAutenticacion = $servicioAutenticacion ?? new AutenticacionServicio();
     }
 
-    public function cerrarSesion(): never {
+    public function iniciarSesion(array $datos): never
+    {
+        try {
+            $usuario = $this->servicioAutenticacion->autenticar(
+                $this->usuarioDAO,
+                (string) ($datos['usuario'] ?? ''),
+                (string) ($datos['password'] ?? ''),
+                (string) ($_SERVER['REMOTE_ADDR'] ?? '')
+            );
+
+            session_regenerate_id(true);
+            $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+            $_SESSION['_ultima_actividad'] = time();
+            $_SESSION['user'] = [
+                'id' => $usuario->id,
+                'nombre' => $usuario->nombre,
+                'usuario' => $usuario->usuario,
+                'rol' => $usuario->rol,
+            ];
+
+            Herramientas::redirigir('dashboard');
+        } catch (DomainException $error) {
+            Herramientas::mostrarAviso('error', $error->getMessage());
+            Herramientas::redirigir('login');
+        }
+    }
+
+    public function cerrarSesion(): never
+    {
         $_SESSION = [];
         session_regenerate_id(true);
+        $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+
         Herramientas::mostrarAviso('success', 'Sesión cerrada correctamente.');
         Herramientas::redirigir('login');
     }

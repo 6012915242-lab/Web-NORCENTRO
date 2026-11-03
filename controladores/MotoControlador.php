@@ -44,16 +44,8 @@ final class MotoControlador
 
     public function agregarUnidadInventario(array $post): never
     {
-        $idMoto = filter_var($post['moto_id'] ?? null, FILTER_VALIDATE_INT);
-        $serie  = strtoupper(trim((string) ($post['codigo_serie'] ?? '')));
-
-        if (!$idMoto || $idMoto < 1 || !preg_match('/^[A-Z0-9][A-Z0-9-]{2,49}$/', $serie)) {
-            Herramientas::mostrarAviso('error', 'Selecciona una moto y escribe un código de serie válido (3 a 50 letras, números o guiones).');
-            Herramientas::redirigir('inventario');
-        }
-
         try {
-            $this->dao->registrarUnidad((int) $idMoto, $serie);
+            $this->servicioComercial->validarYRegistrarUnidad($this->dao, $post);
             Herramientas::mostrarAviso('success', 'Unidad registrada en el inventario.');
         } catch (DomainException $error) {
             Herramientas::mostrarAviso('error', $error->getMessage());

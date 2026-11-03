@@ -1,12 +1,10 @@
 <?php
 declare(strict_types = 1);
 namespace App\AccesoDatos;
-use PDO;
+use App\Nucleo\ModeloBaseORM;
 /** Obtiene los totales y resúmenes que muestra el panel. */
-final class PanelDAO
+final class PanelDAO extends ModeloBaseORM
 {
-    public function __construct(private PDO $conexion) {}
-
     public function resumen(): array
     {
         return [

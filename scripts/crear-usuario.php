@@ -1,11 +1,15 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
+
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
     exit;
 }
 require_once dirname(__DIR__) . '/autoload.php';
+
+use App\AccesoDatos\UsuarioDAO;
 use App\Configuracion\BaseDatos;
+
 $nombreUsuario = trim((string)getenv('NORCENTRO_NEW_USERNAME'));
 $clave = (string)getenv('NORCENTRO_NEW_PASSWORD');
 $nombre = trim((string)getenv('NORCENTRO_NEW_NAME'));
@@ -16,17 +20,22 @@ if (!preg_match('/^[A-Za-z0-9._-]{3,50}$/', $nombreUsuario) || strlen($clave) < 
     exit(1);
 }
 try {
-    $conexion = BaseDatos::conectar();
-    $roleQuery = $conexion->prepare('SELECT id FROM roles WHERE nombre=:name LIMIT 1');
-    $roleQuery->execute(['name' => $nombreRol]);
-    $rol = $roleQuery->fetchColumn();
-    if (!$rol) throw new RuntimeException('No existe el rol solicitado. Importa primero sql/norcentro_web.sql.');
-    $insercion = $conexion->prepare('INSERT INTO usuarios(rol_id,usuario,password_hash,nombre) VALUES(:role,:username,:hash,:name)');
-    $insercion->execute(['role' => (int)$rol,
-            'username' => $nombreUsuario,
-            'hash' => password_hash($clave,
-            PASSWORD_DEFAULT),
-            'name' => $nombre]);
+    $usuarioDAO = new UsuarioDAO(BaseDatos::conectar());
+    $rolId = $usuarioDAO->idRolPorNombre($nombreRol);
+
+    if ($rolId === null) {
+        throw new RuntimeException(
+            'No existe el rol solicitado. Importa primero sql/norcentro_web.sql.'
+        );
+    }
+
+    $usuarioDAO->crear(
+        $rolId,
+        $nombreUsuario,
+        password_hash($clave, PASSWORD_DEFAULT),
+        $nombre
+    );
+
     fwrite(STDOUT, "Cuenta de {$nombreRol} creada para {$nombreUsuario}.\n");
 } catch (PDOException $e) {
     if ((string)$e->getCode() === '23000') {

@@ -2,11 +2,10 @@
 declare(strict_types = 1);
 namespace App\AccesoDatos;
 use PDO;
+use App\Nucleo\ModeloBaseORM;
 /** Consulta, guarda y actualiza las promociones del catálogo. */
-final class OfertaDAO
+final class OfertaDAO extends ModeloBaseORM
 {
-    public function __construct(private PDO $conexion) {}
-
     public function activas(): array {
         return $this->conexion->query("SELECT o.*,m.modelo,m.imagen,m.precio precio_catalogo,m.cilindrada,m.anio,m.color,m.marca_id,ma.nombre marca,(SELECT COUNT(*) FROM unidades_moto u WHERE u.moto_id=m.id AND u.estado='Disponible') disponibles FROM ofertas o JOIN motos m ON m.id=o.moto_id JOIN marcas ma ON ma.id=m.marca_id WHERE o.estado='Activa' AND m.estado='Activo' AND CURDATE() BETWEEN o.fecha_inicio AND o.fecha_fin ORDER BY o.fecha_fin")->fetchAll();
     }

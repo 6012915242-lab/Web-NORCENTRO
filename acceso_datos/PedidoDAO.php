@@ -2,11 +2,10 @@
 declare(strict_types = 1);
 namespace App\AccesoDatos;
 use PDO;
+use App\Nucleo\ModeloBaseORM;
 /** Persiste pedidos, reservas, pagos y solicitudes de crédito. */
-final class PedidoDAO
+final class PedidoDAO extends ModeloBaseORM
 {
-    public function __construct(private PDO $conexion) {}
-
     public function crear(array $datos): array
     {
         $this->conexion->beginTransaction();

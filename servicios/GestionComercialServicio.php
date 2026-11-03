@@ -195,6 +195,24 @@ final class GestionComercialServicio
         ]);
     }
 
+    public function validarYRegistrarUnidad(MotoDAO $motoDAO, array $entrada): void
+    {
+        $idMoto = filter_var($entrada['moto_id'] ?? null, FILTER_VALIDATE_INT);
+        $codigoSerie = strtoupper(trim((string) ($entrada['codigo_serie'] ?? '')));
+
+        if (!$idMoto || $idMoto < 1) {
+            throw new DomainException('Selecciona una motocicleta activa.');
+        }
+
+        if (!preg_match('/^[A-Z0-9][A-Z0-9-]{2,49}$/', $codigoSerie)) {
+            throw new DomainException(
+                'Escribe un código de serie válido de 3 a 50 letras, números o guiones.'
+            );
+        }
+
+        $motoDAO->registrarUnidad((int) $idMoto, $codigoSerie);
+    }
+
     private function esFechaValida(string $valor): bool
     {
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor)) {

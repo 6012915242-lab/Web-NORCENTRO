@@ -2,13 +2,12 @@
 declare(strict_types = 1);
 namespace App\AccesoDatos;
 use PDO;
+use App\Nucleo\ModeloBaseORM;
 use DateInterval;
 use DateTimeImmutable;
 /** Registra ventas, créditos, cuotas y pagos dentro de transacciones. */
-final class VentaDAO
+final class VentaDAO extends ModeloBaseORM
 {
-    public function __construct(private PDO $conexion) {}
-
     public function listar(): array
     {
         return $this->conexion->query('SELECT v.*,c.nombres,c.apellidos,u.codigo_serie,m.modelo,ma.nombre marca,us.nombre vendedor FROM ventas v JOIN clientes c ON c.id=v.cliente_id JOIN unidades_moto u ON u.id=v.unidad_id JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id JOIN usuarios us ON us.id=v.usuario_id ORDER BY v.fecha DESC')->fetchAll();
