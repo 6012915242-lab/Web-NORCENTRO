@@ -8,7 +8,7 @@ use App\Configuracion\Herramientas;
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Sistema web Norcentro para motocicletas, clientes, ventas, créditos y ofertas.">
   <title><?= Herramientas::escaparHtml($titulo)?></title>
-  <link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/details.css?v=20260929-local-angle-gallery"><link rel="stylesheet" href="css/listing.css?v=20260929-credit-summary"><link rel="stylesheet" href="css/responsive.css?v=20260929-home-copy-position-2">
+  <link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix"><link rel="stylesheet" href="css/listing.css?v=20260929-credit-summary"><link rel="stylesheet" href="css/responsive.css?v=20261103-gallery-fix">
 </head>
 <body class="page-<?= Herramientas::escaparHtml($pagina)?><?= $mensajeError ? ' page-error' : ''?>">
 <?php

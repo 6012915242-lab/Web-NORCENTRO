@@ -431,13 +431,15 @@ body {
     overflow: visible;
   }
   .detail-gallery {
-    grid-template-columns: 62px minmax(0, 1fr);
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 16px;
   }
   .detail-thumbnails {
     order: 0;
     flex-direction: column;
-    max-height: 390px;
-    overflow: auto;
+    max-height: 440px;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   .detail-image,
   .detail-gallery .detail-image {
