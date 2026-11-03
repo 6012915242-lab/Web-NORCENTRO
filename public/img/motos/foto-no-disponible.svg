@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" role="img" aria-labelledby="title desc">
+  <title id="title">Fotografía no disponible</title>
+  <desc id="desc">La referencia visual de esta motocicleta no cargó.</desc>
+  <rect width="720" height="480" rx="20" fill="#f2f3f5"/>
+  <g fill="none" stroke="#aeb4bd" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="227" cy="294" r="61"/><circle cx="495" cy="294" r="61"/>
+    <path d="M227 294h95l47-78 56 78h70m-166-78h49m-89 78-38-54h-34m239 54-37-70h-47"/>
+    <path d="M357 204l18-26h43m-177 25h-25"/>
+  </g>
+  <text x="360" y="410" fill="#555d68" font-family="Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle">Foto no disponible</text>
+</svg>
