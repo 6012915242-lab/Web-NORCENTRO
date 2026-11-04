@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Http\Controllers\Api;
@@ -41,7 +40,6 @@ class ClienteController extends Controller
 
         return response()->json($clientes);
     }
-
     public function show(int $id): JsonResponse
     {
         $cliente = Cliente::query()
