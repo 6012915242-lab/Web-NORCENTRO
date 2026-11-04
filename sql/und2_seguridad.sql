@@ -46,7 +46,7 @@ INSERT INTO permisos (codigo, nombre, descripcion, modulo) VALUES
     ('motos.gestionar', 'Gestionar motocicletas', 'Permite registrar, actualizar y desactivar motocicletas.', 'Catalogo'),
     ('inventario.gestionar', 'Gestionar inventario', 'Permite registrar y cambiar el estado de las unidades.', 'Inventario'),
     ('clientes.gestionar', 'Gestionar clientes', 'Permite registrar y actualizar clientes.', 'Clientes'),
-    ('clientes.desactivar', 'Desactivar clientes', 'Permite retirar clientes activos de la operación.', 'Clientes'),
+    ('clientes.desactivar', 'Desactivar clientes', 'Permite desactivar clientes.', 'Clientes'),
     ('ofertas.gestionar', 'Gestionar ofertas', 'Permite registrar, actualizar y desactivar ofertas.', 'Ofertas'),
     ('ventas.registrar', 'Registrar ventas', 'Permite confirmar ventas al contado o a credito.', 'Ventas'),
     ('creditos.revisar', 'Revisar creditos', 'Permite evaluar solicitudes, cuotas y pagos.', 'Creditos'),
