@@ -13,6 +13,27 @@ use DomainException;
  */
 final class GestionComercialServicio
 {
+    public function desactivarCliente(ClienteDAO $clienteDAO, int $id): void
+    {
+        if ($id < 1 || !$clienteDAO->desactivar($id)) {
+            throw new DomainException('No se encontró un cliente activo con ese identificador.');
+        }
+    }
+
+    public function desactivarMoto(MotoDAO $motoDAO, int $id): void
+    {
+        if ($id < 1 || !$motoDAO->desactivar($id)) {
+            throw new DomainException('No se encontró una motocicleta activa con ese identificador.');
+        }
+    }
+
+    public function desactivarOferta(OfertaDAO $ofertaDAO, int $id): void
+    {
+        if ($id < 1 || !$ofertaDAO->desactivar($id)) {
+            throw new DomainException('No se encontró una oferta disponible para desactivar.');
+        }
+    }
+
     public function validarYGuardarCliente(ClienteDAO $clienteDAO, array $entrada, bool $esEdicion = false): int
     {
         $id        = filter_var($entrada['id'] ?? 0, FILTER_VALIDATE_INT);
