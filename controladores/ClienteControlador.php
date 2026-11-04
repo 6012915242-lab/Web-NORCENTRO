@@ -44,11 +44,13 @@ final class ClienteControlador
 
     public function desactivar(int $id): never
     {
-        if ($id > 0) {
-            $this->dao->desactivar($id);
+        try {
+            $this->servicioComercial->desactivarCliente($this->dao, $id);
+            Herramientas::mostrarAviso('success', 'Cliente desactivado.');
+        } catch (DomainException $error) {
+            Herramientas::mostrarAviso('error', $error->getMessage());
         }
 
-        Herramientas::mostrarAviso('success', 'Cliente desactivado.');
         Herramientas::redirigir('clientes');
     }
 }

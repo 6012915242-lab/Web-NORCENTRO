@@ -33,11 +33,13 @@ final class OfertaControlador
 
     public function desactivar(int $id): never
     {
-        if ($id > 0) {
-            $this->dao->desactivar($id);
+        try {
+            $this->servicioComercial->desactivarOferta($this->dao, $id);
+            Herramientas::mostrarAviso('success', 'Oferta desactivada.');
+        } catch (DomainException $error) {
+            Herramientas::mostrarAviso('error', $error->getMessage());
         }
 
-        Herramientas::mostrarAviso('success', 'Oferta desactivada.');
         Herramientas::redirigir('ofertas');
     }
 }

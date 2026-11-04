@@ -41,11 +41,13 @@ final class MotoControlador
 
     public function desactivar(int $id): never
     {
-        if ($id > 0) {
-            $this->dao->desactivar($id);
+        try {
+            $this->servicioComercial->desactivarMoto($this->dao, $id);
+            Herramientas::mostrarAviso('success', 'Motocicleta desactivada.');
+        } catch (DomainException $error) {
+            Herramientas::mostrarAviso('error', $error->getMessage());
         }
 
-        Herramientas::mostrarAviso('success', 'Motocicleta desactivada.');
         Herramientas::redirigir('motos');
     }
 
