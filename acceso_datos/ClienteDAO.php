@@ -93,8 +93,13 @@ final class ClienteDAO extends ModeloBaseORM
         $consulta->execute($datos);
     }
 
-    public function desactivar(int $id): void {
-        $consulta = $this->conexion->prepare('UPDATE clientes SET estado="Inactivo" WHERE id=:id');
-        $consulta->execute(['id' => $id]);
+    public function desactivar(int $id): bool
+    {
+        $filasActualizadas = $this->ejecutar(
+            'UPDATE clientes SET estado = :nuevo_estado WHERE id = :id AND estado = :estado_actual',
+            ['nuevo_estado' => 'Inactivo', 'estado_actual' => 'Activo', 'id' => $id]
+        );
+
+        return $filasActualizadas === 1;
     }
 }

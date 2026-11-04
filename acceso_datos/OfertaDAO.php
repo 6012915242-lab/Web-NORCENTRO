@@ -37,8 +37,13 @@ final class OfertaDAO extends ModeloBaseORM
         $this->conexion->exec("UPDATE ofertas SET estado='Vencida' WHERE estado='Activa' AND fecha_fin<CURDATE()");
     }
 
-    public function desactivar(int $id): void {
-        $consulta = $this->conexion->prepare('UPDATE ofertas SET estado="Inactiva" WHERE id=:id');
-        $consulta->execute(['id' => $id]);
+    public function desactivar(int $id): bool
+    {
+        $filasActualizadas = $this->ejecutar(
+            'UPDATE ofertas SET estado = :nuevo_estado WHERE id = :id AND estado <> :estado_anterior',
+            ['nuevo_estado' => 'Inactiva', 'estado_anterior' => 'Inactiva', 'id' => $id]
+        );
+
+        return $filasActualizadas === 1;
     }
 }

@@ -194,9 +194,14 @@ final class MotoDAO extends ModeloBaseORM
         });
     }
 
-    public function desactivar(int $id): void {
-        $consulta = $this->conexion->prepare('UPDATE motos SET estado="Inactivo" WHERE id=:id');
-        $consulta->execute(['id' => $id]);
+    public function desactivar(int $id): bool
+    {
+        $filasActualizadas = $this->ejecutar(
+            'UPDATE motos SET estado = :nuevo_estado WHERE id = :id AND estado = :estado_actual',
+            ['nuevo_estado' => 'Inactivo', 'estado_actual' => 'Activo', 'id' => $id]
+        );
+
+        return $filasActualizadas === 1;
     }
 
     public function unidadesDisponibles(string $buscar = '', int $limite = 30): array
