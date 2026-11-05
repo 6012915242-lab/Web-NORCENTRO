@@ -45,6 +45,13 @@ class ClienteServicio
             'direccion' => ['nullable', 'string', 'max:180'],
         ])->validate();
 
+        foreach (['telefono', 'direccion', 'correo'] as $campo) {
+            $datos[$campo] = trim((string) ($datos[$campo] ?? ''));
+        }
+
+        $datos['nombres'] = trim($datos['nombres']);
+        $datos['apellidos'] = trim($datos['apellidos']);
+
         $cliente ??= new Cliente();
         $cliente->fill($datos);
 

@@ -15,7 +15,7 @@ class GestionClientesTest extends TestCase
         DB::statement('CREATE TABLE vista_usuarios_permisos (usuario_id INTEGER, permiso TEXT)');
         DB::statement('CREATE TABLE clientes (
             id INTEGER PRIMARY KEY AUTOINCREMENT, dni TEXT UNIQUE, nombres TEXT, apellidos TEXT,
-            telefono TEXT, direccion TEXT, correo TEXT, estado TEXT
+            telefono TEXT NOT NULL, direccion TEXT NOT NULL, correo TEXT NOT NULL, estado TEXT
         )');
         DB::table('vista_usuarios_permisos')->insert([
             ['usuario_id' => 1, 'permiso' => 'clientes.gestionar'],
@@ -42,6 +42,25 @@ class GestionClientesTest extends TestCase
         $datos['dni'] = '12345678';
         $this->postJson('/api/clientes', $datos)->assertCreated();
         $this->postJson('/api/clientes', $datos)->assertUnprocessable();
+    }
+
+    public function test_guarda_los_campos_opcionales_vacios(): void
+    {
+        $this->postJson('/api/clientes', [
+            'dni' => '87654321',
+            'nombres' => 'Ana',
+            'apellidos' => 'Prueba',
+            'telefono' => null,
+            'correo' => null,
+            'direccion' => null,
+        ])->assertCreated()->assertJsonPath('data.direccion', '');
+
+        $this->assertDatabaseHas('clientes', [
+            'dni' => '87654321',
+            'telefono' => '',
+            'correo' => '',
+            'direccion' => '',
+        ]);
     }
 
     public function test_exige_permiso_especifico_para_desactivar(): void

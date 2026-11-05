@@ -21,6 +21,7 @@ class ClienteController extends Controller
 
         return response()->json($this->servicio->listar($datos['buscar'] ?? null));
     }
+
     public function show(int $id): JsonResponse
     {
         return response()->json([
