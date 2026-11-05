@@ -230,22 +230,29 @@ final class MotoDAO extends ModeloBaseORM
 
     public function registrarUnidad(int $idMoto, string $codigoSerie): void
     {
-        $this->conexion->beginTransaction();
         try {
-            $moto = $this->conexion->prepare('SELECT id FROM motos WHERE id=:id AND estado="Activo" FOR UPDATE');
-            $moto->execute(['id' => $idMoto]);
-            if (!$moto->fetchColumn()) throw new \DomainException('Selecciona una motocicleta activa.');
-            $unidad = $this->conexion->prepare('INSERT INTO unidades_moto(moto_id,codigo_serie,estado) VALUES(:moto,:serie,"Disponible")');
-            $unidad->execute(['moto' => $idMoto,
-                    'serie' => $codigoSerie]);
-            $this->conexion->commit();
-        } catch (\PDOException $e) {
-            if ($this->conexion->inTransaction()) $this->conexion->rollBack();
-            if ((string)$e->getCode() === '23000') throw new \DomainException('Ese código de serie ya está registrado.');
-            throw $e;
-        } catch (\Throwable $e) {
-            if ($this->conexion->inTransaction()) $this->conexion->rollBack();
-            throw $e;
+            $this->ejecutarEnTransaccion(function () use ($idMoto, $codigoSerie): void {
+                $consulta = $this->preparar(
+                    'SELECT id FROM motos WHERE id = :id AND estado = :estado FOR UPDATE',
+                    ['id' => $idMoto, 'estado' => 'Activo']
+                );
+
+                if (! $consulta->fetchColumn()) {
+                    throw new \DomainException('Selecciona una motocicleta activa.');
+                }
+
+                $this->ejecutar(
+                    'INSERT INTO unidades_moto (moto_id, codigo_serie, estado)
+                     VALUES (:moto, :serie, :estado)',
+                    ['moto' => $idMoto, 'serie' => $codigoSerie, 'estado' => 'Disponible']
+                );
+            });
+        } catch (\PDOException $error) {
+            if ((string) $error->getCode() === '23000') {
+                throw new \DomainException('Ese código de serie ya está registrado.', 0, $error);
+            }
+
+            throw $error;
         }
     }
 }
