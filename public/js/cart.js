@@ -78,7 +78,20 @@
     lines.innerHTML = cart
       .map(
         (item) =>
-          `<article class="cart-line" data-line-key="${escape(item.id)}:${escape(item.colorId)}"><img src="${escape(item.image)}" alt=""><div class="cart-line-copy"><strong>${escape(item.name)}</strong><small>${escape(item.color || "Color por confirmar")}</small><b>${currency(item.price)}</b></div><div class="cart-line-controls"><button type="button" data-cart-minus aria-label="Quitar una unidad">−</button><span>${Number(item.quantity)}</span><button type="button" data-cart-plus aria-label="Agregar una unidad">+</button><button type="button" data-cart-remove class="cart-remove">Quitar</button></div></article>`,
+          `<article class="cart-line" data-line-key="${escape(item.id)}:${escape(item.colorId)}">
+            <img src="${escape(item.image)}" alt="">
+            <div class="cart-line-copy">
+              <strong>${escape(item.name)}</strong>
+              <small>${escape(item.color || "Color por confirmar")}</small>
+              <b>${currency(item.price)}</b>
+            </div>
+            <div class="cart-line-controls">
+              <button type="button" data-cart-minus aria-label="Quitar una unidad">−</button>
+              <span>${Number(item.quantity)}</span>
+              <button type="button" data-cart-plus aria-label="Agregar una unidad">+</button>
+              <button type="button" data-cart-remove class="cart-remove">Quitar</button>
+            </div>
+          </article>`,
       )
       .join("");
     total.textContent = currency(

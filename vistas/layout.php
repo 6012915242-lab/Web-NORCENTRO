@@ -31,14 +31,27 @@ $mostrarCarrito = !$usuarioActual || in_array($pagina, ['inicio',
     <a href="index.php?page=ofertas">Ofertas</a>
     <a href="index.php?page=contacto">Contacto</a>
   </nav>
-  <div class="top-action"><?php
-if ($mostrarCarrito):?><button type="button" class="cart-trigger" id="cart-toggle" aria-haspopup="dialog">Carrito <span data-cart-count>0</span></button><?php
-endif;
-?><?php
-if ($usuarioActual):?><a href="index.php?page=dashboard">Panel</a><span class="user-chip"><?= Herramientas::escaparHtml($usuarioActual['nombre'])?> · <?= Herramientas::escaparHtml($usuarioActual['rol'])?></span><form method="post" class="inline-form"><?= Herramientas::campoCsrf()?><input type="hidden" name="action" value="cerrar_sesion"><button class="link-button">Salir</button></form><?php
-else :?><a href="index.php?page=login">Iniciar sesión</a><?php
-endif;
-?></div>
+  <div class="top-action">
+    <?php if ($mostrarCarrito): ?>
+      <button type="button" class="cart-trigger" id="cart-toggle" aria-haspopup="dialog">
+        Carrito <span data-cart-count>0</span>
+      </button>
+    <?php endif; ?>
+    <?php if ($usuarioActual): ?>
+      <a href="index.php?page=dashboard">Panel</a>
+      <span class="user-chip">
+        <?= Herramientas::escaparHtml($usuarioActual['nombre']) ?> ·
+        <?= Herramientas::escaparHtml($usuarioActual['rol']) ?>
+      </span>
+      <form method="post" class="inline-form">
+        <?= Herramientas::campoCsrf() ?>
+        <input type="hidden" name="action" value="cerrar_sesion">
+        <button class="link-button">Salir</button>
+      </form>
+    <?php else: ?>
+      <a href="index.php?page=login">Iniciar sesión</a>
+    <?php endif; ?>
+  </div>
 </header>
 <?php
 if ($mostrarCarrito) {

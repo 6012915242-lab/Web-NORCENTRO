@@ -43,7 +43,14 @@
     lines.innerHTML = cart
       .map(
         (item) =>
-          `<article class="credit-cart-line"><img src="${escape(item.image)}" alt=""><div><strong>${escape(item.name)}</strong><small>${escape(item.color || "Color por confirmar")} · ${Number(item.quantity)} unidad(es)</small></div><b>${currency(Number(item.price) * Number(item.quantity))}</b></article>`,
+          `<article class="credit-cart-line">
+            <img src="${escape(item.image)}" alt="">
+            <div>
+              <strong>${escape(item.name)}</strong>
+              <small>${escape(item.color || "Color por confirmar")} · ${Number(item.quantity)} unidad(es)</small>
+            </div>
+            <b>${currency(Number(item.price) * Number(item.quantity))}</b>
+          </article>`,
       )
       .join("");
     total.textContent = currency(

@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Usuario;
+use App\AccesoDatos\OfertaDAO;
+use App\Servicios\GestionOfertasServicio;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -68,6 +70,24 @@ class OfertasTest extends TestCase
         $datos['descripcion'] = str_repeat('a', 256);
         $this->postJson('/api/ofertas', $datos)->assertUnprocessable();
         $this->assertDatabaseCount('ofertas', 0);
+    }
+
+    public function test_la_api_actualiza_una_oferta_creada_por_el_servicio_artesanal(): void
+    {
+        $datos = $this->datosOferta();
+        $dao = new OfertaDAO(DB::connection()->getPdo());
+        $id = (new GestionOfertasServicio())->validarYGuardarOferta($dao, $datos);
+
+        $datos['titulo'] = 'Oferta actualizada desde Laravel';
+        $this->putJson('/api/ofertas/' . $id, $datos)
+            ->assertOk()
+            ->assertJsonPath('data.titulo', $datos['titulo']);
+
+        $this->assertDatabaseHas('ofertas', [
+            'id' => $id,
+            'titulo' => $datos['titulo'],
+            'estado' => 'Activa',
+        ]);
     }
 
     public function test_requiere_permiso_para_gestionar_ofertas(): void

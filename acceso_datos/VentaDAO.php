@@ -24,7 +24,19 @@ final class VentaDAO extends ModeloBaseORM
 
     public function listar(): array
     {
-        return $this->conexion->query('SELECT v.*,c.nombres,c.apellidos,u.codigo_serie,m.modelo,ma.nombre marca,us.nombre vendedor, COALESCE((SELECT SUM(cr.importe_recargo) FROM creditos cr WHERE cr.venta_id=v.id),0) AS recargo_credito FROM ventas v JOIN clientes c ON c.id=v.cliente_id JOIN unidades_moto u ON u.id=v.unidad_id JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id JOIN usuarios us ON us.id=v.usuario_id ORDER BY v.fecha DESC')->fetchAll();
+        return $this->conexion->query('
+            SELECT v.*, c.nombres, c.apellidos, u.codigo_serie, m.modelo,
+                   ma.nombre marca, us.nombre vendedor,
+                   COALESCE((SELECT SUM(cr.importe_recargo) FROM creditos cr
+                             WHERE cr.venta_id = v.id), 0) AS recargo_credito
+            FROM ventas v
+            JOIN clientes c ON c.id = v.cliente_id
+            JOIN unidades_moto u ON u.id = v.unidad_id
+            JOIN motos m ON m.id = u.moto_id
+            JOIN marcas ma ON ma.id = m.marca_id
+            JOIN usuarios us ON us.id = v.usuario_id
+            ORDER BY v.fecha DESC
+        ')->fetchAll();
     }
 
     public function crear(array $datos): int
@@ -37,7 +49,14 @@ final class VentaDAO extends ModeloBaseORM
             if (! $cliente->fetchColumn()) {
                 throw new \DomainException('Selecciona un cliente activo para la venta.');
             }
-            $consulta = $this->conexion->prepare('SELECT u.id,u.estado,m.precio FROM unidades_moto u JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id WHERE u.id=:id AND m.estado="Activo" AND ma.estado="Activo" FOR UPDATE');
+            $consulta = $this->conexion->prepare('
+                SELECT u.id, u.estado, m.precio
+                FROM unidades_moto u
+                JOIN motos m ON m.id = u.moto_id
+                JOIN marcas ma ON ma.id = m.marca_id
+                WHERE u.id = :id AND m.estado = "Activo" AND ma.estado = "Activo"
+                FOR UPDATE
+            ');
             $consulta->bindValue(':id', (int) $datos['unidad_id'], PDO::PARAM_INT);
             $consulta->execute();
             $unidad = $consulta->fetch();
@@ -83,7 +102,12 @@ final class VentaDAO extends ModeloBaseORM
         $n = (int) $datos['numero_cuotas'];
         $plan = PlanCredito::calcular($total, $inicial, $n);
         $financiado = $plan['financiado'];
-        $consulta = $this->conexion->prepare('INSERT INTO creditos(venta_id,inicial,monto_financiado,numero_cuotas,saldo,estado,porcentaje_recargo,importe_recargo) VALUES(:venta,:inicial,:financiado,:n,:saldo,"Activo",:porcentaje,:recargo)');
+        $consulta = $this->conexion->prepare('
+            INSERT INTO creditos
+                (venta_id, inicial, monto_financiado, numero_cuotas, saldo,
+                 estado, porcentaje_recargo, importe_recargo)
+            VALUES (:venta, :inicial, :financiado, :n, :saldo, "Activo", :porcentaje, :recargo)
+        ');
         $consulta->execute(['venta' => $venta,
             'inicial' => $inicial,
             'financiado' => $financiado,
@@ -111,7 +135,16 @@ final class VentaDAO extends ModeloBaseORM
 
     public function creditos(): array
     {
-        return $this->conexion->query('SELECT cr.*,v.id venta_id,c.nombres,c.apellidos,m.modelo,ma.nombre marca FROM creditos cr JOIN ventas v ON v.id=cr.venta_id JOIN clientes c ON c.id=v.cliente_id JOIN unidades_moto u ON u.id=v.unidad_id JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id ORDER BY cr.id DESC')->fetchAll();
+        return $this->conexion->query('
+            SELECT cr.*, v.id venta_id, c.nombres, c.apellidos, m.modelo, ma.nombre marca
+            FROM creditos cr
+            JOIN ventas v ON v.id = cr.venta_id
+            JOIN clientes c ON c.id = v.cliente_id
+            JOIN unidades_moto u ON u.id = v.unidad_id
+            JOIN motos m ON m.id = u.moto_id
+            JOIN marcas ma ON ma.id = m.marca_id
+            ORDER BY cr.id DESC
+        ')->fetchAll();
     }
 
     public function detallesCreditos(array $identificadores): array

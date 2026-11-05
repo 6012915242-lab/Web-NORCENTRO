@@ -15,9 +15,18 @@ final class GestionOfertasServicio
         }
     }
 
-    public function validarYGuardarOferta(OfertaDAO $ofertaDAO, array $entrada): void
+    public function validarYGuardarOferta(OfertaDAO $ofertaDAO, array $entrada): int
     {
-        $ofertaDAO->guardar($this->prepararOferta($ofertaDAO, $entrada));
+        return $ofertaDAO->guardar($this->prepararOferta($ofertaDAO, $entrada));
+    }
+
+    public function validarYActualizarOferta(OfertaDAO $ofertaDAO, int $id, array $entrada): void
+    {
+        if ($id < 1) {
+            throw new DomainException('No se encontró una oferta válida.');
+        }
+
+        $ofertaDAO->actualizar($id, $this->prepararOferta($ofertaDAO, $entrada));
     }
 
     public function prepararOferta(OfertaDAO $ofertaDAO, array $entrada): array

@@ -38,7 +38,11 @@ final class PedidoDAO extends ModeloBaseORM
                 $moto = (int) $elemento['moto_id'];
                 $cantidad = (int) $elemento['cantidad'];
                 $color = $elemento['color_id'] ?: null;
-                $consulta = $this->conexion->prepare('SELECT m.id,m.modelo,ma.nombre marca,m.precio,m.imagen,m.estado FROM motos m JOIN marcas ma ON ma.id=m.marca_id WHERE m.id=:id AND m.estado="Activo" AND ma.estado="Activo"');
+                $consulta = $this->conexion->prepare('
+                    SELECT m.id, m.modelo, ma.nombre marca, m.precio, m.imagen, m.estado
+                    FROM motos m JOIN marcas ma ON ma.id = m.marca_id
+                    WHERE m.id = :id AND m.estado = "Activo" AND ma.estado = "Activo"
+                ');
                 $consulta->execute(['id' => $moto]);
                 $motoDetalle = $consulta->fetch();
                 if (! $motoDetalle) {
@@ -97,7 +101,15 @@ final class PedidoDAO extends ModeloBaseORM
             if ($datos['modalidad'] === 'Crédito' && empty($datos['acepta_credito'])) {
                 throw new \DomainException('Autoriza el uso de tus datos para gestionar la solicitud de crédito.');
             }
-            $consulta = $this->conexion->prepare('INSERT INTO pedidos(request_id,nombres,apellidos,dni,telefono,correo,modalidad,inicial,numero_cuotas,credito_autorizado_en,subtotal,total,estado,vence_en) VALUES(:request,:nombres,:apellidos,:dni,:telefono,:correo,:modalidad,:inicial,:cuotas,IF(:consent=1,NOW(),NULL),:subtotal,:total,:estado,IF(:expira="Pendiente de pago",DATE_ADD(NOW(),INTERVAL 20 MINUTE),NULL))');
+            $consulta = $this->conexion->prepare('
+                INSERT INTO pedidos
+                    (request_id, nombres, apellidos, dni, telefono, correo, modalidad,
+                     inicial, numero_cuotas, credito_autorizado_en, subtotal, total, estado, vence_en)
+                VALUES
+                    (:request, :nombres, :apellidos, :dni, :telefono, :correo, :modalidad,
+                     :inicial, :cuotas, IF(:consent = 1, NOW(), NULL), :subtotal, :total, :estado,
+                     IF(:expira = "Pendiente de pago", DATE_ADD(NOW(), INTERVAL 20 MINUTE), NULL))
+            ');
             $consulta->execute(['request' => $datos['request_id'],
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
@@ -177,7 +189,13 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function guardarMercadoPago(int $id, string $idMercadoPago, string $url): void
     {
-        $consulta = $this->conexion->prepare('UPDATE pedidos SET mp_order_id=:mp,checkout_url=:url,estado="Pendiente de pago",vence_en=DATE_ADD(NOW(),INTERVAL 20 MINUTE) WHERE id=:id AND modalidad="Contado" AND estado IN ("Pendiente de pago","Error de pago")');
+        $consulta = $this->conexion->prepare('
+            UPDATE pedidos
+            SET mp_order_id = :mp, checkout_url = :url, estado = "Pendiente de pago",
+                vence_en = DATE_ADD(NOW(), INTERVAL 20 MINUTE)
+            WHERE id = :id AND modalidad = "Contado"
+              AND estado IN ("Pendiente de pago", "Error de pago")
+        ');
         $consulta->execute(['mp' => $idMercadoPago,
             'url' => $url,
             'id' => $id]);
@@ -220,7 +238,24 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function solicitudesCredito(): array
     {
-        return $this->conexion->query('SELECT p.id,p.nombres,p.apellidos,p.dni,p.telefono,p.correo,p.inicial,p.numero_cuotas,p.total,p.estado,p.creado_en,p.credito_autorizado_en,items.motocicletas FROM pedidos p JOIN (SELECT pi.pedido_id,GROUP_CONCAT(CONCAT(ma.nombre," ",m.modelo," ×",pi.cantidad) ORDER BY pi.id SEPARATOR ", ") motocicletas FROM pedido_items pi JOIN motos m ON m.id=pi.moto_id JOIN marcas ma ON ma.id=m.marca_id GROUP BY pi.pedido_id) items ON items.pedido_id=p.id WHERE p.modalidad="Crédito" AND p.estado IN ("En revisión de crédito","Crédito aprobado","Crédito no aprobado") ORDER BY p.creado_en ASC')->fetchAll();
+        return $this->conexion->query('
+            SELECT p.id, p.nombres, p.apellidos, p.dni, p.telefono, p.correo,
+                   p.inicial, p.numero_cuotas, p.total, p.estado, p.creado_en,
+                   p.credito_autorizado_en, items.motocicletas
+            FROM pedidos p
+            JOIN (
+                SELECT pi.pedido_id,
+                       GROUP_CONCAT(CONCAT(ma.nombre, " ", m.modelo, " ×", pi.cantidad)
+                                    ORDER BY pi.id SEPARATOR ", ") motocicletas
+                FROM pedido_items pi
+                JOIN motos m ON m.id = pi.moto_id
+                JOIN marcas ma ON ma.id = m.marca_id
+                GROUP BY pi.pedido_id
+            ) items ON items.pedido_id = p.id
+            WHERE p.modalidad = "Crédito"
+              AND p.estado IN ("En revisión de crédito", "Crédito aprobado", "Crédito no aprobado")
+            ORDER BY p.creado_en ASC
+        ')->fetchAll();
     }
 
     public function contarSolicitudesCreditoPendientes(): int
@@ -297,7 +332,12 @@ final class PedidoDAO extends ModeloBaseORM
 
                     return;
                 }
-                $consulta = $this->conexion->prepare('SELECT pi.id item_id,pi.cantidad,pi.precio_unitario,pi.subtotal,pu.unidad_id FROM pedido_items pi LEFT JOIN pedido_unidades pu ON pu.pedido_item_id=pi.id WHERE pi.pedido_id=:id ORDER BY pi.id FOR UPDATE');
+                $consulta = $this->conexion->prepare('
+                    SELECT pi.id item_id, pi.cantidad, pi.precio_unitario, pi.subtotal, pu.unidad_id
+                    FROM pedido_items pi
+                    LEFT JOIN pedido_unidades pu ON pu.pedido_item_id = pi.id
+                    WHERE pi.pedido_id = :id ORDER BY pi.id FOR UPDATE
+                ');
                 $consulta->execute(['id' => $id]);
                 $filas = $consulta->fetchAll();
                 $elementos = [];
@@ -346,7 +386,13 @@ final class PedidoDAO extends ModeloBaseORM
                                 2)]);
                     }
                 }
-                $consulta = $this->conexion->prepare('UPDATE unidades_moto u JOIN pedido_unidades pu ON pu.unidad_id=u.id JOIN pedido_items pi ON pi.id=pu.pedido_item_id SET u.estado="Vendida" WHERE pi.pedido_id=:id AND u.estado="Reservada"');
+                $consulta = $this->conexion->prepare('
+                    UPDATE unidades_moto u
+                    JOIN pedido_unidades pu ON pu.unidad_id = u.id
+                    JOIN pedido_items pi ON pi.id = pu.pedido_item_id
+                    SET u.estado = "Vendida"
+                    WHERE pi.pedido_id = :id AND u.estado = "Reservada"
+                ');
                 $consulta->execute(['id' => $id]);
                 $consulta = $this->conexion->prepare('UPDATE pedidos SET estado="Pagado" WHERE id=:id');
                 $consulta->execute(['id' => $id]);
@@ -376,7 +422,13 @@ final class PedidoDAO extends ModeloBaseORM
 
     private function liberarUnidades(int $id): void
     {
-        $consulta = $this->conexion->prepare('UPDATE unidades_moto u JOIN pedido_unidades pu ON pu.unidad_id=u.id JOIN pedido_items pi ON pi.id=pu.pedido_item_id SET u.estado="Disponible" WHERE pi.pedido_id=:id AND u.estado="Reservada"');
+        $consulta = $this->conexion->prepare('
+            UPDATE unidades_moto u
+            JOIN pedido_unidades pu ON pu.unidad_id = u.id
+            JOIN pedido_items pi ON pi.id = pu.pedido_item_id
+            SET u.estado = "Disponible"
+            WHERE pi.pedido_id = :id AND u.estado = "Reservada"
+        ');
         $consulta->execute(['id' => $id]);
         $consulta = $this->conexion->prepare('DELETE pu FROM pedido_unidades pu JOIN pedido_items pi ON pi.id=pu.pedido_item_id WHERE pi.pedido_id=:id');
         $consulta->execute(['id' => $id]);
@@ -384,7 +436,17 @@ final class PedidoDAO extends ModeloBaseORM
 
     private function items(int $id): array
     {
-        $consulta = $this->conexion->prepare('SELECT pi.moto_id,pi.color_id,pi.cantidad,pi.precio_unitario precio,pi.subtotal,ma.nombre marca,m.modelo,CONCAT(ma.nombre," ",m.modelo) name,COALESCE(mc.nombre,"Color por confirmar") color FROM pedido_items pi JOIN motos m ON m.id=pi.moto_id JOIN marcas ma ON ma.id=m.marca_id LEFT JOIN moto_colores mc ON mc.id=pi.color_id WHERE pi.pedido_id=:id');
+        $consulta = $this->conexion->prepare('
+            SELECT pi.moto_id, pi.color_id, pi.cantidad, pi.precio_unitario precio,
+                   pi.subtotal, ma.nombre marca, m.modelo,
+                   CONCAT(ma.nombre, " ", m.modelo) name,
+                   COALESCE(mc.nombre, "Color por confirmar") color
+            FROM pedido_items pi
+            JOIN motos m ON m.id = pi.moto_id
+            JOIN marcas ma ON ma.id = m.marca_id
+            LEFT JOIN moto_colores mc ON mc.id = pi.color_id
+            WHERE pi.pedido_id = :id
+        ');
         $consulta->execute(['id' => $id]);
 
         return $consulta->fetchAll();

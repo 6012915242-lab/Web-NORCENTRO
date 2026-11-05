@@ -25,29 +25,18 @@ class OfertaServicio
     public function guardar(array $entrada, ?Oferta $oferta = null): Oferta
     {
         try {
-            $datos = (new GestionOfertasServicio())->prepararOferta($this->dao(), $entrada);
+            $servicio = new GestionOfertasServicio();
+            if ($oferta === null) {
+                $id = $servicio->validarYGuardarOferta($this->dao(), $entrada);
+            } else {
+                $id = (int) $oferta->id;
+                $servicio->validarYActualizarOferta($this->dao(), $id, $entrada);
+            }
         } catch (DomainException $error) {
             throw ValidationException::withMessages(['oferta' => $error->getMessage()]);
         }
 
-        $oferta ??= new Oferta();
-        $oferta->fill([
-            'moto_id' => $datos['moto'],
-            'titulo' => $datos['titulo'],
-            'descripcion' => $datos['descripcion'],
-            'precio_normal' => $datos['normal'],
-            'precio_oferta' => $datos['oferta'],
-            'fecha_inicio' => $datos['inicio'],
-            'fecha_fin' => $datos['fin'],
-        ]);
-
-        if (! $oferta->exists) {
-            $oferta->estado = 'Activa';
-        }
-
-        $oferta->save();
-
-        return $oferta;
+        return $this->buscarActiva($id);
     }
 
     public function desactivar(Oferta $oferta): void

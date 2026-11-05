@@ -66,7 +66,7 @@ final class OfertaDAO extends ModeloBaseORM
         return (bool) $consulta->fetchColumn();
     }
 
-    public function guardar(array $datos): void
+    public function guardar(array $datos): int
     {
         $consulta = $this->conexion->prepare("
             INSERT INTO ofertas
@@ -75,6 +75,21 @@ final class OfertaDAO extends ModeloBaseORM
                 (:moto, :titulo, :descripcion, :normal, :oferta, :inicio, :fin, 'Activa')
         ");
         $consulta->execute($datos);
+
+        return $this->ultimoIdInsertado();
+    }
+
+    public function actualizar(int $id, array $datos): void
+    {
+        $datos['id'] = $id;
+        $this->ejecutar(
+            'UPDATE ofertas
+             SET moto_id = :moto, titulo = :titulo, descripcion = :descripcion,
+                 precio_normal = :normal, precio_oferta = :oferta,
+                 fecha_inicio = :inicio, fecha_fin = :fin
+             WHERE id = :id AND estado = :estado',
+            $datos + ['estado' => 'Activa']
+        );
     }
 
     public function actualizarEstadoFechas(): void
