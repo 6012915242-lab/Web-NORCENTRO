@@ -2,10 +2,14 @@
 
 namespace App\Services;
 
+use App\AccesoDatos\ClienteDAO;
 use App\Models\Cliente;
+use App\Servicios\GestionClientesServicio;
+use DomainException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+use PDOException;
 
 class ClienteServicio
 {
@@ -14,11 +18,11 @@ class ClienteServicio
         return Cliente::query()
             ->select(['id', 'dni', 'nombres', 'apellidos', 'telefono', 'direccion', 'correo', 'estado'])
             ->where('estado', 'Activo')
-            ->when($buscar, function ($consulta, $texto): void {
-                $consulta->where(function ($subconsulta) use ($texto): void {
-                    $subconsulta->where('dni', 'like', "%{$texto}%")
-                        ->orWhere('nombres', 'like', "%{$texto}%")
-                        ->orWhere('apellidos', 'like', "%{$texto}%");
+            ->when($buscar !== null && $buscar !== '', function ($consulta) use ($buscar): void {
+                $consulta->where(function ($subconsulta) use ($buscar): void {
+                    $subconsulta->where('dni', 'like', "%{$buscar}%")
+                        ->orWhere('nombres', 'like', "%{$buscar}%")
+                        ->orWhere('apellidos', 'like', "%{$buscar}%");
                 });
             })
             ->orderBy('apellidos')
@@ -36,37 +40,41 @@ class ClienteServicio
 
     public function guardar(array $entrada, ?Cliente $cliente = null): Cliente
     {
-        $datos = Validator::make($entrada, [
-            'dni' => ['required', 'digits:8', Rule::unique('clientes', 'dni')->ignore($cliente?->id)],
-            'nombres' => ['required', 'string', 'min:2', 'max:100'],
-            'apellidos' => ['required', 'string', 'min:2', 'max:100'],
-            'telefono' => ['nullable', 'string', 'max:20', 'regex:/^[+0-9 ()-]{7,20}$/'],
-            'correo' => ['nullable', 'email', 'max:120'],
-            'direccion' => ['nullable', 'string', 'max:180'],
-        ])->validate();
-
-        foreach (['telefono', 'direccion', 'correo'] as $campo) {
-            $datos[$campo] = trim((string) ($datos[$campo] ?? ''));
+        if ($cliente !== null) {
+            $entrada['id'] = $cliente->id;
         }
 
-        $datos['nombres'] = trim($datos['nombres']);
-        $datos['apellidos'] = trim($datos['apellidos']);
+        try {
+            $identificador = (new GestionClientesServicio())->validarYGuardarCliente(
+                $this->dao(),
+                $entrada,
+                $cliente !== null
+            );
+        } catch (DomainException $error) {
+            throw ValidationException::withMessages(['cliente' => $error->getMessage()]);
+        } catch (PDOException $error) {
+            $codigo = (int) ($error->errorInfo[1] ?? 0);
+            if ($codigo === 1062 || ($codigo === 19 && str_contains($error->getMessage(), 'UNIQUE'))) {
+                throw ValidationException::withMessages(['dni' => 'Ya existe un cliente con ese DNI.']);
+            }
 
-        $cliente ??= new Cliente();
-        $cliente->fill($datos);
-
-        if (! $cliente->exists) {
-            $cliente->estado = 'Activo';
+            throw $error;
         }
 
-        $cliente->save();
-
-        return $cliente;
+        return $this->buscarActivo($identificador);
     }
 
     public function desactivar(Cliente $cliente): void
     {
-        $cliente->estado = 'Inactivo';
-        $cliente->save();
+        try {
+            (new GestionClientesServicio())->desactivarCliente($this->dao(), (int) $cliente->id);
+        } catch (DomainException $error) {
+            throw ValidationException::withMessages(['cliente' => $error->getMessage()]);
+        }
+    }
+
+    private function dao(): ClienteDAO
+    {
+        return new ClienteDAO(DB::connection()->getPdo());
     }
 }

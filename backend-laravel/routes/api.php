@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CatalogoController;
 use App\Http\Controllers\Api\ConsultaDniController;
 use App\Http\Controllers\Api\InventarioController;
 use App\Http\Controllers\Api\OfertaController;
+use App\Http\Controllers\Api\SolicitudesCreditoController;
 use App\Http\Controllers\Api\VentasController;
 use App\Http\Middleware\ExigirSesionApi;
 use App\Http\Middleware\VerificarPermiso;
@@ -21,6 +22,9 @@ Route::middleware(['web', ExigirSesionApi::class])->group(function (): void {
     });
 
     Route::middleware(VerificarPermiso::class . ':creditos.revisar')->group(function (): void {
+        Route::get('/solicitudes-credito', [SolicitudesCreditoController::class, 'index']);
+        Route::post('/solicitudes-credito/{id}/evaluacion', [SolicitudesCreditoController::class, 'evaluar'])
+            ->whereNumber('id');
         Route::get('/creditos', [VentasController::class, 'creditos']);
         Route::get('/creditos/{id}/cuotas', [VentasController::class, 'cuotas'])->whereNumber('id');
         Route::post('/creditos/pagos', [VentasController::class, 'pagar']);

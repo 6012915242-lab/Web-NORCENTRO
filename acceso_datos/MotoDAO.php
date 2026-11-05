@@ -159,8 +159,7 @@ final class MotoDAO extends ModeloBaseORM
 
     public function guardar(array $datos): int
     {
-        $this->conexion->beginTransaction();
-        try {
+        return $this->ejecutarEnTransaccion(function () use ($datos): int {
             $consulta = $this->conexion->prepare('INSERT INTO motos(marca_id,modelo,cilindrada,color,precio,descripcion,anio,imagen,estado) VALUES(:marca,:modelo,:cc,:color,:precio,:descripcion,:anio,:imagen,"Activo")');
             $consulta->bindValue(':marca', (int) $datos['marca_id'], PDO::PARAM_INT);
             $consulta->bindValue(':modelo', (string) $datos['modelo'], PDO::PARAM_STR);
@@ -178,13 +177,26 @@ final class MotoDAO extends ModeloBaseORM
                 $unidad->bindValue(':serie', 'NC-'.$id.'-'.str_pad((string) $i, 3, '0', STR_PAD_LEFT), PDO::PARAM_STR);
                 $unidad->execute();
             }
-            $this->conexion->commit();
+            return $id;
+        });
+    }
+
+    public function guardarConGaleria(array $datos, array $colores): int
+    {
+        return $this->ejecutarEnTransaccion(function () use ($datos, $colores): int {
+            $id = $this->guardar($datos);
+            $this->guardarGaleriaColores($id, $colores);
 
             return $id;
-        } catch (\Throwable $e) {
-            $this->conexion->rollBack();
-            throw $e;
-        }
+        });
+    }
+
+    public function actualizarConGaleria(int $id, array $datos, array $colores): void
+    {
+        $this->ejecutarEnTransaccion(function () use ($id, $datos, $colores): void {
+            $this->actualizar($id, $datos);
+            $this->guardarGaleriaColores($id, $colores);
+        });
     }
 
     public function actualizar(int $id, array $datos): void
@@ -307,13 +319,18 @@ final class MotoDAO extends ModeloBaseORM
         ')->fetchAll();
     }
 
-    public function registrarUnidad(int $idMoto, string $codigoSerie): void
+    public function registrarUnidad(int $idMoto, string $codigoSerie): int
     {
         try {
-            $this->ejecutarEnTransaccion(function () use ($idMoto, $codigoSerie): void {
+            return $this->ejecutarEnTransaccion(function () use ($idMoto, $codigoSerie): int {
+                $bloqueo = $this->conexion->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite'
+                    ? ''
+                    : ' FOR UPDATE';
                 $consulta = $this->preparar(
-                    'SELECT id FROM motos WHERE id = :id AND estado = :estado FOR UPDATE',
-                    ['id' => $idMoto, 'estado' => 'Activo']
+                    "SELECT m.id FROM motos m
+                     JOIN marcas ma ON ma.id = m.marca_id
+                     WHERE m.id = :id AND m.estado = :estado AND ma.estado = :estado_marca" . $bloqueo,
+                    ['id' => $idMoto, 'estado' => 'Activo', 'estado_marca' => 'Activo']
                 );
 
                 if (! $consulta->fetchColumn()) {
@@ -325,9 +342,12 @@ final class MotoDAO extends ModeloBaseORM
                      VALUES (:moto, :serie, :estado)',
                     ['moto' => $idMoto, 'serie' => $codigoSerie, 'estado' => 'Disponible']
                 );
+
+                return $this->ultimoIdInsertado();
             });
         } catch (\PDOException $error) {
-            if ((string) $error->getCode() === '23000') {
+            $codigo = (int) ($error->errorInfo[1] ?? 0);
+            if ($codigo === 1062 || ($codigo === 19 && str_contains($error->getMessage(), 'UNIQUE'))) {
                 throw new \DomainException('Ese código de serie ya está registrado.', 0, $error);
             }
 

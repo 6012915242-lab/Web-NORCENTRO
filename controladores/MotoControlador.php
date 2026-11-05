@@ -5,18 +5,18 @@ namespace App\Controladores;
 
 use App\AccesoDatos\MotoDAO;
 use App\Configuracion\Herramientas;
-use App\Servicios\GestionComercialServicio;
+use App\Servicios\GestionMotosServicio;
 use DomainException;
 
 final class MotoControlador
 {
-    private GestionComercialServicio $servicioComercial;
+    private GestionMotosServicio $servicioComercial;
 
     public function __construct(
         private MotoDAO $dao,
-        ?GestionComercialServicio $servicioComercial = null
+        ?GestionMotosServicio $servicioComercial = null
     ) {
-        $this->servicioComercial = $servicioComercial ?? new GestionComercialServicio();
+        $this->servicioComercial = $servicioComercial ?? new GestionMotosServicio();
     }
 
     public function guardar(array $post, array $archivos, bool $esEdicion = false): never

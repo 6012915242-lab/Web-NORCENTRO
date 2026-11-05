@@ -33,6 +33,7 @@ final class PedidoDAO extends ModeloBaseORM
             }
             $lineas = [];
             $total = 0.0;
+            $unidadesAsignadas = [];
             foreach ($datos['items'] as $elemento) {
                 $moto = (int) $elemento['moto_id'];
                 $cantidad = (int) $elemento['cantidad'];
@@ -59,12 +60,15 @@ final class PedidoDAO extends ModeloBaseORM
                 $consulta->execute(['id' => $moto]);
                 $oferta = $consulta->fetch();
                 $precio = (float) ($oferta['precio_oferta'] ?? $motoDetalle['precio']);
-                $unidades = $this->conexion->prepare('SELECT id FROM unidades_moto WHERE moto_id=:id AND estado="Disponible" ORDER BY id LIMIT '.(int) $cantidad.' FOR UPDATE');
-                $unidades->execute(['id' => $moto]);
-                $disponible = array_map('intval', $unidades->fetchAll(PDO::FETCH_COLUMN));
+                $disponible = $this->unidadesParaPedido(
+                    $moto,
+                    $cantidad,
+                    $unidadesAsignadas[$moto] ?? []
+                );
                 if (count($disponible) < $cantidad) {
                     throw new \DomainException('No hay suficientes unidades disponibles de '.$motoDetalle['marca'].' '.$motoDetalle['modelo'].'.');
                 }
+                $unidadesAsignadas[$moto] = array_merge($unidadesAsignadas[$moto] ?? [], $disponible);
                 $totalLinea = round($precio * $cantidad, 2);
                 $total = round($total + $totalLinea, 2);
                 $lineas[] = ['moto_id' => $moto,
@@ -147,6 +151,28 @@ final class PedidoDAO extends ModeloBaseORM
             }
             throw $e;
         }
+    }
+
+    private function unidadesParaPedido(int $motoId, int $cantidad, array $excluidas): array
+    {
+        if ($cantidad < 1 || $cantidad > 20) {
+            throw new \DomainException('La cantidad de unidades solicitadas no es válida.');
+        }
+
+        $consultaSql = 'SELECT id FROM unidades_moto WHERE moto_id = ? AND estado = "Disponible"';
+        $parametros = [$motoId];
+
+        if ($excluidas !== []) {
+            $marcadores = implode(', ', array_fill(0, count($excluidas), '?'));
+            $consultaSql .= ' AND id NOT IN (' . $marcadores . ')';
+            $parametros = array_merge($parametros, $excluidas);
+        }
+
+        $consultaSql .= ' ORDER BY id LIMIT ' . $cantidad . ' FOR UPDATE';
+        $consulta = $this->conexion->prepare($consultaSql);
+        $consulta->execute($parametros);
+
+        return array_map('intval', $consulta->fetchAll(PDO::FETCH_COLUMN));
     }
 
     public function guardarMercadoPago(int $id, string $idMercadoPago, string $url): void

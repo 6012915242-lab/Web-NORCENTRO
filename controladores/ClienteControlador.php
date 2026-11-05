@@ -5,18 +5,18 @@ namespace App\Controladores;
 
 use App\AccesoDatos\ClienteDAO;
 use App\Configuracion\Herramientas;
-use App\Servicios\GestionComercialServicio;
+use App\Servicios\GestionClientesServicio;
 use DomainException;
 
 final class ClienteControlador
 {
-    private GestionComercialServicio $servicioComercial;
+    private GestionClientesServicio $servicioComercial;
 
     public function __construct(
         private ClienteDAO $dao,
-        ?GestionComercialServicio $servicioComercial = null
+        ?GestionClientesServicio $servicioComercial = null
     ) {
-        $this->servicioComercial = $servicioComercial ?? new GestionComercialServicio();
+        $this->servicioComercial = $servicioComercial ?? new GestionClientesServicio();
     }
 
     public function guardar(array $post, bool $esEdicion = false): never

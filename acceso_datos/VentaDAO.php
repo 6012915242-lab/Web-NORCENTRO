@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\AccesoDatos;
 
 use App\Modelos\PlanCredito;
+use App\Modelos\Credito;
 use App\Nucleo\ModeloBaseORM;
 use DateTimeImmutable;
 use PDO;
@@ -12,6 +13,15 @@ use PDO;
 /** Registra ventas, créditos, cuotas y pagos dentro de transacciones. */
 final class VentaDAO extends ModeloBaseORM
 {
+    public function obtenerCredito(int $id): ?Credito
+    {
+        return $this->hidratarEntidad(
+            Credito::class,
+            'SELECT * FROM creditos WHERE id = :id',
+            ['id' => $id]
+        );
+    }
+
     public function listar(): array
     {
         return $this->conexion->query('SELECT v.*,c.nombres,c.apellidos,u.codigo_serie,m.modelo,ma.nombre marca,us.nombre vendedor, COALESCE((SELECT SUM(cr.importe_recargo) FROM creditos cr WHERE cr.venta_id=v.id),0) AS recargo_credito FROM ventas v JOIN clientes c ON c.id=v.cliente_id JOIN unidades_moto u ON u.id=v.unidad_id JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id JOIN usuarios us ON us.id=v.usuario_id ORDER BY v.fecha DESC')->fetchAll();

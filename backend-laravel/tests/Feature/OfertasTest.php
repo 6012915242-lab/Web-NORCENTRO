@@ -61,6 +61,12 @@ class OfertasTest extends TestCase
         $datos = $this->datosOferta();
         $datos['moto_id'] = 999;
         $this->postJson('/api/ofertas', $datos)->assertUnprocessable();
+        $datos = $this->datosOferta();
+        $datos['precio_oferta'] = '9000.001';
+        $this->postJson('/api/ofertas', $datos)->assertUnprocessable();
+        $datos = $this->datosOferta();
+        $datos['descripcion'] = str_repeat('a', 256);
+        $this->postJson('/api/ofertas', $datos)->assertUnprocessable();
         $this->assertDatabaseCount('ofertas', 0);
     }
 

@@ -88,6 +88,10 @@ abstract class ModeloBaseORM
 
     protected function ejecutarEnTransaccion(callable $operacion): mixed
     {
+        if ($this->conexion->inTransaction()) {
+            return $operacion();
+        }
+
         $this->conexion->beginTransaction();
 
         try {

@@ -15,7 +15,8 @@ class GestionClientesTest extends TestCase
         DB::statement('CREATE TABLE vista_usuarios_permisos (usuario_id INTEGER, permiso TEXT)');
         DB::statement('CREATE TABLE clientes (
             id INTEGER PRIMARY KEY AUTOINCREMENT, dni TEXT UNIQUE, nombres TEXT, apellidos TEXT,
-            telefono TEXT NOT NULL, direccion TEXT NOT NULL, correo TEXT NOT NULL, estado TEXT
+            telefono TEXT NOT NULL, direccion TEXT NOT NULL, correo TEXT NOT NULL,
+            estado TEXT NOT NULL DEFAULT "Activo"
         )');
         DB::table('vista_usuarios_permisos')->insert([
             ['usuario_id' => 1, 'permiso' => 'clientes.gestionar'],
@@ -61,6 +62,42 @@ class GestionClientesTest extends TestCase
             'correo' => '',
             'direccion' => '',
         ]);
+    }
+
+    public function test_valida_los_nombres_y_acepta_acentos(): void
+    {
+        $datos = ['dni' => '87654321', 'nombres' => '<script>', 'apellidos' => 'Prueba'];
+        $this->postJson('/api/clientes', $datos)->assertUnprocessable();
+
+        $datos['nombres'] = 'José María';
+        $datos['apellidos'] = 'Muñoz';
+        $this->postJson('/api/clientes', $datos)->assertCreated();
+    }
+
+    public function test_rechaza_campos_del_cliente_con_estructura_invalida(): void
+    {
+        $this->postJson('/api/clientes', [
+            'dni' => '87654321',
+            'nombres' => ['Ana'],
+            'apellidos' => 'Prueba',
+        ])->assertUnprocessable();
+
+        $this->assertDatabaseCount('clientes', 0);
+    }
+
+    public function test_puede_buscar_el_digito_cero(): void
+    {
+        $this->postJson('/api/clientes', [
+            'dni' => '12345678', 'nombres' => 'Ana', 'apellidos' => 'Prueba',
+        ])->assertCreated();
+        $this->postJson('/api/clientes', [
+            'dni' => '01234567', 'nombres' => 'José', 'apellidos' => 'Muñoz',
+        ])->assertCreated();
+
+        $this->getJson('/api/clientes?buscar=0')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.dni', '01234567');
     }
 
     public function test_exige_permiso_especifico_para_desactivar(): void

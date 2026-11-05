@@ -13,6 +13,7 @@ class VentasCreditoTest extends TestCase
         parent::setUp();
 
         DB::statement('CREATE TABLE vista_usuarios_permisos (usuario_id INTEGER, permiso TEXT)');
+        DB::statement('CREATE TABLE creditos (id INTEGER PRIMARY KEY)');
         DB::statement('CREATE TABLE cuotas (id INTEGER, credito_id INTEGER, numero INTEGER, monto REAL)');
         DB::table('vista_usuarios_permisos')->insert([
             ['usuario_id' => 1, 'permiso' => 'ventas.registrar'],
@@ -27,6 +28,8 @@ class VentasCreditoTest extends TestCase
         $this->postJson('/api/creditos/pagos', ['cuota_id' => 1, 'monto' => 0])
             ->assertUnprocessable();
         $this->postJson('/api/creditos/pagos', ['cuota_id' => 1, 'monto' => '0.001'])
+            ->assertUnprocessable();
+        $this->postJson('/api/solicitudes-credito/1/evaluacion', ['decision' => 'desconocida'])
             ->assertUnprocessable();
     }
 
@@ -50,6 +53,7 @@ class VentasCreditoTest extends TestCase
 
     public function test_consulta_cuotas_del_credito_solicitado(): void
     {
+        DB::table('creditos')->insert(['id' => 5]);
         DB::table('cuotas')->insert([
             ['id' => 1, 'credito_id' => 5, 'numero' => 1, 'monto' => 1200],
             ['id' => 2, 'credito_id' => 6, 'numero' => 1, 'monto' => 500],
@@ -61,12 +65,19 @@ class VentasCreditoTest extends TestCase
             ->assertJsonPath('data.0.id', 1);
     }
 
+    public function test_un_credito_inexistente_no_muestra_un_cronograma_vacio(): void
+    {
+        $this->getJson('/api/creditos/999/cuotas')->assertNotFound();
+    }
+
     public function test_separacion_de_permisos_de_ventas_y_creditos(): void
     {
         DB::table('vista_usuarios_permisos')->where('permiso', 'creditos.revisar')->delete();
 
         $this->getJson('/api/creditos/5/cuotas')->assertForbidden();
         $this->postJson('/api/creditos/pagos', [])->assertForbidden();
+        $this->postJson('/api/solicitudes-credito/1/evaluacion', ['decision' => 'aprobar'])
+            ->assertForbidden();
         $this->postJson('/api/ventas', [])->assertUnprocessable();
     }
 
@@ -76,5 +87,6 @@ class VentasCreditoTest extends TestCase
 
         $this->postJson('/api/ventas', [])->assertUnauthorized();
         $this->getJson('/api/creditos')->assertUnauthorized();
+        $this->getJson('/api/solicitudes-credito')->assertUnauthorized();
     }
 }

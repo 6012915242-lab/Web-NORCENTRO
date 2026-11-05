@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\AccesoDatos\VentaDAO;
+use App\Modelos\Credito;
 use App\Servicios\EvaluacionCreditoServicio;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 class VentasServicio
@@ -25,6 +27,10 @@ class VentasServicio
 
     public function cuotas(int $creditoId): array
     {
+        if ($this->dao()->obtenerCredito($creditoId) === null) {
+            throw (new ModelNotFoundException())->setModel(Credito::class, [$creditoId]);
+        }
+
         return DB::table('cuotas')
             ->where('credito_id', $creditoId)
             ->orderBy('numero')

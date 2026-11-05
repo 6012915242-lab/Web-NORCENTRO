@@ -4,9 +4,9 @@ Requisitos: PHP 8.3 o superior con PDO MySQL, mbstring, openssl y zip,
 Composer, Apache y MariaDB/MySQL. La página actual y el ORM artesanal
 permanecen en la carpeta principal del proyecto.
 
-1. Importar las bases y ejecutar las migraciones SQL de Norcentro siguiendo
-   los archivos de la carpeta sql. No ejecutar artisan migrate sobre una base
-   con datos existentes: las migraciones incluidas son las del ejemplo Laravel.
+1. Utilizar la base norcentro_web que ya esté instalada y actualizada.
+   No es necesario volver a importarla. No ejecutar artisan migrate sobre una
+   base con datos existentes: las migraciones son las del ejemplo Laravel.
 2. En esta carpeta ejecutar composer install.
 3. Copiar .env.example a una carpeta privada fuera de htdocs, llamada
    norcentro_config, y renombrar la copia a .env. En XAMPP instalado en

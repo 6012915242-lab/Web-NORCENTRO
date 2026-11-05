@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
@@ -9,6 +10,7 @@ use App\AccesoDatos\OfertaDAO;
 use App\AccesoDatos\PanelDAO;
 use App\AccesoDatos\PedidoDAO;
 use App\AccesoDatos\VentaDAO;
+use App\Servicios\CatalogoFiltrosServicio;
 
 /** Prepara los datos de cada vista sin mezclar consultas en el Front Controller. */
 final class PaginaControlador
@@ -20,16 +22,14 @@ final class PaginaControlador
         private OfertaDAO $ofertaDAO,
         private PanelDAO $panelDAO,
         private PedidoDAO $pedidoDAO
-    ) {
-    }
+    ) {}
 
     public function preparar(
         string $pagina,
         array $consulta,
         ?array $usuarioActual,
         array $permisosUsuario = []
-    ): array
-    {
+    ): array {
         $datos = [
             'ofertas' => [],
             'todasLasMotos' => [],
@@ -37,7 +37,7 @@ final class PaginaControlador
             'solicitudesCreditoPendientes' => 0,
         ];
 
-        if ($usuarioActual !== null) {
+        if ($usuarioActual !== null && in_array('creditos.revisar', $permisosUsuario, true)) {
             $datos['solicitudesCreditoPendientes'] =
                 $this->pedidoDAO->contarSolicitudesCreditoPendientes();
         }
@@ -98,72 +98,14 @@ final class PaginaControlador
     {
         $ofertas = $this->ofertaDAO->activas();
         $todasLasMotos = $this->motoDAO->listar();
-        $marcaSeleccionada = (int) ($consulta['marca'] ?? 0);
-        $modeloSeleccionado = trim((string) ($consulta['modelo'] ?? ''));
-        $cilindradaSeleccionada = (int) ($consulta['cilindrada'] ?? 0);
-        $precioMaximo = (float) ($consulta['precio_max'] ?? 0);
-        $marcasCatalogo = [];
-        $modelosCatalogo = [];
-        $cilindradasCatalogo = [];
+        $filtros = (new CatalogoFiltrosServicio())->preparar($todasLasMotos, $consulta, $pagina !== 'inicio');
+        $variantes = $this->motoDAO->coloresPorMotos(array_column($filtros['catalogo'], 'id'));
 
-        foreach ($todasLasMotos as $moto) {
-            $marcasCatalogo[(int) $moto['marca_id']] = $moto['marca'];
-
-            if ($marcaSeleccionada === 0 || (int) $moto['marca_id'] === $marcaSeleccionada) {
-                $modelosCatalogo[$moto['modelo']] = $moto['modelo'];
-                $cilindradasCatalogo[(int) $moto['cilindrada']] = (int) $moto['cilindrada'];
-            }
-        }
-
-        if ($modeloSeleccionado !== '' && !isset($modelosCatalogo[$modeloSeleccionado])) {
-            $modeloSeleccionado = '';
-        }
-
-        asort($marcasCatalogo);
-        ksort($modelosCatalogo);
-        sort($cilindradasCatalogo);
-
-        $motoDestacada = null;
-        foreach ($todasLasMotos as $moto) {
-            if ($moto['modelo'] === 'Pulsar NS400Z') {
-                $motoDestacada = $moto;
-                break;
-            }
-        }
-
-        $catalogo = $pagina === 'inicio'
-            ? []
-            : array_values(array_filter(
-                $todasLasMotos,
-                static function (array $moto) use (
-                    $marcaSeleccionada,
-                    $modeloSeleccionado,
-                    $cilindradaSeleccionada,
-                    $precioMaximo
-                ): bool {
-                    return ($marcaSeleccionada === 0 || (int) $moto['marca_id'] === $marcaSeleccionada)
-                        && ($modeloSeleccionado === '' || $moto['modelo'] === $modeloSeleccionado)
-                        && ($cilindradaSeleccionada === 0 || (int) $moto['cilindrada'] === $cilindradaSeleccionada)
-                        && ($precioMaximo <= 0 || (float) $moto['precio'] <= $precioMaximo);
-                }
-            ));
-
-        $variantesColorCatalogo = $this->motoDAO->coloresPorMotos(array_column($catalogo, 'id'));
-
-        return compact(
-            'ofertas',
-            'todasLasMotos',
-            'motoDestacada',
-            'marcasCatalogo',
-            'modelosCatalogo',
-            'cilindradasCatalogo',
-            'marcaSeleccionada',
-            'modeloSeleccionado',
-            'cilindradaSeleccionada',
-            'precioMaximo',
-            'catalogo',
-            'variantesColorCatalogo'
-        );
+        return array_merge($filtros, [
+            'ofertas' => $ofertas,
+            'todasLasMotos' => $todasLasMotos,
+            'variantesColorCatalogo' => $variantes,
+        ]);
     }
 
     private function prepararDetalleMoto(int $motoId, array $consulta): array
@@ -172,6 +114,7 @@ final class PaginaControlador
 
         if ($motoDetalle === null) {
             http_response_code(404);
+
             return ['motoDetalle' => null];
         }
 
@@ -195,7 +138,7 @@ final class PaginaControlador
         if ($imagenesMoto === []) {
             $imagenesMoto = [[
                 'ruta' => $motoDetalle['imagen'],
-                'texto_alt' => $motoDetalle['marca'] . ' ' . $motoDetalle['modelo'],
+                'texto_alt' => $motoDetalle['marca'].' '.$motoDetalle['modelo'],
             ]];
         }
 
@@ -278,10 +221,9 @@ final class PaginaControlador
 
         if ($clienteVentaSeleccionado === null) {
             $idClienteVentaSeleccionado = 0;
-        } elseif (!array_filter(
+        } elseif (! array_filter(
             $listaClientes,
-            static fn (array $cliente): bool =>
-                (int) $cliente['id'] === $idClienteVentaSeleccionado
+            static fn (array $cliente): bool => (int) $cliente['id'] === $idClienteVentaSeleccionado
         )) {
             array_unshift($listaClientes, $clienteVentaSeleccionado);
         }

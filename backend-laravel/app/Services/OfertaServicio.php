@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Moto;
+use App\AccesoDatos\OfertaDAO;
 use App\Models\Oferta;
+use App\Servicios\GestionOfertasServicio;
+use DomainException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class OfertaServicio
@@ -22,31 +24,22 @@ class OfertaServicio
 
     public function guardar(array $entrada, ?Oferta $oferta = null): Oferta
     {
-        $datos = Validator::make($entrada, [
-            'moto_id' => ['required', 'integer', 'min:1'],
-            'titulo' => ['required', 'string', 'min:3', 'max:100'],
-            'descripcion' => ['nullable', 'string', 'max:255'],
-            'precio_normal' => ['required', 'numeric', 'gt:0', 'max:99999999.99'],
-            'precio_oferta' => ['required', 'numeric', 'gt:0', 'lt:precio_normal'],
-            'fecha_inicio' => ['required', 'date_format:Y-m-d'],
-            'fecha_fin' => ['required', 'date_format:Y-m-d', 'after_or_equal:fecha_inicio'],
-        ])->validate();
-
-        $motoActiva = Moto::query()
-            ->where('estado', 'Activo')
-            ->whereHas('marca', fn ($consulta) => $consulta->where('estado', 'Activo'))
-            ->whereKey($datos['moto_id'])
-            ->exists();
-
-        if (! $motoActiva) {
-            throw ValidationException::withMessages([
-                'moto_id' => 'Selecciona una motocicleta y una marca activas.',
-            ]);
+        try {
+            $datos = (new GestionOfertasServicio())->prepararOferta($this->dao(), $entrada);
+        } catch (DomainException $error) {
+            throw ValidationException::withMessages(['oferta' => $error->getMessage()]);
         }
 
-        $datos['descripcion'] = $datos['descripcion'] ?? '';
         $oferta ??= new Oferta();
-        $oferta->fill($datos);
+        $oferta->fill([
+            'moto_id' => $datos['moto'],
+            'titulo' => $datos['titulo'],
+            'descripcion' => $datos['descripcion'],
+            'precio_normal' => $datos['normal'],
+            'precio_oferta' => $datos['oferta'],
+            'fecha_inicio' => $datos['inicio'],
+            'fecha_fin' => $datos['fin'],
+        ]);
 
         if (! $oferta->exists) {
             $oferta->estado = 'Activa';
@@ -59,7 +52,15 @@ class OfertaServicio
 
     public function desactivar(Oferta $oferta): void
     {
-        $oferta->estado = 'Inactiva';
-        $oferta->save();
+        try {
+            (new GestionOfertasServicio())->desactivarOferta($this->dao(), (int) $oferta->id);
+        } catch (DomainException $error) {
+            throw ValidationException::withMessages(['oferta' => $error->getMessage()]);
+        }
+    }
+
+    private function dao(): OfertaDAO
+    {
+        return new OfertaDAO(DB::connection()->getPdo());
     }
 }

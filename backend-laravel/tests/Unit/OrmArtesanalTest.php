@@ -6,6 +6,7 @@ use App\AccesoDatos\ClienteDAO;
 use App\AccesoDatos\MotoDAO;
 use App\AccesoDatos\VentaDAO;
 use App\Modelos\Cliente;
+use App\Modelos\Credito;
 use App\Modelos\Moto;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -27,6 +28,17 @@ class OrmArtesanalTest extends TestCase
         $this->assertNull((new ClienteDAO($conexion))->obtenerEntidad(2));
     }
 
+    public function test_busqueda_de_cliente_no_ejecuta_texto_sql(): void
+    {
+        $conexion = $this->conexionTemporal();
+        $conexion->exec('CREATE TABLE clientes (id INTEGER, dni TEXT, nombres TEXT, apellidos TEXT, estado TEXT)');
+        $conexion->exec("INSERT INTO clientes VALUES (1, '12345678', 'Ana', 'Prueba', 'Activo')");
+
+        $resultados = (new ClienteDAO($conexion))->listar("' OR '1'='1");
+
+        $this->assertSame([], $resultados);
+    }
+
     public function test_mapea_una_moto_con_su_marca_relacionada(): void
     {
         $conexion = $this->conexionTemporal();
@@ -40,6 +52,21 @@ class OrmArtesanalTest extends TestCase
         $this->assertInstanceOf(Moto::class, $moto);
         $this->assertSame('Bajaj', $moto->marca);
         $this->assertSame(160, $moto->cilindrada);
+    }
+
+    public function test_mapea_un_credito_antes_de_consultar_sus_cuotas(): void
+    {
+        $conexion = $this->conexionTemporal();
+        $conexion->exec('CREATE TABLE creditos (id INTEGER, venta_id INTEGER, saldo REAL, estado TEXT)');
+        $conexion->exec("INSERT INTO creditos VALUES (4, 2, 1500.50, 'Activo')");
+
+        $dao = new VentaDAO($conexion);
+        $credito = $dao->obtenerCredito(4);
+
+        $this->assertInstanceOf(Credito::class, $credito);
+        $this->assertSame(2, $credito->ventaId);
+        $this->assertSame(1500.5, $credito->saldo);
+        $this->assertNull($dao->obtenerCredito(99));
     }
 
     public function test_agrupa_fotografias_por_moto_y_color(): void
