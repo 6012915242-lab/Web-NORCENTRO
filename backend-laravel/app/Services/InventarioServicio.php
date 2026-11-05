@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\AccesoDatos\MotoDAO;
 use App\Models\Moto;
 use App\Models\UnidadMoto;
 use DomainException;
@@ -11,6 +12,13 @@ use Illuminate\Support\Facades\Validator;
 
 class InventarioServicio
 {
+    public function listar(): array
+    {
+        $dao = new MotoDAO(DB::connection()->getPdo());
+
+        return $dao->inventario();
+    }
+
     public function registrar(array $entrada): UnidadMoto
     {
         $entrada['codigo_serie'] = strtoupper(trim((string) ($entrada['codigo_serie'] ?? '')));
@@ -21,7 +29,11 @@ class InventarioServicio
 
         try {
             return DB::transaction(function () use ($datos): UnidadMoto {
-                $moto = Moto::query()->where('estado', 'Activo')->lockForUpdate()->find($datos['moto_id']);
+                $moto = Moto::query()
+                    ->where('estado', 'Activo')
+                    ->whereHas('marca', fn ($consulta) => $consulta->where('estado', 'Activo'))
+                    ->lockForUpdate()
+                    ->find($datos['moto_id']);
                 if ($moto === null) {
                     throw new DomainException('Selecciona una motocicleta activa.');
                 }

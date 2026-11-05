@@ -13,7 +13,7 @@ class InventarioTest extends TestCase
         parent::setUp();
 
         DB::statement('CREATE TABLE vista_usuarios_permisos (usuario_id INTEGER, permiso TEXT)');
-        DB::statement('CREATE TABLE marcas (id INTEGER PRIMARY KEY, nombre TEXT)');
+        DB::statement('CREATE TABLE marcas (id INTEGER PRIMARY KEY, nombre TEXT, estado TEXT)');
         DB::statement('CREATE TABLE motos (
             id INTEGER PRIMARY KEY, marca_id INTEGER, modelo TEXT, imagen TEXT, estado TEXT
         )');
@@ -23,7 +23,7 @@ class InventarioTest extends TestCase
             codigo_serie TEXT UNIQUE,
             estado TEXT
         )');
-        DB::table('marcas')->insert(['id' => 1, 'nombre' => 'Bajaj']);
+        DB::table('marcas')->insert(['id' => 1, 'nombre' => 'Bajaj', 'estado' => 'Activo']);
         DB::table('motos')->insert([
             ['id' => 1, 'marca_id' => 1, 'modelo' => 'Pulsar', 'imagen' => '', 'estado' => 'Activo'],
             ['id' => 2, 'marca_id' => 1, 'modelo' => 'Otro', 'imagen' => '', 'estado' => 'Inactivo'],
@@ -58,6 +58,16 @@ class InventarioTest extends TestCase
         $this->postJson('/api/inventario', [
             'moto_id' => 1,
             'codigo_serie' => '!',
+        ])->assertUnprocessable();
+    }
+
+    public function test_no_registra_unidades_de_una_marca_inactiva(): void
+    {
+        DB::table('marcas')->where('id', 1)->update(['estado' => 'Inactivo']);
+
+        $this->postJson('/api/inventario', [
+            'moto_id' => 1,
+            'codigo_serie' => 'MOTO-123',
         ])->assertUnprocessable();
     }
 

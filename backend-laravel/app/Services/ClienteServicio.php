@@ -12,7 +12,7 @@ class ClienteServicio
     public function listar(?string $buscar): LengthAwarePaginator
     {
         return Cliente::query()
-            ->select(['id', 'dni', 'nombres', 'apellidos', 'telefono', 'correo', 'estado'])
+            ->select(['id', 'dni', 'nombres', 'apellidos', 'telefono', 'direccion', 'correo', 'estado'])
             ->where('estado', 'Activo')
             ->when($buscar, function ($consulta, $texto): void {
                 $consulta->where(function ($subconsulta) use ($texto): void {
@@ -29,7 +29,7 @@ class ClienteServicio
     public function buscarActivo(int $id): Cliente
     {
         return Cliente::query()
-            ->select(['id', 'dni', 'nombres', 'apellidos', 'telefono', 'correo', 'estado'])
+            ->select(['id', 'dni', 'nombres', 'apellidos', 'telefono', 'direccion', 'correo', 'estado'])
             ->where('estado', 'Activo')
             ->findOrFail($id);
     }

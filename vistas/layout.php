@@ -5,10 +5,14 @@ use App\Configuracion\Herramientas;
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Sistema web Norcentro para motocicletas, clientes, ventas, créditos y ofertas.">
   <title><?= Herramientas::escaparHtml($titulo)?></title>
-  <link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix"><link rel="stylesheet" href="css/listing.css?v=20261103-gallery-admin"><link rel="stylesheet" href="css/responsive.css?v=20261103-gallery-fix">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix">
+  <link rel="stylesheet" href="css/listing.css?v=20261103-gallery-admin">
+  <link rel="stylesheet" href="css/responsive.css?v=20261103-gallery-fix">
 </head>
 <body class="page-<?= Herramientas::escaparHtml($pagina)?><?= $mensajeError ? ' page-error' : ''?>">
 <?php
@@ -18,8 +22,15 @@ $mostrarCarrito = !$usuarioActual || in_array($pagina, ['inicio',
         'moto'], true);
 ?>
 <header class="topbar">
-  <a class="brand" href="index.php?page=inicio" aria-label="NORCENTRO, inicio"><img class="brand-logo" src="img/brand/norcentro_logo_completo.jpg" alt="NORCENTRO · El poder en movimiento"></a>
-  <nav class="main-nav"><a href="index.php?page=inicio">Inicio</a><a href="index.php?page=catalogo">Catálogo</a><a href="index.php?page=ofertas">Ofertas</a><a href="index.php?page=contacto">Contacto</a></nav>
+  <a class="brand" href="index.php?page=inicio" aria-label="NORCENTRO, inicio">
+    <img class="brand-logo" src="img/brand/norcentro_logo_completo.jpg" alt="NORCENTRO · El poder en movimiento">
+  </a>
+  <nav class="main-nav">
+    <a href="index.php?page=inicio">Inicio</a>
+    <a href="index.php?page=catalogo">Catálogo</a>
+    <a href="index.php?page=ofertas">Ofertas</a>
+    <a href="index.php?page=contacto">Contacto</a>
+  </nav>
   <div class="top-action"><?php
 if ($mostrarCarrito):?><button type="button" class="cart-trigger" id="cart-toggle" aria-haspopup="dialog">Carrito <span data-cart-count>0</span></button><?php
 endif;

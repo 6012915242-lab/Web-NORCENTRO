@@ -82,11 +82,18 @@ final class EvaluacionCreditoServicio
 
     public function procesarPagoCuota(VentaDAO $ventaDAO, array $entrada): void
     {
-        $monto = filter_var($entrada['monto'] ?? null, FILTER_VALIDATE_FLOAT);
+        $montoTexto = trim((string) ($entrada['monto'] ?? ''));
+        $monto = filter_var($montoTexto, FILTER_VALIDATE_FLOAT);
         $id    = filter_var($entrada['cuota_id'] ?? null, FILTER_VALIDATE_INT);
 
-        if (!$id || $id < 1 || $monto === false || $monto <= 0) {
-            throw new DomainException('Selecciona una cuota y un monto válido.');
+        if (
+            !$id
+            || $id < 1
+            || $monto === false
+            || $monto <= 0
+            || !preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', $montoTexto)
+        ) {
+            throw new DomainException('Selecciona una cuota y un monto válido de hasta dos decimales.');
         }
 
         $ventaDAO->pagarCuota((int) $id, (float) $monto);

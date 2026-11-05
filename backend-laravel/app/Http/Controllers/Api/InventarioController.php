@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\AccesoDatos\MotoDAO;
 use App\Http\Controllers\Controller;
 use App\Services\InventarioServicio;
 use DomainException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class InventarioController extends Controller
 {
@@ -18,9 +16,7 @@ class InventarioController extends Controller
 
     public function index(): JsonResponse
     {
-        $dao = new MotoDAO(DB::connection()->getPdo());
-
-        return response()->json(['data' => $dao->inventario()]);
+        return response()->json(['data' => $this->inventario->listar()]);
     }
 
     public function store(Request $solicitud): JsonResponse

@@ -4,11 +4,22 @@ namespace App\Services;
 
 use App\Models\Moto;
 use App\Models\Oferta;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class OfertaServicio
 {
+    public function listar(): LengthAwarePaginator
+    {
+        return Oferta::query()->with('moto.marca')->orderByDesc('fecha_fin')->paginate(20);
+    }
+
+    public function buscarActiva(int $id): Oferta
+    {
+        return Oferta::query()->where('estado', 'Activa')->findOrFail($id);
+    }
+
     public function guardar(array $entrada, ?Oferta $oferta = null): Oferta
     {
         $datos = Validator::make($entrada, [

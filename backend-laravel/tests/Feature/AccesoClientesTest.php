@@ -39,17 +39,18 @@ class AccesoClientesTest extends TestCase
     public function test_un_usuario_con_permiso_puede_consultar_clientes(): void
     {
         DB::statement('CREATE TABLE vista_usuarios_permisos (usuario_id INTEGER, permiso TEXT)');
-        DB::statement('CREATE TABLE clientes (id INTEGER, dni TEXT, nombres TEXT, apellidos TEXT, telefono TEXT, correo TEXT, estado TEXT)');
+        DB::statement('CREATE TABLE clientes (id INTEGER, dni TEXT, nombres TEXT, apellidos TEXT, telefono TEXT, direccion TEXT, correo TEXT, estado TEXT)');
         DB::table('vista_usuarios_permisos')->insert(['usuario_id' => 1, 'permiso' => 'clientes.gestionar']);
         DB::table('clientes')->insert([
             'id' => 1, 'dni' => '12345678', 'nombres' => 'Ana', 'apellidos' => 'Prueba',
-            'telefono' => '', 'correo' => '', 'estado' => 'Activo',
+            'telefono' => '', 'direccion' => 'Cajamarca', 'correo' => '', 'estado' => 'Activo',
         ]);
         $usuario = (new Usuario())->forceFill(['id' => 1, 'estado' => 'Activo']);
 
         $this->actingAs($usuario)
             ->getJson('/api/clientes')
             ->assertOk()
-            ->assertJsonPath('data.0.nombres', 'Ana');
+            ->assertJsonPath('data.0.nombres', 'Ana')
+            ->assertJsonPath('data.0.direccion', 'Cajamarca');
     }
 }

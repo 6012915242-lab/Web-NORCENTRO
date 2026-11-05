@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Oferta;
 use App\Services\OfertaServicio;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,9 +15,7 @@ class OfertaController extends Controller
 
     public function index(): JsonResponse
     {
-        $ofertas = Oferta::query()->with('moto.marca')->orderByDesc('fecha_fin')->paginate(20);
-
-        return response()->json($ofertas);
+        return response()->json($this->servicio->listar());
     }
 
     public function store(Request $solicitud): JsonResponse
@@ -28,14 +25,14 @@ class OfertaController extends Controller
 
     public function update(Request $solicitud, int $id): JsonResponse
     {
-        $oferta = Oferta::query()->where('estado', 'Activa')->findOrFail($id);
+        $oferta = $this->servicio->buscarActiva($id);
 
         return response()->json(['data' => $this->servicio->guardar($solicitud->all(), $oferta)]);
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $oferta = Oferta::query()->where('estado', 'Activa')->findOrFail($id);
+        $oferta = $this->servicio->buscarActiva($id);
         $this->servicio->desactivar($oferta);
 
         return response()->json(['mensaje' => 'Oferta desactivada.']);
