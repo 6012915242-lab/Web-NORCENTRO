@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Cliente;
 use App\Services\ClienteServicio;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,54 +13,18 @@ class ClienteController extends Controller
     {
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $solicitud): JsonResponse
     {
-        $datos = $request->validate([
+        $datos = $solicitud->validate([
             'buscar' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $clientes = Cliente::query()
-            ->select([
-                'id',
-                'dni',
-                'nombres',
-                'apellidos',
-                'telefono',
-                'correo',
-                'estado',
-            ])
-            ->where('estado', 'Activo')
-            ->when($datos['buscar'] ?? null, function ($consulta, $buscar) {
-                $consulta->where(function ($subconsulta) use ($buscar) {
-                    $subconsulta
-                        ->where('dni', 'like', "%{$buscar}%")
-                        ->orWhere('nombres', 'like', "%{$buscar}%")
-                        ->orWhere('apellidos', 'like', "%{$buscar}%");
-                });
-            })
-            ->orderBy('apellidos')
-            ->orderBy('nombres')
-            ->paginate(20);
-
-        return response()->json($clientes);
+        return response()->json($this->servicio->listar($datos['buscar'] ?? null));
     }
     public function show(int $id): JsonResponse
     {
-        $cliente = Cliente::query()
-            ->select([
-                'id',
-                'dni',
-                'nombres',
-                'apellidos',
-                'telefono',
-                'correo',
-                'estado',
-            ])
-            ->where('estado', 'Activo')
-            ->findOrFail($id);
-
         return response()->json([
-            'data' => $cliente,
+            'data' => $this->servicio->buscarActivo($id),
         ]);
     }
 
@@ -74,7 +37,7 @@ class ClienteController extends Controller
 
     public function update(Request $solicitud, int $id): JsonResponse
     {
-        $cliente = Cliente::query()->where('estado', 'Activo')->findOrFail($id);
+        $cliente = $this->servicio->buscarActivo($id);
         $cliente = $this->servicio->guardar($solicitud->all(), $cliente);
 
         return response()->json(['data' => $cliente]);
@@ -82,7 +45,7 @@ class ClienteController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $cliente = Cliente::query()->where('estado', 'Activo')->findOrFail($id);
+        $cliente = $this->servicio->buscarActivo($id);
         $this->servicio->desactivar($cliente);
 
         return response()->json(['mensaje' => 'Cliente desactivado.']);
