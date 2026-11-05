@@ -6,6 +6,7 @@ use App\Configuracion\BaseDatos;
 use App\AccesoDatos\VentaDAO;
 use App\AccesoDatos\MotoDAO;
 use App\AccesoDatos\PedidoDAO;
+use App\AccesoDatos\OfertaDAO;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -39,7 +40,8 @@ class IntegracionMysqlTest extends TestCase
             'CREATE TEMPORARY TABLE pedidos (id INT AUTO_INCREMENT PRIMARY KEY, request_id VARCHAR(36) UNIQUE, nombres VARCHAR(100), apellidos VARCHAR(100), dni CHAR(8), telefono VARCHAR(20), correo VARCHAR(120), inicial DECIMAL(10,2), numero_cuotas INT, subtotal DECIMAL(10,2), total DECIMAL(10,2), modalidad VARCHAR(20), estado VARCHAR(40), creado_en DATETIME, credito_autorizado_en DATETIME, vence_en DATETIME, checkout_url TEXT, mp_order_id VARCHAR(120))',
             'CREATE TEMPORARY TABLE pedido_items (id INT AUTO_INCREMENT PRIMARY KEY, pedido_id INT, moto_id INT, color_id INT, cantidad INT, precio_unitario DECIMAL(10,2), subtotal DECIMAL(10,2))',
             'CREATE TEMPORARY TABLE pedido_unidades (pedido_item_id INT, unidad_id INT)',
-            'CREATE TEMPORARY TABLE ventas (id INT AUTO_INCREMENT PRIMARY KEY, cliente_id INT, usuario_id INT, unidad_id INT, precio DECIMAL(10,2), descuento DECIMAL(10,2), total DECIMAL(10,2), modalidad VARCHAR(20))',
+            'CREATE TEMPORARY TABLE ventas (id INT AUTO_INCREMENT PRIMARY KEY, cliente_id INT, usuario_id INT, unidad_id INT, precio DECIMAL(10,2), descuento DECIMAL(10,2), total DECIMAL(10,2), modalidad VARCHAR(20), estado VARCHAR(20) DEFAULT "Confirmada")',
+            'CREATE TEMPORARY TABLE solicitud_credito_ventas (pedido_item_id INT NOT NULL, venta_id INT PRIMARY KEY)',
             'CREATE TEMPORARY TABLE creditos (id INT AUTO_INCREMENT PRIMARY KEY, venta_id INT, inicial DECIMAL(10,2), monto_financiado DECIMAL(10,2), numero_cuotas INT, saldo DECIMAL(10,2), estado VARCHAR(20), porcentaje_recargo DECIMAL(5,2), importe_recargo DECIMAL(10,2))',
             'CREATE TEMPORARY TABLE cuotas (id INT AUTO_INCREMENT PRIMARY KEY, credito_id INT, numero INT, fecha_vencimiento DATE, monto DECIMAL(10,2), pagado DECIMAL(10,2) DEFAULT 0, estado VARCHAR(20))',
             'CREATE TEMPORARY TABLE pagos (id INT AUTO_INCREMENT PRIMARY KEY, credito_id INT, cuota_id INT NULL, monto DECIMAL(10,2), fecha DATE, concepto VARCHAR(40))',
@@ -83,6 +85,56 @@ class IntegracionMysqlTest extends TestCase
         $this->assertSame(20000.0, $pedido['total']);
         $this->assertSame(2, DB::table('pedido_unidades')->distinct()->count('unidad_id'));
         $this->assertSame(2, DB::table('unidades_moto')->where('estado', 'Reservada')->count());
+    }
+
+    public function test_catalogo_detalle_y_pedido_eligen_la_misma_oferta_mas_economica(): void
+    {
+        DB::table('ofertas')->insert([
+            ['moto_id' => 1, 'titulo' => 'Primera', 'precio_normal' => 10000, 'precio_oferta' => 9500,
+                'fecha_inicio' => '2000-01-01', 'fecha_fin' => '2098-01-01', 'estado' => 'Activa'],
+            ['moto_id' => 1, 'titulo' => 'Mejor precio', 'precio_normal' => 10000, 'precio_oferta' => 9000,
+                'fecha_inicio' => '2000-01-01', 'fecha_fin' => '2099-01-01', 'estado' => 'Activa'],
+        ]);
+        $conexion = DB::connection()->getPdo();
+        $ofertas = new OfertaDAO($conexion);
+        $datos = $this->datosPedido();
+        $datos['items'] = [['moto_id' => 1, 'color_id' => null, 'cantidad' => 1]];
+
+        $this->assertSame(9000.0, (float) $ofertas->activas()[0]['precio_oferta']);
+        $this->assertSame(9000.0, (float) $ofertas->activaParaMoto(1)['precio_oferta']);
+        $this->assertSame(9000.0, (new PedidoDAO($conexion))->crear($datos)['total']);
+    }
+
+    public function test_reintento_del_pedido_solo_acepta_los_mismos_datos(): void
+    {
+        $dao = new PedidoDAO(DB::connection()->getPdo());
+        $datos = $this->datosPedido();
+        $datos['items'] = [['moto_id' => 1, 'color_id' => null, 'cantidad' => 1]];
+        $primero = $dao->crear($datos);
+        $repetido = $dao->crear($datos);
+
+        $this->assertSame($primero['id'], $repetido['id']);
+        $this->assertTrue($repetido['repetido']);
+
+        $datos['modalidad'] = 'Crédito';
+        try {
+            $dao->crear($datos);
+            $this->fail('El cambio de modalidad debía rechazarse.');
+        } catch (\DomainException $error) {
+            $this->assertStringContainsString('cambió', $error->getMessage());
+        }
+
+        $datos['modalidad'] = 'Contado';
+        $datos['items'][0]['cantidad'] = 2;
+        try {
+            $dao->crear($datos);
+            $this->fail('El cambio de cantidad debía rechazarse.');
+        } catch (\DomainException $error) {
+            $this->assertStringContainsString('productos cambiaron', $error->getMessage());
+        }
+
+        $this->assertSame(1, DB::table('pedidos')->count());
+        $this->assertSame(1, DB::table('pedido_unidades')->count());
     }
 
     public function test_pedido_de_dos_colores_sin_stock_suficiente_no_reserva(): void
@@ -153,6 +205,48 @@ class IntegracionMysqlTest extends TestCase
         $this->assertSame(1, DB::table('ventas')->count());
         $this->postJson('/sesion/cerrar')->assertOk();
         $this->postJson('/api/ventas', $venta)->assertUnauthorized();
+    }
+
+    public function test_solicitud_aprobada_admite_ventas_parciales_sin_superar_la_cantidad(): void
+    {
+        DB::table('pedidos')->insert([
+            'id' => 1, 'dni' => '11111111', 'modalidad' => 'Crédito', 'estado' => 'Crédito aprobado',
+        ]);
+        DB::table('pedido_items')->insert(['id' => 1, 'pedido_id' => 1, 'moto_id' => 1, 'cantidad' => 2]);
+        DB::table('unidades_moto')->insert([
+            ['id' => 2, 'moto_id' => 1, 'estado' => 'Disponible'],
+            ['id' => 3, 'moto_id' => 1, 'estado' => 'Disponible'],
+        ]);
+        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])->assertOk();
+        $venta = [
+            'cliente_id' => 1, 'unidad_id' => 1, 'pedido_id' => 1, 'modalidad' => 'Crédito',
+            'descuento' => 0, 'inicial' => 2000, 'numero_cuotas' => 3,
+            'fecha_primera_cuota' => '2099-01-31',
+        ];
+        DB::table('clientes')->insert([
+            'id' => 2, 'dni' => '22222222', 'nombres' => 'Otro', 'apellidos' => 'Cliente', 'estado' => 'Activo',
+        ]);
+        $venta['cliente_id'] = 2;
+        $this->postJson('/api/ventas', $venta)->assertUnprocessable();
+        $this->assertSame(0, DB::table('solicitud_credito_ventas')->count());
+        $venta['cliente_id'] = 1;
+        DB::table('motos')->insert(['id' => 2, 'marca_id' => 1, 'modelo' => 'Otro modelo', 'precio' => 8000, 'estado' => 'Activo']);
+        DB::table('unidades_moto')->insert(['id' => 4, 'moto_id' => 2, 'estado' => 'Disponible']);
+        $venta['unidad_id'] = 4;
+        $this->postJson('/api/ventas', $venta)->assertUnprocessable();
+        $this->assertSame('Disponible', DB::table('unidades_moto')->where('id', 4)->value('estado'));
+        $venta['unidad_id'] = 1;
+        $this->postJson('/api/ventas', $venta)->assertCreated();
+        $venta['unidad_id'] = 2;
+        $this->postJson('/api/ventas', $venta)->assertCreated();
+        $venta['unidad_id'] = 3;
+        $this->postJson('/api/ventas', $venta)->assertUnprocessable();
+        $this->assertSame(2, DB::table('solicitud_credito_ventas')->count());
+        $this->assertSame('Disponible', DB::table('unidades_moto')->where('id', 3)->value('estado'));
+
+        DB::table('ventas')->where('id', 1)->update(['estado' => 'Anulada']);
+        $this->postJson('/api/ventas', $venta)->assertCreated();
+        $this->assertSame(3, DB::table('solicitud_credito_ventas')->count());
     }
 
     public function test_crud_de_clientes_con_mysql_y_permisos(): void

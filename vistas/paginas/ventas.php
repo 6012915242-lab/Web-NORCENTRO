@@ -68,6 +68,9 @@ use App\Configuracion\Herramientas;
     <form method="post" class="form-grid" id="sale-form">
       <?= Herramientas::campoCsrf() ?>
       <input type="hidden" name="action" value="crear_venta">
+      <?php if ($idSolicitudCreditoVenta > 0 && $idClienteVentaSeleccionado > 0): ?>
+        <input type="hidden" name="pedido_id" value="<?= (int) $idSolicitudCreditoVenta ?>">
+      <?php endif; ?>
       <label class="full">
         Cliente
         <select name="cliente_id" id="sale-client-select" required>
@@ -100,7 +103,11 @@ use App\Configuracion\Herramientas;
                     data-image="<?= Herramientas::escaparHtml(Herramientas::rutaImagen($unidadInventario['imagen'])) ?>"
                     data-model="<?= Herramientas::escaparHtml($unidadInventario['marca'] . ' ' . $unidadInventario['modelo']) ?>"
                     data-series="<?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>">
-              <?= Herramientas::escaparHtml($unidadInventario['marca'] . ' ' . $unidadInventario['modelo'] . ' · Serie ' . $unidadInventario['codigo_serie'] . ' · ' . Herramientas::formatearDinero($unidadInventario['precio'])) ?>
+              <?= Herramientas::escaparHtml(
+                  $unidadInventario['marca'] . ' ' . $unidadInventario['modelo']
+                  . ' · Serie ' . $unidadInventario['codigo_serie']
+                  . ' · ' . Herramientas::formatearDinero($unidadInventario['precio'])
+              ) ?>
             </option>
           <?php endforeach; ?>
         </select>

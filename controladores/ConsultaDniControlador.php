@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controladores;
 
 use App\Servicios\ConsultaDniServicio;
+use App\Servicios\TextoEntrada;
 use DomainException;
 use RuntimeException;
 use Throwable;
@@ -17,7 +18,8 @@ final class ConsultaDniControlador
         header('Cache-Control: no-store');
 
         try {
-            $resultado = (new ConsultaDniServicio())->consultar((string) ($datos['dni'] ?? ''));
+            $dni = TextoEntrada::normalizar($datos['dni'] ?? '');
+            $resultado = (new ConsultaDniServicio())->consultar($dni);
             echo json_encode(['ok' => true, 'datos' => $resultado], JSON_UNESCAPED_UNICODE);
         } catch (DomainException $error) {
             http_response_code(422);

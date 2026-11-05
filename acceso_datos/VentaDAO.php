@@ -50,7 +50,7 @@ final class VentaDAO extends ModeloBaseORM
                 throw new \DomainException('Selecciona un cliente activo para la venta.');
             }
             $consulta = $this->conexion->prepare('
-                SELECT u.id, u.estado, m.precio
+                SELECT u.id, u.estado, u.moto_id, m.precio
                 FROM unidades_moto u
                 JOIN motos m ON m.id = u.moto_id
                 JOIN marcas ma ON ma.id = m.marca_id
@@ -62,6 +62,14 @@ final class VentaDAO extends ModeloBaseORM
             $unidad = $consulta->fetch();
             if (! $unidad || $unidad['estado'] !== 'Disponible') {
                 throw new \DomainException('La unidad seleccionada ya no está disponible. Actualiza la lista.');
+            }
+            $itemSolicitud = null;
+            if (($datos['pedido_id'] ?? null) !== null) {
+                $itemSolicitud = $this->buscarItemSolicitud(
+                    (int) $datos['pedido_id'],
+                    (int) $datos['cliente_id'],
+                    (int) $unidad['moto_id']
+                );
             }
             if ((float) $datos['descuento'] < 0 || (float) $datos['descuento'] >= (float) $unidad['precio']) {
                 throw new \DomainException('El descuento debe ser menor que el precio de la motocicleta.');
@@ -77,6 +85,12 @@ final class VentaDAO extends ModeloBaseORM
                 'total' => $total,
                 'modalidad' => $datos['modalidad']]);
             $venta = (int) $this->conexion->lastInsertId();
+            if ($itemSolicitud !== null) {
+                $this->ejecutar(
+                    'INSERT INTO solicitud_credito_ventas (pedido_item_id, venta_id) VALUES (:item, :venta)',
+                    ['item' => $itemSolicitud, 'venta' => $venta]
+                );
+            }
             $consulta = $this->conexion->prepare('UPDATE unidades_moto SET estado="Vendida" WHERE id=:id AND estado="Disponible"');
             $consulta->execute(['id' => $datos['unidad_id']]);
             if ($consulta->rowCount() !== 1) {
@@ -94,6 +108,38 @@ final class VentaDAO extends ModeloBaseORM
             }
             throw $e;
         }
+    }
+
+    private function buscarItemSolicitud(int $pedidoId, int $clienteId, int $motoId): int
+    {
+        $solicitud = $this->obtenerUno(
+            'SELECT p.id FROM pedidos p JOIN clientes c ON c.dni = p.dni
+             WHERE p.id = :pedido AND c.id = :cliente AND p.modalidad = "Crédito"
+               AND p.estado = "Crédito aprobado" FOR UPDATE',
+            ['pedido' => $pedidoId, 'cliente' => $clienteId]
+        );
+        if ($solicitud === null) {
+            throw new \DomainException('La solicitud no está aprobada o no corresponde al cliente.');
+        }
+
+        $items = $this->obtenerTodos(
+            'SELECT id, cantidad FROM pedido_items
+             WHERE pedido_id = :pedido AND moto_id = :moto ORDER BY id FOR UPDATE',
+            ['pedido' => $pedidoId, 'moto' => $motoId]
+        );
+        foreach ($items as $item) {
+            $cantidadVinculada = (int) $this->preparar(
+                'SELECT COUNT(*) FROM solicitud_credito_ventas vinculo
+                 JOIN ventas venta ON venta.id = vinculo.venta_id
+                 WHERE vinculo.pedido_item_id = :item AND venta.estado = "Confirmada"',
+                ['item' => $item['id']]
+            )->fetchColumn();
+            if ($cantidadVinculada < (int) $item['cantidad']) {
+                return (int) $item['id'];
+            }
+        }
+
+        throw new \DomainException('Esta moto no está pendiente en la solicitud aprobada.');
     }
 
     private function crearCredito(int $venta, array $datos, float $total): void

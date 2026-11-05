@@ -40,11 +40,19 @@ final class EvaluacionCreditoServicio
         $inicial          = filter_var($entrada['inicial'] ?? 0, FILTER_VALIDATE_FLOAT);
         $cuotas           = filter_var($entrada['numero_cuotas'] ?? 0, FILTER_VALIDATE_INT);
         $fechaVencimiento = trim($this->textoDeEntrada($entrada['fecha_primera_cuota'] ?? ''));
+        $pedidoEntrada = $entrada['pedido_id'] ?? null;
+        $pedidoId = $pedidoEntrada === null || $pedidoEntrada === ''
+            ? null
+            : filter_var($pedidoEntrada, FILTER_VALIDATE_INT);
 
         $esCredito = ($modalidad === 'Crédito');
 
         if (!$clienteId || $clienteId < 1 || !$unidadId || $unidadId < 1 || $usuarioId < 1) {
             throw new DomainException('Selecciona un cliente activo y una unidad disponible.');
+        }
+
+        if ($pedidoId === false || ($pedidoId !== null && ($pedidoId < 1 || !$esCredito))) {
+            throw new DomainException('La solicitud vinculada requiere una venta a crédito válida.');
         }
 
         if (
@@ -80,6 +88,7 @@ final class EvaluacionCreditoServicio
             'inicial'             => $esCredito ? (float) $inicial : 0.0,
             'numero_cuotas'       => $esCredito ? (int) $cuotas : 0,
             'fecha_primera_cuota' => $esCredito ? $fechaVencimiento : '',
+            'pedido_id'           => $pedidoId,
         ];
 
         $idVenta = $ventaDAO->crear($datosVenta);

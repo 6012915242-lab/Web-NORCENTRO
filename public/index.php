@@ -29,6 +29,12 @@ use App\Servicios\SincronizacionComercialServicio;
 $rutaSesion = dirname(__DIR__).'/storage/sessions';
 SeguridadMiddleware::inicializarEntornoSeguro($rutaSesion);
 $_GET = SeguridadMiddleware::sanearArregloEntrada($_GET);
+foreach ($_GET as $valorConsulta) {
+    if (is_array($valorConsulta)) {
+        http_response_code(400);
+        exit('Los parámetros de la página no son válidos.');
+    }
+}
 $pagina = preg_replace('/[^a-z_]/', '', (string) ($_GET['page'] ?? 'inicio')) ?: 'inicio';
 $paginasPublicas = ['inicio',
     'catalogo',

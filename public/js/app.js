@@ -32,8 +32,14 @@
     const img = preview.querySelector("img");
     img.src = option.dataset.image;
     img.alt = option.dataset.model;
-    preview.querySelector("span").innerHTML =
-      `<b>${escapeHtml(option.dataset.model)}</b><small>Precio de lista: S/ ${Number(option.dataset.price).toLocaleString("es-PE", { minimumFractionDigits: 2 })} · ${escapeHtml(option.textContent.split("·")[1]?.trim() || "")}</small>`;
+    const precio = Number(option.dataset.price).toLocaleString("es-PE", {
+      minimumFractionDigits: 2,
+    });
+    const serie = option.textContent.split("·")[1]?.trim() || "";
+    preview.querySelector("span").innerHTML = `
+      <b>${escapeHtml(option.dataset.model)}</b>
+      <small>Precio de lista: S/ ${precio} · ${escapeHtml(serie)}</small>
+    `;
     preview.classList.add("visible");
   };
   const escapeHtml = (s) =>

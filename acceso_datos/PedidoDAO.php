@@ -20,6 +20,7 @@ final class PedidoDAO extends ModeloBaseORM
             $conocido = $existente->fetch();
             if ($conocido) {
                 $elementos = $this->items((int) $conocido['id']);
+                $this->verificarReintento($conocido, $elementos, $datos);
                 $this->conexion->commit();
 
                 return ['id' => (int) $conocido['id'],
@@ -60,7 +61,12 @@ final class PedidoDAO extends ModeloBaseORM
                 } else {
                     $nombreColor = 'Color por confirmar';
                 }
-                $consulta = $this->conexion->prepare('SELECT precio_oferta FROM ofertas WHERE moto_id=:id AND estado="Activa" AND fecha_inicio<=CURDATE() AND fecha_fin>=CURDATE() ORDER BY precio_oferta ASC LIMIT 1');
+                $consulta = $this->conexion->prepare('
+                    SELECT precio_oferta FROM ofertas
+                    WHERE moto_id = :id AND estado = "Activa"
+                      AND fecha_inicio <= CURDATE() AND fecha_fin >= CURDATE()
+                    ORDER BY precio_oferta, fecha_fin, id LIMIT 1
+                ');
                 $consulta->execute(['id' => $moto]);
                 $oferta = $consulta->fetch();
                 $precio = (float) ($oferta['precio_oferta'] ?? $motoDetalle['precio']);
@@ -165,6 +171,35 @@ final class PedidoDAO extends ModeloBaseORM
         }
     }
 
+    private function verificarReintento(array $pedido, array $elementos, array $datos): void
+    {
+        foreach (['nombres', 'apellidos', 'dni', 'telefono', 'correo', 'modalidad'] as $campo) {
+            if ((string) $pedido[$campo] !== (string) $datos[$campo]) {
+                throw new \DomainException('El intento de compra cambió. Actualiza el carrito para crear un nuevo pedido.');
+            }
+        }
+
+        if ($datos['modalidad'] === 'Crédito'
+            && ((float) $pedido['inicial'] !== (float) $datos['inicial']
+                || (int) $pedido['numero_cuotas'] !== (int) $datos['cuotas'])) {
+            throw new \DomainException('Los datos del crédito cambiaron. Actualiza el carrito para crear un nuevo pedido.');
+        }
+
+        $lineas = static function (array $productos): array {
+            $resultado = [];
+            foreach ($productos as $producto) {
+                $clave = (int) $producto['moto_id'] . ':' . (int) ($producto['color_id'] ?? 0);
+                $resultado[$clave] = (int) $producto['cantidad'];
+            }
+            ksort($resultado);
+            return $resultado;
+        };
+
+        if ($lineas($elementos) !== $lineas($datos['items'])) {
+            throw new \DomainException('Los productos cambiaron. Actualiza el carrito para crear un nuevo pedido.');
+        }
+    }
+
     private function unidadesParaPedido(int $motoId, int $cantidad, array $excluidas): array
     {
         if ($cantidad < 1 || $cantidad > 20) {
@@ -241,12 +276,17 @@ final class PedidoDAO extends ModeloBaseORM
         return $this->conexion->query('
             SELECT p.id, p.nombres, p.apellidos, p.dni, p.telefono, p.correo,
                    p.inicial, p.numero_cuotas, p.total, p.estado, p.creado_en,
-                   p.credito_autorizado_en, items.motocicletas
+                   p.credito_autorizado_en, items.motocicletas, items.unidades_solicitadas,
+                   (SELECT COUNT(*) FROM solicitud_credito_ventas sv
+                    JOIN pedido_items linea ON linea.id = sv.pedido_item_id
+                    JOIN ventas venta ON venta.id = sv.venta_id
+                    WHERE linea.pedido_id = p.id AND venta.estado = "Confirmada") AS ventas_registradas
             FROM pedidos p
             JOIN (
                 SELECT pi.pedido_id,
                        GROUP_CONCAT(CONCAT(ma.nombre, " ", m.modelo, " ×", pi.cantidad)
-                                    ORDER BY pi.id SEPARATOR ", ") motocicletas
+                                    ORDER BY pi.id SEPARATOR ", ") motocicletas,
+                       SUM(pi.cantidad) unidades_solicitadas
                 FROM pedido_items pi
                 JOIN motos m ON m.id = pi.moto_id
                 JOIN marcas ma ON ma.id = m.marca_id

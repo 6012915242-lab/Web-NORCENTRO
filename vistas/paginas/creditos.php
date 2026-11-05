@@ -144,10 +144,17 @@ foreach ($creditos as $credito) {
                                             <button class="button small-button" name="decision" value="aprobar">Aprobar</button>
                                             <button class="button small-button subtle" name="decision" value="rechazar">No aprobar</button>
                                         </form>
-                                    <?php elseif ($solicitud['estado'] === 'Crédito aprobado'): ?>
+                                    <?php elseif ($solicitud['estado'] === 'Crédito aprobado'
+                                        && (int) $solicitud['ventas_registradas'] < (int) $solicitud['unidades_solicitadas']): ?>
                                         <a class="text-link" href="index.php?page=ventas&amp;pedido_id=<?= (int) $solicitud['id'] ?>">
                                             Registrar venta →
                                         </a>
+                                        <small>
+                                            <?= (int) $solicitud['ventas_registradas'] ?> /
+                                            <?= (int) $solicitud['unidades_solicitadas'] ?> unidades registradas
+                                        </small>
+                                    <?php elseif ($solicitud['estado'] === 'Crédito aprobado'): ?>
+                                        <span>Ventas registradas</span>
                                     <?php else: ?>
                                         —
                                     <?php endif; ?>

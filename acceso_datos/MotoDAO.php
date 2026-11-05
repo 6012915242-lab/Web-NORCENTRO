@@ -160,7 +160,11 @@ final class MotoDAO extends ModeloBaseORM
     public function guardar(array $datos): int
     {
         return $this->ejecutarEnTransaccion(function () use ($datos): int {
-            $consulta = $this->conexion->prepare('INSERT INTO motos(marca_id,modelo,cilindrada,color,precio,descripcion,anio,imagen,estado) VALUES(:marca,:modelo,:cc,:color,:precio,:descripcion,:anio,:imagen,"Activo")');
+            $consulta = $this->conexion->prepare('
+                INSERT INTO motos
+                    (marca_id, modelo, cilindrada, color, precio, descripcion, anio, imagen, estado)
+                VALUES (:marca, :modelo, :cc, :color, :precio, :descripcion, :anio, :imagen, "Activo")
+            ');
             $consulta->bindValue(':marca', (int) $datos['marca_id'], PDO::PARAM_INT);
             $consulta->bindValue(':modelo', (string) $datos['modelo'], PDO::PARAM_STR);
             $consulta->bindValue(':cc', (int) $datos['cilindrada'], PDO::PARAM_INT);

@@ -19,9 +19,9 @@ final class OfertaDAO extends ModeloBaseORM
             FROM ofertas o
             JOIN motos m ON m.id = o.moto_id
             JOIN marcas ma ON ma.id = m.marca_id
-            WHERE o.estado = 'Activa' AND m.estado = 'Activo'
+            WHERE o.estado = 'Activa' AND m.estado = 'Activo' AND ma.estado = 'Activo'
               AND CURDATE() BETWEEN o.fecha_inicio AND o.fecha_fin
-            ORDER BY o.fecha_fin
+            ORDER BY o.precio_oferta, o.fecha_fin, o.id
         ";
 
         return $this->conexion->query($sql)->fetchAll();
@@ -33,7 +33,7 @@ final class OfertaDAO extends ModeloBaseORM
             SELECT o.* FROM ofertas o
             WHERE o.moto_id = :moto AND o.estado = 'Activa'
               AND CURDATE() BETWEEN o.fecha_inicio AND o.fecha_fin
-            ORDER BY o.fecha_fin LIMIT 1
+            ORDER BY o.precio_oferta, o.fecha_fin, o.id LIMIT 1
         ");
         $consulta->execute(['moto' => $idMoto]);
 
