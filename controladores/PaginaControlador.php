@@ -78,7 +78,7 @@ final class PaginaControlador
 
         if ($pagina === 'inventario') {
             $datos['elementos'] = $this->motoDAO->inventario();
-            $datos['motosInventario'] = in_array('motos.gestionar', $permisosUsuario, true)
+            $datos['motosInventario'] = in_array('inventario.gestionar', $permisosUsuario, true)
                 ? $this->motoDAO->listar()
                 : [];
         }

@@ -11,7 +11,7 @@ use App\Configuracion\Herramientas;
     <span class="inventory-total"><?= count($elementos) ?> unidades registradas</span>
 </div>
 
-<?php if ($usuarioPuede('motos.gestionar')): ?>
+<?php if ($usuarioPuede('inventario.gestionar')): ?>
     <section class="panel inventory-register">
         <div class="panel-head">
             <div>

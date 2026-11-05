@@ -55,11 +55,17 @@ final class AutorizacionRbacMiddleware
 
     public function verificarPermisoAccion(string $accion, ?array $usuario): void
     {
+        if ($accion === 'cerrar_sesion') {
+            return;
+        }
+
         $permiso = self::PERMISOS_POR_ACCION[$accion] ?? null;
 
-        if ($permiso !== null) {
-            $this->exigirPermiso($usuario, $permiso, $accion);
+        if ($permiso === null) {
+            $this->denegar($usuario === null, $usuario, $accion);
         }
+
+        $this->exigirPermiso($usuario, $permiso, $accion);
     }
 
     public function verificarAccesoPagina(string $pagina, ?array $usuario): void

@@ -22,6 +22,7 @@ use App\Middlewares\AuditoriaMiddleware;
 use App\Middlewares\SeguridadMiddleware;
 use App\Nucleo\MotorVistas;
 use App\Nucleo\DespachadorAcciones;
+use App\Servicios\SincronizacionComercialServicio;
 $rutaSesion = dirname(__DIR__) . '/storage/sessions';
 SeguridadMiddleware::inicializarEntornoSeguro($rutaSesion);
 $_GET = SeguridadMiddleware::sanearArregloEntrada($_GET);
@@ -59,8 +60,8 @@ try {
         $usuarioActual,
         $sesionesDAO
     );
-    $ofertasDAO->actualizarEstadoFechas();
-    $pedidosDAO->liberarPedidosVencidos();
+    $sincronizacion = new SincronizacionComercialServicio($ofertasDAO, $pedidosDAO);
+    $sincronizacion->actualizar();
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         SeguridadMiddleware::validarPeticionPostCsrf();
         $datosPost = SeguridadMiddleware::sanearArregloEntrada($_POST);
