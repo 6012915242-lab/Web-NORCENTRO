@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cliente;
+use App\Services\ClienteServicio;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
 {
+    public function __construct(private ClienteServicio $servicio)
+    {
+    }
+
     public function index(Request $request): JsonResponse
     {
         $datos = $request->validate([
@@ -58,5 +63,28 @@ class ClienteController extends Controller
         return response()->json([
             'data' => $cliente,
         ]);
+    }
+
+    public function store(Request $solicitud): JsonResponse
+    {
+        $cliente = $this->servicio->guardar($solicitud->all());
+
+        return response()->json(['data' => $cliente], 201);
+    }
+
+    public function update(Request $solicitud, int $id): JsonResponse
+    {
+        $cliente = Cliente::query()->where('estado', 'Activo')->findOrFail($id);
+        $cliente = $this->servicio->guardar($solicitud->all(), $cliente);
+
+        return response()->json(['data' => $cliente]);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $cliente = Cliente::query()->where('estado', 'Activo')->findOrFail($id);
+        $this->servicio->desactivar($cliente);
+
+        return response()->json(['mensaje' => 'Cliente desactivado.']);
     }
 }

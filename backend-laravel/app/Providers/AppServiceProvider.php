@@ -11,7 +11,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        require_once dirname(base_path()) . '/autoload.php';
     }
 
     /**

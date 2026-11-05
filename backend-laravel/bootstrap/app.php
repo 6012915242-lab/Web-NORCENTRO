@@ -21,6 +21,7 @@ $aplicacion = Application::configure(basePath: dirname(__DIR__))
         );
     })->create();
 
-$aplicacion->useEnvironmentPath(dirname(__DIR__, 4) . '/norcentro_config');
+$rutaConfiguracion = getenv('NORCENTRO_LARAVEL_ENV_DIR') ?: dirname(__DIR__, 4) . '/norcentro_config';
+$aplicacion->useEnvironmentPath($rutaConfiguracion);
 
 return $aplicacion;
