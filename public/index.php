@@ -23,6 +23,7 @@ use App\Middlewares\SeguridadMiddleware;
 use App\Nucleo\MotorVistas;
 use App\Nucleo\DespachadorAcciones;
 use App\Servicios\SincronizacionComercialServicio;
+use App\Servicios\InicioServicio;
 $rutaSesion = dirname(__DIR__) . '/storage/sessions';
 SeguridadMiddleware::inicializarEntornoSeguro($rutaSesion);
 $_GET = SeguridadMiddleware::sanearArregloEntrada($_GET);
@@ -167,34 +168,13 @@ if ($baseDatosNoDisponible && $pagina === 'inicio') {
 $motosDestacadas = [];
 $ofertaDestacada = null;
 if ($pagina === 'inicio') {
-    foreach (['YZF-R15 ABS',
-            'MT-09 ABS',
-            'Pulsar NS200',
-            'Duke 200'] as $modeloDestacado) {
-        foreach ($todasLasMotos as $candidato) {
-            if (
-                $candidato['modelo'] !== $modeloDestacado
-                || (int) $candidato['id'] === (int) ($motoDestacada['id'] ?? -1)
-            ) {
-                continue;
-            }
-            $motosDestacadas[] = $candidato;
-            break 2;
-        }
-    }
-    $mejorDescuento = - 1;
-    foreach ($ofertas as $oferta) {
-        $normal = (float)($oferta['precio_normal'] ?? 0);
-        $especial = (float)($oferta['precio_oferta'] ?? 0);
-        if ($normal <= 0 || $especial <= 0 || $especial >= $normal) {
-            continue;
-        }
-        $descuento = ($normal - $especial) / $normal;
-        if ($descuento > $mejorDescuento) {
-            $mejorDescuento = $descuento;
-            $ofertaDestacada = $oferta;
-        }
-    }
+    $destacados = (new InicioServicio())->seleccionarDestacados(
+        $todasLasMotos,
+        $motoDestacada,
+        $ofertas
+    );
+    $motosDestacadas = $destacados['motosDestacadas'];
+    $ofertaDestacada = $destacados['ofertaDestacada'];
 }
 if (!isset($_SESSION['_flash'])) {
     $aviso = null;

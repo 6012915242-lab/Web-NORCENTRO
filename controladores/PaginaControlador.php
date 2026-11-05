@@ -148,11 +148,7 @@ final class PaginaControlador
                 }
             ));
 
-        $variantesColorCatalogo = [];
-        foreach ($catalogo as $moto) {
-            $variantesColorCatalogo[(int) $moto['id']] =
-                $this->motoDAO->coloresPublicos((int) $moto['id']);
-        }
+        $variantesColorCatalogo = $this->motoDAO->coloresPorMotos(array_column($catalogo, 'id'));
 
         return compact(
             'ofertas',
@@ -305,14 +301,9 @@ final class PaginaControlador
     private function prepararCreditos(array $consulta): array
     {
         $creditos = $this->ventaDAO->creditos();
-        $cuotas = [];
-        $pagosCredito = [];
-
-        foreach ($creditos as $credito) {
-            $creditoId = (int) $credito['id'];
-            $cuotas[$creditoId] = $this->ventaDAO->cuotas($creditoId);
-            $pagosCredito[$creditoId] = $this->ventaDAO->pagosCredito($creditoId);
-        }
+        $detalles = $this->ventaDAO->detallesCreditos(array_column($creditos, 'id'));
+        $cuotas = $detalles['cuotas'];
+        $pagosCredito = $detalles['pagos'];
 
         return [
             'creditos' => $creditos,

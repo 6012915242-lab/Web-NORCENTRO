@@ -22,9 +22,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 }
 
 SeguridadMiddleware::inicializarEntornoSeguro(dirname(__DIR__, 2) . '/storage/sessions');
-$tokenSesion = (string) ($_SESSION['_csrf'] ?? '');
-$tokenRecibido = (string) ($_POST['_csrf'] ?? '');
-if ($tokenSesion === '' || $tokenRecibido === '' || !hash_equals($tokenSesion, $tokenRecibido)) {
+$tokenSesion = $_SESSION['_csrf'] ?? null;
+$tokenRecibido = $_POST['_csrf'] ?? null;
+if (
+    !is_string($tokenSesion)
+    || !is_string($tokenRecibido)
+    || $tokenSesion === ''
+    || $tokenRecibido === ''
+    || !hash_equals($tokenSesion, $tokenRecibido)
+) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'mensaje' => 'La sesión del formulario venció. Recarga la página.']);
     exit;

@@ -104,22 +104,54 @@ final class VentaDAO extends ModeloBaseORM
         return $this->conexion->query('SELECT cr.*,v.id venta_id,c.nombres,c.apellidos,m.modelo,ma.nombre marca FROM creditos cr JOIN ventas v ON v.id=cr.venta_id JOIN clientes c ON c.id=v.cliente_id JOIN unidades_moto u ON u.id=v.unidad_id JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id ORDER BY cr.id DESC')->fetchAll();
     }
 
-    public function cuotas(int $creditoId): array
+    public function detallesCreditos(array $identificadores): array
     {
-        $consulta = $this->conexion->prepare("UPDATE cuotas SET estado='Vencida' WHERE credito_id=:id AND estado='Pendiente' AND fecha_vencimiento<CURDATE()");
-        $consulta->execute(['id' => $creditoId]);
-        $consulta = $this->conexion->prepare('SELECT * FROM cuotas WHERE credito_id=:id ORDER BY numero');
-        $consulta->execute(['id' => $creditoId]);
+        $identificadores = array_values(array_unique(array_filter(
+            array_map('intval', $identificadores),
+            static fn (int $id): bool => $id > 0
+        )));
 
-        return $consulta->fetchAll();
-    }
+        $resultado = ['cuotas' => [], 'pagos' => []];
+        if ($identificadores === []) {
+            return $resultado;
+        }
 
-    public function pagosCredito(int $creditoId): array
-    {
-        $consulta = $this->conexion->prepare('SELECT p.id,p.monto,p.fecha,p.concepto,q.numero cuota_numero FROM pagos p LEFT JOIN cuotas q ON q.id=p.cuota_id WHERE p.credito_id=:id ORDER BY p.fecha DESC,p.id DESC');
-        $consulta->execute(['id' => $creditoId]);
+        foreach ($identificadores as $id) {
+            $resultado['cuotas'][$id] = [];
+            $resultado['pagos'][$id] = [];
+        }
 
-        return $consulta->fetchAll();
+        $marcadores = implode(', ', array_fill(0, count($identificadores), '?'));
+        $actualizar = $this->conexion->prepare("
+            UPDATE cuotas SET estado = 'Vencida'
+            WHERE credito_id IN ($marcadores)
+              AND estado = 'Pendiente' AND fecha_vencimiento < CURDATE()
+        ");
+        $actualizar->execute($identificadores);
+
+        $cuotas = $this->conexion->prepare("
+            SELECT * FROM cuotas WHERE credito_id IN ($marcadores)
+            ORDER BY credito_id, numero
+        ");
+        $cuotas->execute($identificadores);
+        foreach ($cuotas->fetchAll() as $cuota) {
+            $resultado['cuotas'][(int) $cuota['credito_id']][] = $cuota;
+        }
+
+        $pagos = $this->conexion->prepare("
+            SELECT p.credito_id, p.id, p.monto, p.fecha, p.concepto,
+                   q.numero AS cuota_numero
+            FROM pagos p
+            LEFT JOIN cuotas q ON q.id = p.cuota_id
+            WHERE p.credito_id IN ($marcadores)
+            ORDER BY p.credito_id, p.fecha DESC, p.id DESC
+        ");
+        $pagos->execute($identificadores);
+        foreach ($pagos->fetchAll() as $pago) {
+            $resultado['pagos'][(int) $pago['credito_id']][] = $pago;
+        }
+
+        return $resultado;
     }
 
     public function pagarCuota(int $cuotaId, float $monto): void

@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\AccesoDatos\UsuarioDAO;
-use App\Models\Usuario;
-use App\Servicios\AutenticacionServicio;
+use App\Services\SesionServicio;
 use DomainException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class SesionController extends Controller
 {
@@ -18,7 +15,7 @@ class SesionController extends Controller
         return response()->json(['token' => $solicitud->session()->token()]);
     }
 
-    public function iniciar(Request $solicitud, AutenticacionServicio $servicio): JsonResponse
+    public function iniciar(Request $solicitud, SesionServicio $servicio): JsonResponse
     {
         $datos = $solicitud->validate([
             'usuario' => ['required', 'string', 'max:50'],
@@ -26,8 +23,7 @@ class SesionController extends Controller
         ]);
 
         try {
-            $entidad = $servicio->autenticar(
-                new UsuarioDAO(DB::connection()->getPdo()),
+            $usuario = $servicio->autenticar(
                 $datos['usuario'],
                 $datos['password'],
                 $solicitud->ip() ?? ''
@@ -36,7 +32,6 @@ class SesionController extends Controller
             return response()->json(['mensaje' => $error->getMessage()], 422);
         }
 
-        $usuario = Usuario::query()->where('estado', 'Activo')->findOrFail($entidad->id);
         Auth::login($usuario);
         $solicitud->session()->regenerate();
 

@@ -83,29 +83,56 @@ final class MotoDAO extends ModeloBaseORM
 
     public function coloresPublicos(int $id): array
     {
-        $consulta = $this->conexion->prepare('
-            SELECT c.id AS color_id, c.nombre, c.codigo_hex, c.orden AS color_orden,
-                   i.ruta, i.texto_alt, i.orden AS imagen_orden
-            FROM moto_colores c
-            JOIN moto_color_imagenes i ON i.color_id = c.id
-            WHERE c.moto_id = :id
-            ORDER BY c.orden, i.orden, i.id
-        ');
-        $consulta->execute(['id' => $id]);
-        $colores = [];
-        foreach ($consulta->fetchAll() as $fila) {
-            $idColor = (int) $fila['color_id'];
-            if (! isset($colores[$idColor])) {
-                $colores[$idColor] = ['id' => $idColor,
-                    'nombre' => $fila['nombre'],
-                    'codigo_hex' => $fila['codigo_hex'],
-                    'imagenes' => []];
-            }
-            $colores[$idColor]['imagenes'][] = ['ruta' => $fila['ruta'],
-                'texto_alt' => $fila['texto_alt']];
+        return $this->coloresPorMotos([$id])[$id] ?? [];
+    }
+
+    public function coloresPorMotos(array $identificadores): array
+    {
+        $identificadores = array_values(array_unique(array_filter(
+            array_map('intval', $identificadores),
+            static fn (int $id): bool => $id > 0
+        )));
+
+        if ($identificadores === []) {
+            return [];
         }
 
-        return array_values(array_filter($colores, static fn ($color) => count($color['imagenes']) > 0));
+        $marcadores = implode(', ', array_fill(0, count($identificadores), '?'));
+        $consulta = $this->conexion->prepare("
+            SELECT c.moto_id, c.id AS color_id, c.nombre, c.codigo_hex,
+                   i.ruta, i.texto_alt
+            FROM moto_colores c
+            JOIN moto_color_imagenes i ON i.color_id = c.id
+            WHERE c.moto_id IN ($marcadores)
+            ORDER BY c.moto_id, c.orden, i.orden, i.id
+        ");
+        $consulta->execute($identificadores);
+        $coloresPorMoto = [];
+
+        foreach ($consulta->fetchAll() as $fila) {
+            $idMoto = (int) $fila['moto_id'];
+            $idColor = (int) $fila['color_id'];
+
+            if (! isset($coloresPorMoto[$idMoto][$idColor])) {
+                $coloresPorMoto[$idMoto][$idColor] = [
+                    'id' => $idColor,
+                    'nombre' => $fila['nombre'],
+                    'codigo_hex' => $fila['codigo_hex'],
+                    'imagenes' => [],
+                ];
+            }
+
+            $coloresPorMoto[$idMoto][$idColor]['imagenes'][] = [
+                'ruta' => $fila['ruta'],
+                'texto_alt' => $fila['texto_alt'],
+            ];
+        }
+
+        foreach ($coloresPorMoto as $idMoto => $colores) {
+            $coloresPorMoto[$idMoto] = array_values($colores);
+        }
+
+        return $coloresPorMoto;
     }
 
     public function especificacionesPublicas(int $id): array
