@@ -15,10 +15,10 @@ final class EvaluacionCreditoServicio
 {
     public function evaluarSolicitudCredito(PedidoDAO $pedidoDAO, array $entrada): string
     {
-        $id       = (int) ($entrada['pedido_id'] ?? 0);
-        $decision = (string) ($entrada['decision'] ?? '');
+        $id       = filter_var($entrada['pedido_id'] ?? null, FILTER_VALIDATE_INT);
+        $decision = $this->textoDeEntrada($entrada['decision'] ?? '');
 
-        if ($id < 1) {
+        if ($id === false || $id === null || $id < 1) {
             throw new InvalidArgumentException('No se encontró la solicitud de crédito.');
         }
 
@@ -35,11 +35,11 @@ final class EvaluacionCreditoServicio
     {
         $clienteId        = filter_var($entrada['cliente_id'] ?? null, FILTER_VALIDATE_INT);
         $unidadId         = filter_var($entrada['unidad_id'] ?? null, FILTER_VALIDATE_INT);
-        $modalidad        = (string) ($entrada['modalidad'] ?? '');
+        $modalidad        = $this->textoDeEntrada($entrada['modalidad'] ?? '');
         $descuento        = filter_var($entrada['descuento'] ?? 0, FILTER_VALIDATE_FLOAT);
         $inicial          = filter_var($entrada['inicial'] ?? 0, FILTER_VALIDATE_FLOAT);
         $cuotas           = filter_var($entrada['numero_cuotas'] ?? 0, FILTER_VALIDATE_INT);
-        $fechaVencimiento = trim((string) ($entrada['fecha_primera_cuota'] ?? ''));
+        $fechaVencimiento = trim($this->textoDeEntrada($entrada['fecha_primera_cuota'] ?? ''));
 
         $esCredito = ($modalidad === 'Crédito');
 
@@ -92,7 +92,7 @@ final class EvaluacionCreditoServicio
 
     public function procesarPagoCuota(VentaDAO $ventaDAO, array $entrada): void
     {
-        $montoTexto = trim((string) ($entrada['monto'] ?? ''));
+        $montoTexto = trim($this->textoDeEntrada($entrada['monto'] ?? ''));
         $monto = filter_var($montoTexto, FILTER_VALIDATE_FLOAT);
         $id    = filter_var($entrada['cuota_id'] ?? null, FILTER_VALIDATE_INT);
 
@@ -107,6 +107,15 @@ final class EvaluacionCreditoServicio
         }
 
         $ventaDAO->pagarCuota((int) $id, (float) $monto);
+    }
+
+    private function textoDeEntrada(mixed $valor): string
+    {
+        if (!is_string($valor) && !is_int($valor) && !is_float($valor)) {
+            throw new DomainException('El formato de los datos enviados no es válido.');
+        }
+
+        return (string) $valor;
     }
 
     private function esFechaValida(string $valor): bool

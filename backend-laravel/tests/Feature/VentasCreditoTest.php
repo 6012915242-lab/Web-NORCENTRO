@@ -51,6 +51,24 @@ class VentasCreditoTest extends TestCase
         $this->postJson('/api/ventas', $venta)->assertUnprocessable();
     }
 
+    public function test_rechaza_campos_con_arreglos_sin_provocar_error_del_servidor(): void
+    {
+        $venta = [
+            'cliente_id' => 1,
+            'unidad_id' => 1,
+            'modalidad' => ['Crédito'],
+            'descuento' => 0,
+        ];
+
+        $this->postJson('/api/ventas', $venta)->assertUnprocessable();
+
+        $venta['modalidad'] = 'Crédito';
+        $venta['fecha_primera_cuota'] = ['2099-01-01'];
+        $this->postJson('/api/ventas', $venta)->assertUnprocessable();
+        $this->postJson('/api/creditos/pagos', ['cuota_id' => 1, 'monto' => ['100']])
+            ->assertUnprocessable();
+    }
+
     public function test_consulta_cuotas_del_credito_solicitado(): void
     {
         DB::table('creditos')->insert(['id' => 5]);

@@ -24,8 +24,8 @@ try {
     $conexion = BaseDatos::conectar();
     $pedidos = new PedidoDAO($conexion);
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $idSolicitud = (string) ($_GET['request_id'] ?? '');
-        if (! preg_match('/^[0-9a-f-]{36}$/i', $idSolicitud)) {
+        $idSolicitud = $_GET['request_id'] ?? null;
+        if (!is_string($idSolicitud) || !preg_match('/^[0-9a-f-]{36}$/i', $idSolicitud)) {
             responder(400, ['ok' => false,
                 'message' => 'Pedido no válido.']);
         }

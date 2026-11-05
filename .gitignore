@@ -1,0 +1,32 @@
+# Configuración y credenciales locales
+.env
+.env.*
+!.env.example
+/configuracion/factiliza.ini
+
+# Dependencias instaladas y archivos temporales
+/backend-laravel/vendor/
+/backend-laravel/node_modules/
+/backend-laravel/public/build/
+/backend-laravel/public/hot
+.phpunit.result.cache
+.phpunit.cache/
+*.log
+
+# Sesiones y vistas generadas durante la ejecución
+/storage/sessions/*
+!/storage/sessions/.gitignore
+/backend-laravel/storage/framework/sessions/*
+!/backend-laravel/storage/framework/sessions/.gitignore
+/backend-laravel/storage/framework/views/*
+!/backend-laravel/storage/framework/views/.gitignore
+/backend-laravel/storage/framework/cache/data/*
+!/backend-laravel/storage/framework/cache/data/.gitignore
+/backend-laravel/storage/logs/*
+!/backend-laravel/storage/logs/.gitignore
+
+# Archivos locales del editor y del sistema
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

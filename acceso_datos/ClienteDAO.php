@@ -51,10 +51,12 @@ final class ClienteDAO extends ModeloBaseORM
         return $consulta->fetch()?:null;
     }
 
-    public function obtener(int $id): ?array {
-        $consulta = $this->conexion->prepare('SELECT * FROM clientes WHERE id=:id');
-        $consulta->execute(['id' => $id]);
-        return $consulta->fetch()?:null;
+    public function obtener(int $id): ?array
+    {
+        return $this->obtenerUno(
+            'SELECT * FROM clientes WHERE id = :id',
+            ['id' => $id]
+        );
     }
 
     /** Recupera un cliente como entidad para aplicar reglas de negocio tipadas. */
@@ -69,28 +71,40 @@ final class ClienteDAO extends ModeloBaseORM
         );
     }
 
-    public function existeDni(string $dni, ?int $excepto = null): bool {
-        $s = 'SELECT COUNT(*) FROM clientes WHERE dni=:dni';
-        $p = ['dni' => $dni];
-        if ($excepto) {
-            $s .= ' AND id<>:id';
-            $p['id'] = $excepto;
+    public function existeDni(string $dni, ?int $excepto = null): bool
+    {
+        $consultaSql = 'SELECT COUNT(*) FROM clientes WHERE dni = :dni';
+        $parametros = ['dni' => $dni];
+
+        if ($excepto !== null) {
+            $consultaSql .= ' AND id <> :id';
+            $parametros['id'] = $excepto;
         }
-        $consulta = $this->conexion->prepare($s);
-        $consulta->execute($p);
-        return (int)$consulta->fetchColumn() > 0;
+
+        return (int) $this->preparar($consultaSql, $parametros)->fetchColumn() > 0;
     }
 
-    public function guardar(array $datos): int {
-        $consulta = $this->conexion->prepare('INSERT INTO clientes(dni,nombres,apellidos,telefono,direccion,correo) VALUES(:dni,:nombres,:apellidos,:telefono,:direccion,:correo)');
-        $consulta->execute($datos);
-        return (int)$this->conexion->lastInsertId();
+    public function guardar(array $datos): int
+    {
+        $this->ejecutar(
+            'INSERT INTO clientes (dni, nombres, apellidos, telefono, direccion, correo)
+             VALUES (:dni, :nombres, :apellidos, :telefono, :direccion, :correo)',
+            $datos
+        );
+
+        return $this->ultimoIdInsertado();
     }
 
-    public function actualizar(int $id, array $datos): void {
+    public function actualizar(int $id, array $datos): void
+    {
         $datos['id'] = $id;
-        $consulta = $this->conexion->prepare('UPDATE clientes SET dni=:dni,nombres=:nombres,apellidos=:apellidos,telefono=:telefono,direccion=:direccion,correo=:correo WHERE id=:id');
-        $consulta->execute($datos);
+        $this->ejecutar(
+            'UPDATE clientes
+             SET dni = :dni, nombres = :nombres, apellidos = :apellidos,
+                 telefono = :telefono, direccion = :direccion, correo = :correo
+             WHERE id = :id',
+            $datos
+        );
     }
 
     public function desactivar(int $id): bool
