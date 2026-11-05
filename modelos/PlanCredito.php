@@ -4,11 +4,31 @@ declare(strict_types=1);
 namespace App\Modelos;
 
 use DomainException;
+use DateTimeImmutable;
 
 /** Calcula el recargo único y distribuye las cuotas sin perder centavos. */
 final class PlanCredito
 {
     public const PORCENTAJE_RECARGO = 5;
+
+    public static function fechasCuotas(DateTimeImmutable $primeraFecha, int $numeroCuotas): array
+    {
+        if ($numeroCuotas < 1 || $numeroCuotas > 36) {
+            throw new DomainException('El crédito debe tener entre 1 y 36 cuotas.');
+        }
+
+        $diaOriginal = (int) $primeraFecha->format('j');
+        $primerMes = $primeraFecha->modify('first day of this month');
+        $fechas = [];
+
+        for ($indice = 0; $indice < $numeroCuotas; $indice++) {
+            $mes = $primerMes->modify('+' . $indice . ' months');
+            $dia = min($diaOriginal, (int) $mes->format('t'));
+            $fechas[] = $mes->setDate((int) $mes->format('Y'), (int) $mes->format('n'), $dia);
+        }
+
+        return $fechas;
+    }
 
     public static function calcular(float $precioVenta, float $inicial, int $numeroCuotas): array
     {

@@ -84,4 +84,11 @@ class InventarioTest extends TestCase
             ->assertJsonPath('data.0.codigo_serie', 'MOTO-123')
             ->assertJsonPath('data.0.marca', 'Bajaj');
     }
+
+    public function test_requiere_sesion_para_consultar_inventario(): void
+    {
+        auth()->logout();
+
+        $this->getJson('/api/inventario')->assertUnauthorized();
+    }
 }

@@ -70,4 +70,12 @@ class OfertasTest extends TestCase
         $this->getJson('/api/ofertas')->assertForbidden();
         $this->postJson('/api/ofertas', $this->datosOferta())->assertForbidden();
     }
+
+    public function test_requiere_sesion_para_gestionar_ofertas(): void
+    {
+        auth()->logout();
+
+        $this->getJson('/api/ofertas')->assertUnauthorized();
+        $this->postJson('/api/ofertas', $this->datosOferta())->assertUnauthorized();
+    }
 }

@@ -11,7 +11,7 @@ class ExigirSesionApi
     public function handle(Request $solicitud, Closure $siguiente): Response
     {
         if (! $solicitud->user()) {
-            return response()->json(['mensaje' => 'Debes iniciar sesión para consultar clientes.'], 401);
+            return response()->json(['mensaje' => 'Debes iniciar sesión para acceder a este recurso.'], 401);
         }
 
         return $siguiente($solicitud);

@@ -4,7 +4,6 @@ namespace App\AccesoDatos;
 use PDO;
 use App\Nucleo\ModeloBaseORM;
 use App\Modelos\PlanCredito;
-use DateInterval;
 use DateTimeImmutable;
 /** Registra ventas, créditos, cuotas y pagos dentro de transacciones. */
 final class VentaDAO extends ModeloBaseORM
@@ -21,13 +20,19 @@ final class VentaDAO extends ModeloBaseORM
             $cliente = $this->conexion->prepare('SELECT id FROM clientes WHERE id=:id AND estado="Activo" FOR UPDATE');
             $cliente->bindValue(':id', (int)$datos['cliente_id'], PDO::PARAM_INT);
             $cliente->execute();
-            if (!$cliente->fetchColumn()) throw new \DomainException('Selecciona un cliente activo para la venta.');
+            if (!$cliente->fetchColumn()) {
+                throw new \DomainException('Selecciona un cliente activo para la venta.');
+            }
             $consulta = $this->conexion->prepare('SELECT u.id,u.estado,m.precio FROM unidades_moto u JOIN motos m ON m.id=u.moto_id JOIN marcas ma ON ma.id=m.marca_id WHERE u.id=:id AND m.estado="Activo" AND ma.estado="Activo" FOR UPDATE');
             $consulta->bindValue(':id', (int)$datos['unidad_id'], PDO::PARAM_INT);
             $consulta->execute();
             $unidad = $consulta->fetch();
-            if (!$unidad || $unidad['estado'] !== 'Disponible') throw new \DomainException('La unidad seleccionada ya no está disponible. Actualiza la lista.');
-            if ((float)$datos['descuento'] < 0 || (float)$datos['descuento'] >= (float)$unidad['precio']) throw new \DomainException('El descuento debe ser menor que el precio de la motocicleta.');
+            if (!$unidad || $unidad['estado'] !== 'Disponible') {
+                throw new \DomainException('La unidad seleccionada ya no está disponible. Actualiza la lista.');
+            }
+            if ((float)$datos['descuento'] < 0 || (float)$datos['descuento'] >= (float)$unidad['precio']) {
+                throw new \DomainException('El descuento debe ser menor que el precio de la motocicleta.');
+            }
             $precio = (float)$unidad['precio'];
             $total = $precio - (float)$datos['descuento'];
             $consulta = $this->conexion->prepare('INSERT INTO ventas(cliente_id,usuario_id,unidad_id,precio,descuento,total,modalidad) VALUES(:cliente,:usuario,:unidad,:precio,:descuento,:total,:modalidad)');
@@ -41,12 +46,18 @@ final class VentaDAO extends ModeloBaseORM
             $venta = (int)$this->conexion->lastInsertId();
             $consulta = $this->conexion->prepare('UPDATE unidades_moto SET estado="Vendida" WHERE id=:id AND estado="Disponible"');
             $consulta->execute(['id' => $datos['unidad_id']]);
-            if ($consulta->rowCount() !== 1) throw new \DomainException('No se pudo reservar la unidad para esta venta.');
-            if ($datos['modalidad'] === 'Crédito') $this->crearCredito($venta, $datos, $total);
+            if ($consulta->rowCount() !== 1) {
+                throw new \DomainException('No se pudo reservar la unidad para esta venta.');
+            }
+            if ($datos['modalidad'] === 'Crédito') {
+                $this->crearCredito($venta, $datos, $total);
+            }
             $this->conexion->commit();
             return $venta;
         } catch (\Throwable $e) {
-            if ($this->conexion->inTransaction()) $this->conexion->rollBack();
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
             throw $e;
         }
     }
@@ -66,15 +77,15 @@ final class VentaDAO extends ModeloBaseORM
                 'porcentaje' => PlanCredito::PORCENTAJE_RECARGO,
                 'recargo' => $plan['recargo']]);
         $credito = (int)$this->conexion->lastInsertId();
-        $vencimiento = new DateTimeImmutable($datos['fecha_primera_cuota']);
+        $primeraFecha = new DateTimeImmutable($datos['fecha_primera_cuota']);
+        $fechas = PlanCredito::fechasCuotas($primeraFecha, $n);
         $instancia = $this->conexion->prepare('INSERT INTO cuotas(credito_id,numero,fecha_vencimiento,monto,estado) VALUES(:credito,:numero,:fecha,:monto,"Pendiente")');
         for ($i = 1; $i <= $n; $i++) {
             $monto = $plan['cuotas'][$i - 1];
             $instancia->execute(['credito' => $credito,
                     'numero' => $i,
-                    'fecha' => $vencimiento->format('Y-m-d'),
+                    'fecha' => $fechas[$i - 1]->format('Y-m-d'),
                     'monto' => $monto]);
-            $vencimiento = $vencimiento->add(new DateInterval('P1M'));
         }
         if ($inicial > 0) {
             $p = $this->conexion->prepare('INSERT INTO pagos(credito_id,cuota_id,monto,fecha,concepto) VALUES(:credito,NULL,:monto,CURDATE(),"Cuota inicial")');
@@ -108,9 +119,13 @@ final class VentaDAO extends ModeloBaseORM
             $consulta = $this->conexion->prepare('SELECT q.*,c.saldo,c.id credito_id FROM cuotas q JOIN creditos c ON c.id=q.credito_id WHERE q.id=:id FOR UPDATE');
             $consulta->execute(['id' => $cuotaId]);
             $resultado = $consulta->fetch();
-            if (!$resultado || $resultado['estado'] === 'Pagada') throw new \DomainException('La cuota ya fue pagada o no existe.');
+            if (!$resultado || $resultado['estado'] === 'Pagada') {
+                throw new \DomainException('La cuota ya fue pagada o no existe.');
+            }
             $pendiente = round((float)$resultado['monto'] - (float)$resultado['pagado'], 2);
-            if ($monto <= 0 || $monto > $pendiente || $monto > (float)$resultado['saldo']) throw new \DomainException('El pago debe ser mayor que cero y no superar el saldo de la cuota.');
+            if ($monto <= 0 || $monto > $pendiente || $monto > (float)$resultado['saldo']) {
+                throw new \DomainException('El pago debe ser mayor que cero y no superar el saldo de la cuota.');
+            }
             $pagado = round((float)$resultado['pagado'] + $monto, 2);
             $estado = $pagado >= (float)$resultado['monto'] ? 'Pagada':((string)$resultado['fecha_vencimiento'] < date('Y-m-d')?'Vencida':'Pendiente');
             $consulta = $this->conexion->prepare('UPDATE cuotas SET pagado=:pagado,estado=:estado WHERE id=:id');
@@ -127,7 +142,9 @@ final class VentaDAO extends ModeloBaseORM
                     'monto' => $monto]);
             $this->conexion->commit();
         } catch (\Throwable $e) {
-            if ($this->conexion->inTransaction())$this->conexion->rollBack();
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
             throw $e;
         }
     }
