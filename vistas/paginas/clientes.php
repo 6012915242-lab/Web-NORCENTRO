@@ -65,7 +65,7 @@ $idClienteRegistrado = (int)($_GET['cliente_registrado'] ?? 0);
       </label>
       <label class="full">
         Dirección
-        <textarea name="direccion" rows="3" maxlength="200"><?= Herramientas::escaparHtml($formularioCliente['direccion'] ?? '') ?></textarea>
+        <textarea name="direccion" rows="3" maxlength="180"><?= Herramientas::escaparHtml($formularioCliente['direccion'] ?? '') ?></textarea>
       </label>
       <div class="form-actions full">
         <button class="button primary"><?= $editCliente ? 'Guardar cambios' : 'Registrar cliente' ?></button>

@@ -42,7 +42,7 @@ class ClienteServicio
             'apellidos' => ['required', 'string', 'min:2', 'max:100'],
             'telefono' => ['nullable', 'string', 'max:20', 'regex:/^[+0-9 ()-]{7,20}$/'],
             'correo' => ['nullable', 'email', 'max:120'],
-            'direccion' => ['nullable', 'string', 'max:200'],
+            'direccion' => ['nullable', 'string', 'max:180'],
         ])->validate();
 
         $cliente ??= new Cliente();

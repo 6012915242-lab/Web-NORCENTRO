@@ -74,7 +74,7 @@ final class GestionComercialServicio
             throw new DomainException('Ingresa un número de teléfono válido (7 a 20 caracteres).');
         }
 
-        if (mb_strlen($direccion) > 200 || mb_strlen($correo) > 120) {
+        if (mb_strlen($direccion) > 180 || mb_strlen($correo) > 120) {
             throw new DomainException('La dirección o el correo superan la longitud máxima permitida.');
         }
 
