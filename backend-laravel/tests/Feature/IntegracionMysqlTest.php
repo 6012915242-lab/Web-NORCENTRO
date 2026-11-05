@@ -116,4 +116,37 @@ class IntegracionMysqlTest extends TestCase
         $this->deleteJson('/api/clientes/2')->assertOk();
         $this->getJson('/api/clientes/2')->assertNotFound();
     }
+
+    public function test_bloquea_la_cuenta_despues_de_cinco_claves_incorrectas(): void
+    {
+        for ($intento = 1; $intento <= 4; $intento++) {
+            $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'incorrecta'])
+                ->assertUnprocessable();
+        }
+
+        $this->assertNull(DB::table('usuarios')->where('id', 1)->value('bloqueado_hasta'));
+        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'incorrecta'])
+            ->assertUnprocessable();
+        $this->assertNotNull(DB::table('usuarios')->where('id', 1)->value('bloqueado_hasta'));
+        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+            ->assertUnprocessable();
+        $this->assertGuest();
+    }
+
+    public function test_deniega_ventas_cuando_falta_el_permiso(): void
+    {
+        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+            ->assertOk();
+        DB::table('vista_usuarios_permisos')->where('permiso', 'ventas.registrar')->delete();
+
+        $this->postJson('/api/ventas', [
+            'cliente_id' => 1,
+            'unidad_id' => 1,
+            'modalidad' => 'Contado',
+            'descuento' => 0,
+        ])->assertForbidden();
+
+        $this->assertSame(0, DB::table('ventas')->count());
+        $this->getJson('/api/creditos/1/cuotas')->assertOk();
+    }
 }

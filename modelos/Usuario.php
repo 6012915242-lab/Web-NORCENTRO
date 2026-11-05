@@ -18,7 +18,8 @@ final class Usuario implements EntidadORM
         public string $rol,
         public string $estado,
         public int $intentosFallidos = 0,
-        public ?string $bloqueadoHasta = null
+        public ?string $bloqueadoHasta = null,
+        public ?bool $bloqueadoActual = null
     ) {
     }
 
@@ -33,12 +34,17 @@ final class Usuario implements EntidadORM
             (string) ($registro['rol'] ?? ''),
             (string) ($registro['estado'] ?? 'Inactivo'),
             (int) ($registro['intentos_fallidos'] ?? 0),
-            isset($registro['bloqueado_hasta']) ? (string) $registro['bloqueado_hasta'] : null
+            isset($registro['bloqueado_hasta']) ? (string) $registro['bloqueado_hasta'] : null,
+            isset($registro['bloqueado_actual']) ? (bool) $registro['bloqueado_actual'] : null
         );
     }
 
     public function estaBloqueado(): bool
     {
+        if ($this->bloqueadoActual !== null) {
+            return $this->bloqueadoActual;
+        }
+
         if ($this->bloqueadoHasta === null || $this->bloqueadoHasta === '') {
             return false;
         }

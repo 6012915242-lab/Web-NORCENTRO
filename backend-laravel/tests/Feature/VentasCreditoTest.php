@@ -30,6 +30,24 @@ class VentasCreditoTest extends TestCase
             ->assertUnprocessable();
     }
 
+    public function test_rechaza_descuentos_e_iniciales_con_mas_de_dos_decimales(): void
+    {
+        $venta = [
+            'cliente_id' => 1,
+            'unidad_id' => 1,
+            'modalidad' => 'Crédito',
+            'descuento' => '0.001',
+            'inicial' => '100.00',
+            'numero_cuotas' => 3,
+            'fecha_primera_cuota' => '2099-01-31',
+        ];
+
+        $this->postJson('/api/ventas', $venta)->assertUnprocessable();
+        $venta['descuento'] = '0';
+        $venta['inicial'] = '100.001';
+        $this->postJson('/api/ventas', $venta)->assertUnprocessable();
+    }
+
     public function test_consulta_cuotas_del_credito_solicitado(): void
     {
         DB::table('cuotas')->insert([

@@ -43,7 +43,8 @@ final class UsuarioDAO extends ModeloBaseORM
     {
         return $this->hidratarEntidad(
             Usuario::class,
-            'SELECT u.*, r.nombre AS rol
+            'SELECT u.*, r.nombre AS rol,
+                    (u.bloqueado_hasta IS NOT NULL AND u.bloqueado_hasta > NOW()) AS bloqueado_actual
              FROM usuarios u
              INNER JOIN roles r ON r.id = u.rol_id
              WHERE u.usuario = :usuario
@@ -57,11 +58,11 @@ final class UsuarioDAO extends ModeloBaseORM
     {
         $this->ejecutar(
             'UPDATE usuarios
-             SET intentos_fallidos = intentos_fallidos + 1,
-                 bloqueado_hasta = CASE
+             SET bloqueado_hasta = CASE
                      WHEN intentos_fallidos + 1 >= 5 THEN DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                      ELSE bloqueado_hasta
-                 END
+                 END,
+                 intentos_fallidos = intentos_fallidos + 1
              WHERE id = :id',
             ['id' => $usuarioId]
         );

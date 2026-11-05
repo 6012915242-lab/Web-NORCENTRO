@@ -47,12 +47,22 @@ final class EvaluacionCreditoServicio
             throw new DomainException('Selecciona un cliente activo y una unidad disponible.');
         }
 
-        if (!in_array($modalidad, ['Contado', 'Crédito'], true) || $descuento === false || $descuento < 0) {
+        if (
+            !in_array($modalidad, ['Contado', 'Crédito'], true)
+            || $descuento === false
+            || !$this->esImporteValido($entrada['descuento'] ?? 0)
+        ) {
             throw new DomainException('Revisa la modalidad de venta y el descuento.');
         }
 
         if ($esCredito) {
-            if ($inicial === false || $inicial < 0 || $cuotas === false || $cuotas < 1 || $cuotas > 36) {
+            if (
+                $inicial === false
+                || !$this->esImporteValido($entrada['inicial'] ?? 0)
+                || $cuotas === false
+                || $cuotas < 1
+                || $cuotas > 36
+            ) {
                 throw new DomainException('Si es a crédito, revisa la cuota inicial y el número de cuotas (1 a 36).');
             }
 
@@ -107,5 +117,14 @@ final class EvaluacionCreditoServicio
 
         $fecha = \DateTimeImmutable::createFromFormat('!Y-m-d', $valor);
         return $fecha !== false && $fecha->format('Y-m-d') === $valor;
+    }
+
+    private function esImporteValido(mixed $valor): bool
+    {
+        if (!is_string($valor) && !is_int($valor) && !is_float($valor)) {
+            return false;
+        }
+
+        return preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', trim((string) $valor)) === 1;
     }
 }
