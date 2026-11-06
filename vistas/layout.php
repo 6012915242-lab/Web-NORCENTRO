@@ -12,7 +12,7 @@ use App\Configuracion\Herramientas;
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix">
   <link rel="stylesheet" href="css/listing.css?v=20261103-gallery-admin">
-  <link rel="stylesheet" href="css/responsive.css?v=20261103-gallery-fix">
+  <link rel="stylesheet" href="css/responsive.css?v=20261105-inventario">
 </head>
 <body class="page-<?= Herramientas::escaparHtml($pagina)?><?= $mensajeError ? ' page-error' : ''?>">
 <?php

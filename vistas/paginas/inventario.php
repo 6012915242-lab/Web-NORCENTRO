@@ -51,22 +51,28 @@ use App\Configuracion\Herramientas;
 <?php endif; ?>
 
 <section class="panel">
-    <form method="get" action="index.php" class="search-form" role="search">
+    <form method="get" action="index.php" class="inventory-filter" role="search">
         <input type="hidden" name="page" value="inventario">
-        <label for="buscar-inventario">Marca, modelo o código de serie</label>
-        <input id="buscar-inventario" name="inventario_q" type="search" maxlength="100"
-               value="<?= Herramientas::escaparHtml($busquedaInventario) ?>">
-        <label for="estado-inventario">Estado</label>
-        <select id="estado-inventario" name="estado_inventario">
-            <option value="">Todos</option>
-            <?php foreach (['Disponible', 'Reservada', 'Vendida'] as $estado): ?>
-                <option value="<?= $estado ?>" <?= $estadoInventario === $estado ? 'selected' : '' ?>>
-                    <?= $estado ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <button class="button small-button">Buscar</button>
-        <a href="index.php?page=inventario">Mostrar todos</a>
+        <label class="inventory-filter-search" for="buscar-inventario">
+            <span>Marca, modelo o código de serie</span>
+            <input id="buscar-inventario" name="inventario_q" type="search" maxlength="100"
+                   placeholder="Ej.: Pulsar NS160" value="<?= Herramientas::escaparHtml($busquedaInventario) ?>">
+        </label>
+        <label class="inventory-filter-state" for="estado-inventario">
+            <span>Estado</span>
+            <select id="estado-inventario" name="estado_inventario">
+                <option value="">Todos</option>
+                <?php foreach (['Disponible', 'Reservada', 'Vendida'] as $estado): ?>
+                    <option value="<?= $estado ?>" <?= $estadoInventario === $estado ? 'selected' : '' ?>>
+                        <?= $estado ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+        <div class="inventory-filter-actions">
+            <button class="button primary">Buscar</button>
+            <a class="button subtle" href="index.php?page=inventario">Mostrar todos</a>
+        </div>
     </form>
     <div class="table-wrap">
         <table>
