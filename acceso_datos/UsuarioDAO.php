@@ -55,6 +55,7 @@ final class UsuarioDAO extends ModeloBaseORM
         );
     }
 
+    /** Bloquea la cuenta durante 15 minutos al llegar a cinco fallos. */
     public function registrarFallo(int $usuarioId): void
     {
         $this->ejecutar(

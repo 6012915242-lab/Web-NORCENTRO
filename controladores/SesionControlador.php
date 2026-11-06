@@ -34,9 +34,10 @@ final class SesionControlador
                 (string) ($_SERVER['REMOTE_ADDR'] ?? '')
             );
 
-            /** Renueva la sesión y registra los datos necesarios para identificar al usuario. */
+            /** Cambia el identificador para proteger la nueva sesión. */
             session_regenerate_id(true);
             $this->sesionDAO->registrar($usuario->id, session_id());
+            /** Genera un nuevo token para proteger los formularios. */
             $_SESSION['_csrf'] = bin2hex(random_bytes(32));
             $_SESSION['_ultima_actividad'] = time();
             $_SESSION['user'] = [

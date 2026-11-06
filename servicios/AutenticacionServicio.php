@@ -37,7 +37,7 @@ final class AutenticacionServicio
             throw new DomainException('La cuenta está bloqueada temporalmente. Intenta nuevamente en 15 minutos.');
         }
 
-        /** Comprueba la contraseña y registra el resultado del intento. */
+        /** Comprueba la contraseña contra el hash guardado. */
         if (! password_verify($clave, $usuario->passwordHash)) {
             $usuarioDAO->registrarFallo($usuario->id);
             $usuarioDAO->registrarIntento($nombreUsuario, $direccionIp, false, 'Contraseña incorrecta');
