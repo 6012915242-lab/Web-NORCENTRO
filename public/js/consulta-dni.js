@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const formulario = document.querySelector('[data-formulario-cliente]');
-  if (!formulario) return;
+  if (!formulario) {
+      return;
+  }
 
   const boton = formulario.querySelector('[data-consultar-dni]');
   const mensaje = formulario.querySelector('[data-mensaje-dni]');

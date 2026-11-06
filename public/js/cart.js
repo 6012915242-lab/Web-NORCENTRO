@@ -22,7 +22,9 @@
         let cart = [];
         try {
           const value = JSON.parse(localStorage.getItem(key) || "[]");
-          if (Array.isArray(value)) cart = value;
+          if (Array.isArray(value)) {
+              cart = value;
+          }
         } catch {}
         const id = Number(button.dataset.id);
         const colorId = Number(button.dataset.colorId || 0);
@@ -83,7 +85,9 @@
     empty.hidden = cart.length > 0;
     lines.hidden = cart.length === 0;
     startCheckout.disabled = cart.length === 0;
-    if (!cart.length) checkout.hidden = true;
+    if (!cart.length) {
+        checkout.hidden = true;
+    }
     lines.innerHTML = cart
       .map(
         (item) =>
@@ -147,20 +151,30 @@
   document.querySelector("#cart-toggle")?.addEventListener("click", () => dialog.showModal());
   document.querySelector("#cart-close")?.addEventListener("click", () => dialog.close());
   dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
+    if (event.target === dialog) {
+        dialog.close();
+    }
   });
   lines.addEventListener("click", (event) => {
     const line = event.target.closest("[data-line-key]");
-    if (!line) return;
+    if (!line) {
+        return;
+    }
     const [id, colorId] = line.dataset.lineKey.split(":").map(Number);
     const item = cart.find(
       (entry) => Number(entry.id) === id && Number(entry.colorId || 0) === colorId,
     );
-    if (!item) return;
+    if (!item) {
+        return;
+    }
     if (event.target.closest("[data-cart-plus]"))
       item.quantity = Math.min(20, Number(item.quantity) + 1);
-    else if (event.target.closest("[data-cart-minus]")) item.quantity -= 1;
-    else if (event.target.closest("[data-cart-remove]")) item.quantity = 0;
+    else if (event.target.closest("[data-cart-minus]")) {
+        item.quantity -= 1;
+    }
+    else if (event.target.closest("[data-cart-remove]")) {
+        item.quantity = 0;
+    }
     checkout.dataset.requestId = "";
     cart = cart.filter((entry) => entry.quantity > 0);
     render();
@@ -203,7 +217,9 @@
   // Envía los datos del pedido al endpoint indicado por el formulario.
   checkout.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!cart.length || !checkout.reportValidity()) return;
+    if (!cart.length || !checkout.reportValidity()) {
+        return;
+    }
     const formData = new FormData(checkout);
     const payload = {
       request_id: checkout.dataset.requestId || (checkout.dataset.requestId = crypto.randomUUID()),

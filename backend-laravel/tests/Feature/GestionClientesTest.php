@@ -19,8 +19,14 @@ class GestionClientesTest extends TestCase
             estado TEXT NOT NULL DEFAULT "Activo"
         )');
         DB::table('vista_usuarios_permisos')->insert([
-            ['usuario_id' => 1, 'permiso' => 'clientes.gestionar'],
-            ['usuario_id' => 1, 'permiso' => 'clientes.desactivar'],
+            [
+                'usuario_id' => 1,
+                'permiso' => 'clientes.gestionar'
+            ],
+            [
+                'usuario_id' => 1,
+                'permiso' => 'clientes.desactivar'
+            ],
         ]);
 
         $this->actingAs((new Usuario())->forceFill(['id' => 1, 'estado' => 'Activo']));
@@ -28,7 +34,11 @@ class GestionClientesTest extends TestCase
 
     public function test_registra_actualiza_y_desactiva_un_cliente(): void
     {
-        $datos = ['dni' => '12345678', 'nombres' => 'Ana', 'apellidos' => 'Prueba'];
+        $datos = [
+            'dni' => '12345678',
+            'nombres' => 'Ana',
+            'apellidos' => 'Prueba'
+        ];
         $this->postJson('/api/clientes', $datos)->assertCreated()->assertJsonPath('data.estado', 'Activo');
         $datos['nombres'] = 'Andrea';
         $this->putJson('/api/clientes/1', $datos)->assertOk()->assertJsonPath('data.nombres', 'Andrea');
@@ -38,7 +48,11 @@ class GestionClientesTest extends TestCase
 
     public function test_rechaza_dni_invalido_y_duplicado(): void
     {
-        $datos = ['dni' => '12', 'nombres' => 'Ana', 'apellidos' => 'Prueba'];
+        $datos = [
+            'dni' => '12',
+            'nombres' => 'Ana',
+            'apellidos' => 'Prueba'
+        ];
         $this->postJson('/api/clientes', $datos)->assertUnprocessable();
         $datos['dni'] = '12345678';
         $this->postJson('/api/clientes', $datos)->assertCreated();
@@ -66,7 +80,11 @@ class GestionClientesTest extends TestCase
 
     public function test_valida_los_nombres_y_acepta_acentos(): void
     {
-        $datos = ['dni' => '87654321', 'nombres' => '<script>', 'apellidos' => 'Prueba'];
+        $datos = [
+            'dni' => '87654321',
+            'nombres' => '<script>',
+            'apellidos' => 'Prueba'
+        ];
         $this->postJson('/api/clientes', $datos)->assertUnprocessable();
 
         $datos['nombres'] = 'José María';

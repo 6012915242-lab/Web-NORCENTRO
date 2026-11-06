@@ -116,7 +116,11 @@ final class OfertaDAO extends ModeloBaseORM
     {
         $filasActualizadas = $this->ejecutar(
             'UPDATE ofertas SET estado = :nuevo_estado WHERE id = :id AND estado <> :estado_anterior',
-            ['nuevo_estado' => 'Inactiva', 'estado_anterior' => 'Inactiva', 'id' => $id]
+            [
+                'nuevo_estado' => 'Inactiva',
+                'estado_anterior' => 'Inactiva',
+                'id' => $id
+            ]
         );
 
         return $filasActualizadas === 1;

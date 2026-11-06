@@ -74,7 +74,11 @@ class IntegracionMysqlTest extends TestCase
 
     public function test_pedido_de_dos_colores_reserva_unidades_distintas(): void
     {
-        DB::table('unidades_moto')->insert(['id' => 2, 'moto_id' => 1, 'estado' => 'Disponible']);
+        DB::table('unidades_moto')->insert([
+            'id' => 2,
+            'moto_id' => 1,
+            'estado' => 'Disponible'
+        ]);
         DB::table('moto_colores')->insert([
             ['id' => 1, 'moto_id' => 1, 'nombre' => 'Rojo'],
             ['id' => 2, 'moto_id' => 1, 'nombre' => 'Azul'],
@@ -98,7 +102,11 @@ class IntegracionMysqlTest extends TestCase
         $conexion = DB::connection()->getPdo();
         $ofertas = new OfertaDAO($conexion);
         $datos = $this->datosPedido();
-        $datos['items'] = [['moto_id' => 1, 'color_id' => null, 'cantidad' => 1]];
+        $datos['items'] = [[
+            'moto_id' => 1,
+            'color_id' => null,
+            'cantidad' => 1
+        ]];
 
         $this->assertSame(9000.0, (float) $ofertas->activas()[0]['precio_oferta']);
         $this->assertSame(9000.0, (float) $ofertas->activaParaMoto(1)['precio_oferta']);
@@ -109,7 +117,11 @@ class IntegracionMysqlTest extends TestCase
     {
         $dao = new PedidoDAO(DB::connection()->getPdo());
         $datos = $this->datosPedido();
-        $datos['items'] = [['moto_id' => 1, 'color_id' => null, 'cantidad' => 1]];
+        $datos['items'] = [[
+            'moto_id' => 1,
+            'color_id' => null,
+            'cantidad' => 1
+        ]];
         $primero = $dao->crear($datos);
         $repetido = $dao->crear($datos);
 
@@ -174,7 +186,10 @@ class IntegracionMysqlTest extends TestCase
 
     public function test_venta_credito_y_abono_desde_las_rutas_de_laravel(): void
     {
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk();
 
         $venta = [
@@ -216,12 +231,28 @@ class IntegracionMysqlTest extends TestCase
         DB::table('pedidos')->insert([
             'id' => 1, 'dni' => '11111111', 'modalidad' => 'Crédito', 'estado' => 'Crédito aprobado',
         ]);
-        DB::table('pedido_items')->insert(['id' => 1, 'pedido_id' => 1, 'moto_id' => 1, 'cantidad' => 2]);
-        DB::table('unidades_moto')->insert([
-            ['id' => 2, 'moto_id' => 1, 'estado' => 'Disponible'],
-            ['id' => 3, 'moto_id' => 1, 'estado' => 'Disponible'],
+        DB::table('pedido_items')->insert([
+            'id' => 1,
+            'pedido_id' => 1,
+            'moto_id' => 1,
+            'cantidad' => 2
         ]);
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])->assertOk();
+        DB::table('unidades_moto')->insert([
+            [
+                'id' => 2,
+                'moto_id' => 1,
+                'estado' => 'Disponible'
+            ],
+            [
+                'id' => 3,
+                'moto_id' => 1,
+                'estado' => 'Disponible'
+            ],
+        ]);
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])->assertOk();
         $venta = [
             'cliente_id' => 1, 'unidad_id' => 1, 'pedido_id' => 1, 'modalidad' => 'Crédito',
             'descuento' => 0, 'inicial' => 2000, 'numero_cuotas' => 3,
@@ -234,8 +265,18 @@ class IntegracionMysqlTest extends TestCase
         $this->postJson('/api/ventas', $venta)->assertUnprocessable();
         $this->assertSame(0, DB::table('solicitud_credito_ventas')->count());
         $venta['cliente_id'] = 1;
-        DB::table('motos')->insert(['id' => 2, 'marca_id' => 1, 'modelo' => 'Otro modelo', 'precio' => 8000, 'estado' => 'Activo']);
-        DB::table('unidades_moto')->insert(['id' => 4, 'moto_id' => 2, 'estado' => 'Disponible']);
+        DB::table('motos')->insert([
+            'id' => 2,
+            'marca_id' => 1,
+            'modelo' => 'Otro modelo',
+            'precio' => 8000,
+            'estado' => 'Activo'
+        ]);
+        DB::table('unidades_moto')->insert([
+            'id' => 4,
+            'moto_id' => 2,
+            'estado' => 'Disponible'
+        ]);
         $venta['unidad_id'] = 4;
         $this->postJson('/api/ventas', $venta)->assertUnprocessable();
         $this->assertSame('Disponible', DB::table('unidades_moto')->where('id', 4)->value('estado'));
@@ -255,7 +296,10 @@ class IntegracionMysqlTest extends TestCase
 
     public function test_crud_de_clientes_con_mysql_y_permisos(): void
     {
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk();
 
         $datos = [
@@ -278,22 +322,34 @@ class IntegracionMysqlTest extends TestCase
     public function test_bloquea_la_cuenta_despues_de_cinco_claves_incorrectas(): void
     {
         for ($intento = 1; $intento <= 4; $intento++) {
-            $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'incorrecta'])
+            $this->postJson('/sesion/iniciar', [
+                'usuario' => 'prueba',
+                'password' => 'incorrecta'
+            ])
                 ->assertUnprocessable();
         }
 
         $this->assertNull(DB::table('usuarios')->where('id', 1)->value('bloqueado_hasta'));
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'incorrecta'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'incorrecta'
+        ])
             ->assertUnprocessable();
         $this->assertNotNull(DB::table('usuarios')->where('id', 1)->value('bloqueado_hasta'));
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertUnprocessable();
         $this->assertGuest();
     }
 
     public function test_deniega_ventas_cuando_falta_el_permiso(): void
     {
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk();
         DB::table('vista_usuarios_permisos')->where('permiso', 'ventas.registrar')->delete();
 
@@ -311,7 +367,10 @@ class IntegracionMysqlTest extends TestCase
 
     public function test_gestiona_ofertas_con_las_mismas_reglas_en_mysql(): void
     {
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk();
         $datos = [
             'moto_id' => 1,
@@ -338,7 +397,10 @@ class IntegracionMysqlTest extends TestCase
 
     public function test_registra_inventario_con_el_dao_y_los_permisos(): void
     {
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk();
 
         $datos = ['moto_id' => 1, 'codigo_serie' => '  moto-123  '];
@@ -370,9 +432,16 @@ class IntegracionMysqlTest extends TestCase
             'creado_en' => '2026-01-01 12:00:00',
             'credito_autorizado_en' => '2026-01-01 12:00:00',
         ]);
-        DB::table('pedido_items')->insert(['pedido_id' => 1, 'moto_id' => 1, 'cantidad' => 1]);
+        DB::table('pedido_items')->insert([
+            'pedido_id' => 1,
+            'moto_id' => 1,
+            'cantidad' => 1
+        ]);
 
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk();
         $this->getJson('/api/solicitudes-credito')
             ->assertOk()
@@ -398,7 +467,10 @@ class IntegracionMysqlTest extends TestCase
             'estado' => 'En revisión de crédito',
         ]);
 
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk();
         $this->postJson('/api/solicitudes-credito/1/evaluacion', ['decision' => 'rechazar'])
             ->assertOk();

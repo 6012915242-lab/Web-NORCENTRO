@@ -12,9 +12,30 @@ class CatalogoFiltrosTest extends TestCase
     private function motos(): array
     {
         return [
-            ['id' => 1, 'marca_id' => 1, 'marca' => 'Bajaj', 'modelo' => 'Pulsar', 'cilindrada' => 160, 'precio' => 9000],
-            ['id' => 2, 'marca_id' => 1, 'marca' => 'Bajaj', 'modelo' => 'NS400', 'cilindrada' => 400, 'precio' => 19000],
-            ['id' => 3, 'marca_id' => 2, 'marca' => 'Yamaha', 'modelo' => 'MT-15', 'cilindrada' => 155, 'precio' => 16000],
+            [
+                'id' => 1,
+                'marca_id' => 1,
+                'marca' => 'Bajaj',
+                'modelo' => 'Pulsar',
+                'cilindrada' => 160,
+                'precio' => 9000
+            ],
+            [
+                'id' => 2,
+                'marca_id' => 1,
+                'marca' => 'Bajaj',
+                'modelo' => 'NS400',
+                'cilindrada' => 400,
+                'precio' => 19000
+            ],
+            [
+                'id' => 3,
+                'marca_id' => 2,
+                'marca' => 'Yamaha',
+                'modelo' => 'MT-15',
+                'cilindrada' => 155,
+                'precio' => 16000
+            ],
         ];
     }
 

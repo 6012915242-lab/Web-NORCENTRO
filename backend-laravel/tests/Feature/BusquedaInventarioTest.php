@@ -14,10 +14,25 @@ class BusquedaInventarioTest extends TestCase
         DB::statement('CREATE TABLE motos (id INTEGER PRIMARY KEY, marca_id INTEGER, modelo TEXT, imagen TEXT)');
         DB::statement('CREATE TABLE unidades_moto (id INTEGER PRIMARY KEY, moto_id INTEGER, codigo_serie TEXT, estado TEXT)');
         DB::table('marcas')->insert(['id' => 1, 'nombre' => 'Bajaj']);
-        DB::table('motos')->insert(['id' => 1, 'marca_id' => 1, 'modelo' => 'Pulsar', 'imagen' => '']);
+        DB::table('motos')->insert([
+            'id' => 1,
+            'marca_id' => 1,
+            'modelo' => 'Pulsar',
+            'imagen' => ''
+        ]);
         DB::table('unidades_moto')->insert([
-            ['id' => 1, 'moto_id' => 1, 'codigo_serie' => 'NC-001', 'estado' => 'Disponible'],
-            ['id' => 2, 'moto_id' => 1, 'codigo_serie' => 'NC-002', 'estado' => 'Vendida'],
+            [
+                'id' => 1,
+                'moto_id' => 1,
+                'codigo_serie' => 'NC-001',
+                'estado' => 'Disponible'
+            ],
+            [
+                'id' => 2,
+                'moto_id' => 1,
+                'codigo_serie' => 'NC-002',
+                'estado' => 'Vendida'
+            ],
         ]);
 
         $dao = new MotoDAO(DB::connection()->getPdo());

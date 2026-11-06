@@ -67,7 +67,10 @@ try {
     ApiMiddleware::exigirMetodo(['POST'], 'message', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $datosRecibidos = json_decode((string) file_get_contents('php://input'), true);
     if (! is_array($datosRecibidos)) {
-        responder(400, ['ok' => false, 'message' => 'Solicitud JSON no válida.']);
+        responder(400, [
+            'ok' => false,
+            'message' => 'Solicitud JSON no válida.'
+        ]);
     }
     ApiMiddleware::validarCsrfJson(
         $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $datosRecibidos['csrf'] ?? null,

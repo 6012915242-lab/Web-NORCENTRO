@@ -18,16 +18,50 @@ class CatalogoTest extends TestCase
         DB::statement('CREATE TABLE moto_color_imagenes (id INTEGER PRIMARY KEY, color_id INTEGER, ruta TEXT, orden INTEGER)');
         DB::statement('CREATE TABLE unidades_moto (id INTEGER PRIMARY KEY, moto_id INTEGER, estado TEXT)');
 
-        DB::table('marcas')->insert(['id' => 1, 'nombre' => 'Bajaj', 'estado' => 'Activo']);
-        DB::table('motos')->insert([
-            ['id' => 1, 'marca_id' => 1, 'modelo' => 'Pulsar', 'estado' => 'Activo'],
-            ['id' => 2, 'marca_id' => 1, 'modelo' => 'Anterior', 'estado' => 'Inactivo'],
+        DB::table('marcas')->insert([
+            'id' => 1,
+            'nombre' => 'Bajaj',
+            'estado' => 'Activo'
         ]);
-        DB::table('moto_colores')->insert(['id' => 1, 'moto_id' => 1, 'nombre' => 'Rojo', 'codigo_hex' => '#ff0000', 'orden' => 1]);
-        DB::table('moto_color_imagenes')->insert(['id' => 1, 'color_id' => 1, 'ruta' => 'frente.jpg', 'orden' => 1]);
-        DB::table('moto_imagenes')->insert(['id' => 1, 'moto_id' => 1, 'ruta' => 'lado.jpg', 'orden' => 1]);
+        DB::table('motos')->insert([
+            [
+                'id' => 1,
+                'marca_id' => 1,
+                'modelo' => 'Pulsar',
+                'estado' => 'Activo'
+            ],
+            [
+                'id' => 2,
+                'marca_id' => 1,
+                'modelo' => 'Anterior',
+                'estado' => 'Inactivo'
+            ],
+        ]);
+        DB::table('moto_colores')->insert([
+            'id' => 1,
+            'moto_id' => 1,
+            'nombre' => 'Rojo',
+            'codigo_hex' => '#ff0000',
+            'orden' => 1
+        ]);
+        DB::table('moto_color_imagenes')->insert([
+            'id' => 1,
+            'color_id' => 1,
+            'ruta' => 'frente.jpg',
+            'orden' => 1
+        ]);
+        DB::table('moto_imagenes')->insert([
+            'id' => 1,
+            'moto_id' => 1,
+            'ruta' => 'lado.jpg',
+            'orden' => 1
+        ]);
         DB::table('unidades_moto')->insert([
-            ['id' => 1, 'moto_id' => 1, 'estado' => 'Disponible'],
+            [
+                'id' => 1,
+                'moto_id' => 1,
+                'estado' => 'Disponible'
+            ],
             ['id' => 2, 'moto_id' => 1, 'estado' => 'Vendida'],
         ]);
     }

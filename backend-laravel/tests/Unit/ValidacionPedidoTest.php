@@ -21,8 +21,16 @@ class ValidacionPedidoTest extends TestCase
                 'telefono' => '900123456',
                 'correo' => 'ana@example.com',
             ],
-            'pago' => ['modalidad' => 'Crédito', 'inicial' => '100.00', 'cuotas' => 6],
-            'items' => [['moto_id' => 1, 'color_id' => null, 'cantidad' => 1]],
+            'pago' => [
+                'modalidad' => 'Crédito',
+                'inicial' => '100.00',
+                'cuotas' => 6
+            ],
+            'items' => [[
+                'moto_id' => 1,
+                'color_id' => null,
+                'cantidad' => 1
+            ]],
             'acepta_credito' => true,
         ];
     }

@@ -18,8 +18,18 @@ class BusquedaCreditosTest extends TestCase
         DB::statement('CREATE TABLE creditos (id INTEGER PRIMARY KEY, venta_id INTEGER)');
 
         DB::table('clientes')->insert([
-            ['id' => 1, 'dni' => '12345678', 'nombres' => 'Ana María', 'apellidos' => 'Pérez López'],
-            ['id' => 2, 'dni' => '87654321', 'nombres' => 'Luis', 'apellidos' => 'Rojas'],
+            [
+                'id' => 1,
+                'dni' => '12345678',
+                'nombres' => 'Ana María',
+                'apellidos' => 'Pérez López'
+            ],
+            [
+                'id' => 2,
+                'dni' => '87654321',
+                'nombres' => 'Luis',
+                'apellidos' => 'Rojas'
+            ],
         ]);
         DB::table('marcas')->insert(['id' => 1, 'nombre' => 'Bajaj']);
         DB::table('motos')->insert(['id' => 1, 'marca_id' => 1, 'modelo' => 'Pulsar']);

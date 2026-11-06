@@ -28,7 +28,10 @@ class AccesoClientesTest extends TestCase
     public function test_un_usuario_inactivo_no_puede_usar_sus_permisos(): void
     {
         DB::statement('CREATE TABLE vista_usuarios_permisos (usuario_id INTEGER, permiso TEXT)');
-        DB::table('vista_usuarios_permisos')->insert(['usuario_id' => 1, 'permiso' => 'clientes.gestionar']);
+        DB::table('vista_usuarios_permisos')->insert([
+            'usuario_id' => 1,
+            'permiso' => 'clientes.gestionar'
+        ]);
         $usuario = (new Usuario())->forceFill(['id' => 1, 'estado' => 'Inactivo']);
 
         $this->actingAs($usuario)
@@ -40,7 +43,10 @@ class AccesoClientesTest extends TestCase
     {
         DB::statement('CREATE TABLE vista_usuarios_permisos (usuario_id INTEGER, permiso TEXT)');
         DB::statement('CREATE TABLE clientes (id INTEGER, dni TEXT, nombres TEXT, apellidos TEXT, telefono TEXT, direccion TEXT, correo TEXT, estado TEXT)');
-        DB::table('vista_usuarios_permisos')->insert(['usuario_id' => 1, 'permiso' => 'clientes.gestionar']);
+        DB::table('vista_usuarios_permisos')->insert([
+            'usuario_id' => 1,
+            'permiso' => 'clientes.gestionar'
+        ]);
         DB::table('clientes')->insert([
             'id' => 1, 'dni' => '12345678', 'nombres' => 'Ana', 'apellidos' => 'Prueba',
             'telefono' => '', 'direccion' => 'Cajamarca', 'correo' => '', 'estado' => 'Activo',

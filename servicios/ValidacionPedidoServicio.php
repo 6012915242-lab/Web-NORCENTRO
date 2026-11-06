@@ -106,7 +106,11 @@ final class ValidacionPedidoServicio
             }
 
             $vistos[$clave] = true;
-            $articulos[] = ['moto_id' => $motoId, 'color_id' => $colorId, 'cantidad' => $cantidad];
+            $articulos[] = [
+                'moto_id' => $motoId,
+                'color_id' => $colorId,
+                'cantidad' => $cantidad
+            ];
         }
 
         return $articulos;

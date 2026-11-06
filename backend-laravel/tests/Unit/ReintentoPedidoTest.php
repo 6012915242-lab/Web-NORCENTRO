@@ -20,7 +20,11 @@ class ReintentoPedidoTest extends TestCase
             'nombres' => 'Ana', 'apellidos' => 'Prueba', 'dni' => '12345678',
             'telefono' => '900123456', 'correo' => 'ana@example.com', 'modalidad' => 'Contado',
         ];
-        $articulos = [['moto_id' => 1, 'color_id' => null, 'cantidad' => 1]];
+        $articulos = [[
+            'moto_id' => 1,
+            'color_id' => null,
+            'cantidad' => 1
+        ]];
         $datos = $pedido + ['items' => $articulos];
         $validar->invoke($dao, $pedido, $articulos, $datos);
 

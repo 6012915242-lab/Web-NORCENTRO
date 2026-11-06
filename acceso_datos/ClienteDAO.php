@@ -106,7 +106,11 @@ final class ClienteDAO extends ModeloBaseORM
     {
         $filasActualizadas = $this->ejecutar(
             'UPDATE clientes SET estado = :nuevo_estado WHERE id = :id AND estado = :estado_actual',
-            ['nuevo_estado' => 'Inactivo', 'estado_actual' => 'Activo', 'id' => $id]
+            [
+                'nuevo_estado' => 'Inactivo',
+                'estado_actual' => 'Activo',
+                'id' => $id
+            ]
         );
 
         return $filasActualizadas === 1;

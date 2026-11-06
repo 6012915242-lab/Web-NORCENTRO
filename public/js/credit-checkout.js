@@ -1,7 +1,9 @@
 // Envía la solicitud de compra a crédito al servidor y presenta su resultado.
 (() => {
   const form = document.querySelector("#credit-checkout");
-  if (!form) return;
+  if (!form) {
+      return;
+  }
 
   const storageKey = "norcentro.cart.v1";
   const customerKey = "norcentro.credit-customer.v1";
@@ -61,7 +63,9 @@
   try {
     const customer = JSON.parse(sessionStorage.getItem(customerKey) || "{}");
     for (const key of ["nombres", "apellidos", "dni", "telefono", "correo", "inicial", "cuotas"]) {
-      if (customer[key]) form.elements[key].value = customer[key];
+      if (customer[key]) {
+          form.elements[key].value = customer[key];
+      }
     }
   } catch {
     sessionStorage.removeItem(customerKey);
@@ -75,7 +79,9 @@
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!cart.length || !form.reportValidity()) return;
+    if (!cart.length || !form.reportValidity()) {
+        return;
+    }
     const values = new FormData(form);
     const requestId = form.dataset.requestId || (form.dataset.requestId = crypto.randomUUID());
     const payload = {
@@ -118,14 +124,18 @@
       cart = [];
       renderCart();
       form.hidden = true;
-      if (summary) summary.hidden = true;
+      if (summary) {
+          summary.hidden = true;
+      }
       layout?.classList.add("credit-request-sent");
       const proposedInitial = Number(values.get("inicial") || 0);
       const proposedTerms = Number(values.get("cuotas") || 0);
       const proposalText = ` · Propuesta: inicial ${proposedInitial ? currency(proposedInitial) : "por coordinar"} · ${proposedTerms ? `${proposedTerms} cuotas` : "plazo por coordinar"}`;
       if (successId)
         successId.textContent = `Solicitud #${result.pedido_id} · Pendiente de evaluación${proposalText}`;
-      if (success) success.hidden = false;
+      if (success) {
+          success.hidden = false;
+      }
     } catch (error) {
       setFeedback(
         error.message || "No se pudo conectar con Norcentro. Intenta nuevamente.",

@@ -288,7 +288,11 @@ final class MotoDAO extends ModeloBaseORM
     {
         $filasActualizadas = $this->ejecutar(
             'UPDATE motos SET estado = :nuevo_estado WHERE id = :id AND estado = :estado_actual',
-            ['nuevo_estado' => 'Inactivo', 'estado_actual' => 'Activo', 'id' => $id]
+            [
+                'nuevo_estado' => 'Inactivo',
+                'estado_actual' => 'Activo',
+                'id' => $id
+            ]
         );
 
         return $filasActualizadas === 1;
@@ -335,7 +339,11 @@ final class MotoDAO extends ModeloBaseORM
         if ($busqueda !== '') {
             $consulta .= ' AND (u.codigo_serie LIKE :serie OR m.modelo LIKE :modelo OR ma.nombre LIKE :marca)';
             $termino = '%'.$busqueda.'%';
-            $parametros = ['serie' => $termino, 'modelo' => $termino, 'marca' => $termino];
+            $parametros = [
+                'serie' => $termino,
+                'modelo' => $termino,
+                'marca' => $termino
+            ];
         }
 
         if (in_array($estado, ['Disponible', 'Reservada', 'Vendida'], true)) {
@@ -359,7 +367,11 @@ final class MotoDAO extends ModeloBaseORM
                     'SELECT m.id FROM motos m
                      JOIN marcas ma ON ma.id = m.marca_id
                      WHERE m.id = :id AND m.estado = :estado AND ma.estado = :estado_marca'.$bloqueo,
-                    ['id' => $idMoto, 'estado' => 'Activo', 'estado_marca' => 'Activo']
+                    [
+                        'id' => $idMoto,
+                        'estado' => 'Activo',
+                        'estado_marca' => 'Activo'
+                    ]
                 );
 
                 if (! $consulta->fetchColumn()) {
@@ -369,7 +381,11 @@ final class MotoDAO extends ModeloBaseORM
                 $this->ejecutar(
                     'INSERT INTO unidades_moto (moto_id, codigo_serie, estado)
                      VALUES (:moto, :serie, :estado)',
-                    ['moto' => $idMoto, 'serie' => $codigoSerie, 'estado' => 'Disponible']
+                    [
+                        'moto' => $idMoto,
+                        'serie' => $codigoSerie,
+                        'estado' => 'Disponible'
+                    ]
                 );
 
                 return $this->ultimoIdInsertado();

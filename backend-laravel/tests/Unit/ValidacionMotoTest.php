@@ -58,7 +58,10 @@ class ValidacionMotoTest extends TestCase
         $conexion->exec('CREATE TABLE marcas (id INTEGER, estado TEXT)');
         $conexion->exec("INSERT INTO marcas VALUES (1, 'Activo')");
         $datos = $this->datosValidos();
-        $datos['colores'] = [['nombre' => str_repeat('A', 51), 'codigo_hex' => '#ff0000']];
+        $datos['colores'] = [[
+            'nombre' => str_repeat('A', 51),
+            'codigo_hex' => '#ff0000'
+        ]];
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('2 a 50 caracteres');

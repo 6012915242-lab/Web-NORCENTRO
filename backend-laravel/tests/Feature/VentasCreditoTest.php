@@ -16,8 +16,14 @@ class VentasCreditoTest extends TestCase
         DB::statement('CREATE TABLE creditos (id INTEGER PRIMARY KEY)');
         DB::statement('CREATE TABLE cuotas (id INTEGER, credito_id INTEGER, numero INTEGER, monto REAL)');
         DB::table('vista_usuarios_permisos')->insert([
-            ['usuario_id' => 1, 'permiso' => 'ventas.registrar'],
-            ['usuario_id' => 1, 'permiso' => 'creditos.revisar'],
+            [
+                'usuario_id' => 1,
+                'permiso' => 'ventas.registrar'
+            ],
+            [
+                'usuario_id' => 1,
+                'permiso' => 'creditos.revisar'
+            ],
         ]);
         $this->actingAs((new Usuario())->forceFill(['id' => 1, 'estado' => 'Activo']));
     }
@@ -73,8 +79,18 @@ class VentasCreditoTest extends TestCase
     {
         DB::table('creditos')->insert(['id' => 5]);
         DB::table('cuotas')->insert([
-            ['id' => 1, 'credito_id' => 5, 'numero' => 1, 'monto' => 1200],
-            ['id' => 2, 'credito_id' => 6, 'numero' => 1, 'monto' => 500],
+            [
+                'id' => 1,
+                'credito_id' => 5,
+                'numero' => 1,
+                'monto' => 1200
+            ],
+            [
+                'id' => 2,
+                'credito_id' => 6,
+                'numero' => 1,
+                'monto' => 500
+            ],
         ]);
 
         $this->getJson('/api/creditos/5/cuotas')

@@ -1,7 +1,9 @@
 // Consulta el estado del pedido después de iniciar el pago en línea.
 (() => {
   const page = document.querySelector(".checkout-result[data-request-id]");
-  if (!page || !page.dataset.requestId || page.dataset.mode !== "Contado") return;
+  if (!page || !page.dataset.requestId || page.dataset.mode !== "Contado") {
+      return;
+  }
   const message = page.querySelector("[data-order-message]");
   const badge = page.querySelector("[data-order-status]");
   const textByState = {
@@ -18,7 +20,9 @@
         { headers: { Accept: "application/json" }, credentials: "same-origin", cache: "no-store" },
       );
       const data = await response.json();
-      if (!response.ok || !data.ok) return;
+      if (!response.ok || !data.ok) {
+          return;
+      }
       badge.textContent = data.estado;
       badge.className = `pill ${data.estado === "Pagado" ? "green" : data.estado === "Cancelado" ? "gray" : "amber"}`;
       message.textContent =

@@ -21,9 +21,21 @@ class OfertasTest extends TestCase
             id INTEGER PRIMARY KEY AUTOINCREMENT, moto_id INTEGER, titulo TEXT, descripcion TEXT,
             precio_normal REAL, precio_oferta REAL, fecha_inicio TEXT, fecha_fin TEXT, estado TEXT
         )');
-        DB::table('marcas')->insert(['id' => 1, 'nombre' => 'Bajaj', 'estado' => 'Activo']);
-        DB::table('motos')->insert(['id' => 1, 'marca_id' => 1, 'modelo' => 'Pulsar', 'estado' => 'Activo']);
-        DB::table('vista_usuarios_permisos')->insert(['usuario_id' => 1, 'permiso' => 'ofertas.gestionar']);
+        DB::table('marcas')->insert([
+            'id' => 1,
+            'nombre' => 'Bajaj',
+            'estado' => 'Activo'
+        ]);
+        DB::table('motos')->insert([
+            'id' => 1,
+            'marca_id' => 1,
+            'modelo' => 'Pulsar',
+            'estado' => 'Activo'
+        ]);
+        DB::table('vista_usuarios_permisos')->insert([
+            'usuario_id' => 1,
+            'permiso' => 'ofertas.gestionar'
+        ]);
 
         $this->actingAs((new Usuario())->forceFill(['id' => 1, 'estado' => 'Activo']));
     }

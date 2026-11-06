@@ -16,9 +16,21 @@ class InicioServicioTest extends TestCase
             ['id' => 2, 'modelo' => 'Duke 200'],
         ];
         $ofertas = [
-            ['id' => 1, 'precio_normal' => 1000, 'precio_oferta' => 900],
-            ['id' => 2, 'precio_normal' => 1000, 'precio_oferta' => 800],
-            ['id' => 3, 'precio_normal' => 0, 'precio_oferta' => 0],
+            [
+                'id' => 1,
+                'precio_normal' => 1000,
+                'precio_oferta' => 900
+            ],
+            [
+                'id' => 2,
+                'precio_normal' => 1000,
+                'precio_oferta' => 800
+            ],
+            [
+                'id' => 3,
+                'precio_normal' => 0,
+                'precio_oferta' => 0
+            ],
         ];
 
         $resultado = (new InicioServicio())->seleccionarDestacados($motos, $motos[0], $ofertas);

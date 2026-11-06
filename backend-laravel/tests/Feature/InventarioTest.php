@@ -23,10 +23,26 @@ class InventarioTest extends TestCase
             codigo_serie TEXT UNIQUE,
             estado TEXT
         )');
-        DB::table('marcas')->insert(['id' => 1, 'nombre' => 'Bajaj', 'estado' => 'Activo']);
+        DB::table('marcas')->insert([
+            'id' => 1,
+            'nombre' => 'Bajaj',
+            'estado' => 'Activo'
+        ]);
         DB::table('motos')->insert([
-            ['id' => 1, 'marca_id' => 1, 'modelo' => 'Pulsar', 'imagen' => '', 'estado' => 'Activo'],
-            ['id' => 2, 'marca_id' => 1, 'modelo' => 'Otro', 'imagen' => '', 'estado' => 'Inactivo'],
+            [
+                'id' => 1,
+                'marca_id' => 1,
+                'modelo' => 'Pulsar',
+                'imagen' => '',
+                'estado' => 'Activo'
+            ],
+            [
+                'id' => 2,
+                'marca_id' => 1,
+                'modelo' => 'Otro',
+                'imagen' => '',
+                'estado' => 'Inactivo'
+            ],
         ]);
         DB::table('vista_usuarios_permisos')->insert([
             'usuario_id' => 1,

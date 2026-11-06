@@ -35,7 +35,10 @@ class SesionController extends Controller
         Auth::login($usuario);
         $solicitud->session()->regenerate();
 
-        return response()->json(['mensaje' => 'Sesión iniciada.', 'nombre' => $usuario->nombre]);
+        return response()->json([
+            'mensaje' => 'Sesión iniciada.',
+            'nombre' => $usuario->nombre
+        ]);
     }
 
     public function cerrar(Request $solicitud): JsonResponse

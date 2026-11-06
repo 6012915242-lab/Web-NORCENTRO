@@ -30,5 +30,8 @@ try {
 } catch (Throwable $error) {
     error_log('Error al iniciar consulta de DNI: '.get_class($error));
     http_response_code(500);
-    echo json_encode(['ok' => false, 'mensaje' => 'No se pudo iniciar la consulta.']);
+    echo json_encode([
+        'ok' => false,
+        'mensaje' => 'No se pudo iniciar la consulta.'
+    ]);
 }

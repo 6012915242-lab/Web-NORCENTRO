@@ -194,7 +194,10 @@ final class PaginaControlador
             http_response_code(404);
         }
 
-        return ['idSolicitud' => $requestId, 'pedidoCompra' => $pedidoCompra];
+        return [
+            'idSolicitud' => $requestId,
+            'pedidoCompra' => $pedidoCompra
+        ];
     }
 
     private function prepararOfertas(array $permisosUsuario): array

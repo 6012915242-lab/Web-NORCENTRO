@@ -28,7 +28,10 @@ class SesionTest extends TestCase
 
     public function test_inicia_y_cierra_la_sesion(): void
     {
-        $this->postJson('/sesion/iniciar', ['usuario' => 'prueba', 'password' => 'clave-prueba'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'prueba',
+            'password' => 'clave-prueba'
+        ])
             ->assertOk()
             ->assertJsonPath('nombre', 'Usuario de prueba');
 
@@ -39,7 +42,10 @@ class SesionTest extends TestCase
 
     public function test_rechaza_un_usuario_desconocido(): void
     {
-        $this->postJson('/sesion/iniciar', ['usuario' => 'desconocido', 'password' => 'clave'])
+        $this->postJson('/sesion/iniciar', [
+            'usuario' => 'desconocido',
+            'password' => 'clave'
+        ])
             ->assertUnprocessable();
         $this->assertGuest();
     }

@@ -12,8 +12,16 @@ class ResumenCreditosTest extends TestCase
     public function test_calcula_la_cartera_y_las_solicitudes_pendientes(): void
     {
         $creditos = [
-            ['id' => 1, 'estado' => 'Activo', 'saldo' => '1200.50'],
-            ['id' => 2, 'estado' => 'Cancelado', 'saldo' => '0.00'],
+            [
+                'id' => 1,
+                'estado' => 'Activo',
+                'saldo' => '1200.50'
+            ],
+            [
+                'id' => 2,
+                'estado' => 'Cancelado',
+                'saldo' => '0.00'
+            ],
         ];
         $cuotas = [1 => [['estado' => 'Vencida'], ['estado' => 'Pendiente']]];
         $solicitudes = [

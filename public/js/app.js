@@ -15,13 +15,17 @@
   document.querySelectorAll("[data-fill-payment]").forEach((button) =>
     button.addEventListener("click", () => {
       const amount = button.closest(".pay-form")?.querySelector('input[name="monto"]');
-      if (!amount) return;
+      if (!amount) {
+          return;
+      }
       amount.value = amount.max;
       amount.focus();
     }),
   );
   const refreshMoto = () => {
-    if (!unit || !preview) return;
+    if (!unit || !preview) {
+        return;
+    }
     const option = unit.selectedOptions[0];
     if (!option || !option.value) {
       preview.classList.remove("visible");
@@ -48,10 +52,14 @@
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
     );
   const refreshMode = () => {
-    if (creditFields && mode) creditFields.classList.toggle("visible", mode.value === "Crédito");
+    if (creditFields && mode) {
+        creditFields.classList.toggle("visible", mode.value === "Crédito");
+    }
   };
   const refreshQuote = () => {
-    if (!quote) return;
+    if (!quote) {
+        return;
+    }
     const selectedClient = clientSelect?.selectedOptions[0];
     const selectedUnit = unit?.selectedOptions[0];
     const hasUnit = Boolean(selectedUnit?.value);
@@ -73,7 +81,9 @@
     const clientDni = selectedClient?.value ? selectedClient.dataset.dni : "";
     const put = (id, value) => {
       const element = document.querySelector(id);
-      if (element) element.textContent = value;
+      if (element) {
+          element.textContent = value;
+      }
     };
     put(
       "#quote-client",
@@ -121,7 +131,9 @@
     const clientId = clientSelect.value;
     ["#sale-client-current", "#sale-bike-client"].forEach((selector) => {
       const field = document.querySelector(selector);
-      if (field) field.value = clientId;
+      if (field) {
+          field.value = clientId;
+      }
     });
     refreshQuote();
   });
@@ -151,12 +163,16 @@
       .querySelectorAll("[data-home-promo-dismiss]")
       .forEach((button) => button.addEventListener("click", () => homePromo.close()));
     homePromo.addEventListener("click", (event) => {
-      if (event.target === homePromo) homePromo.close();
+      if (event.target === homePromo) {
+          homePromo.close();
+      }
     });
     homePromo.addEventListener("close", rememberDismissal, { once: true });
     if (!seen)
       window.setTimeout(() => {
-        if (!homePromo.open) homePromo.showModal();
+        if (!homePromo.open) {
+            homePromo.showModal();
+        }
       }, 180);
   }
   const mainPhoto = document.querySelector("#product-main-image");
@@ -172,14 +188,22 @@
     const index = visible.findIndex((button) => button.classList.contains("active"));
     if (galleryCounter)
       galleryCounter.textContent = `${index < 0 ? 0 : index + 1} / ${visible.length}`;
-    if (galleryPrev) galleryPrev.hidden = visible.length < 2;
-    if (galleryNext) galleryNext.hidden = visible.length < 2;
+    if (galleryPrev) {
+        galleryPrev.hidden = visible.length < 2;
+    }
+    if (galleryNext) {
+        galleryNext.hidden = visible.length < 2;
+    }
   };
   const setMainPhoto = (button) => {
-    if (!mainPhoto) return;
+    if (!mainPhoto) {
+        return;
+    }
     mainPhoto.src = button.dataset.gallerySrc;
     mainPhoto.alt = button.dataset.galleryAlt || "";
-    if (galleryCaption) galleryCaption.textContent = button.dataset.galleryLabel || button.dataset.galleryAlt || "Vista de la motocicleta";
+    if (galleryCaption) {
+        galleryCaption.textContent = button.dataset.galleryLabel || button.dataset.galleryAlt || "Vista de la motocicleta";
+    }
     const colorGroup = button.dataset.colorGroup;
     if (colorGroup) {
       const swatch = [...document.querySelectorAll(".moto-color-swatch")].find(
@@ -189,13 +213,19 @@
         document.querySelectorAll(".moto-color-swatch").forEach((item) => {
           const active = item === swatch;
           item.classList.toggle("active", active);
-          if (active) item.setAttribute("aria-current", "true");
+          if (active) {
+              item.setAttribute("aria-current", "true");
+          }
           else item.removeAttribute("aria-current");
         });
         const label = document.querySelector("#selected-color-name");
-        if (label) label.textContent = swatch.title;
+        if (label) {
+            label.textContent = swatch.title;
+        }
         const detailColor = document.querySelector("#selected-color-detail");
-        if (detailColor) detailColor.textContent = swatch.title;
+        if (detailColor) {
+            detailColor.textContent = swatch.title;
+        }
         document
           .querySelectorAll(
             ".detail-purchase-actions .add-to-cart, .detail-purchase-actions .buy-on-credit",
@@ -216,7 +246,9 @@
   };
   const missingPhotoUrl = new URL("img/motos/foto-no-disponible.svg", document.baseURI).href;
   const useMissingPhoto = (image) => {
-    if (!image || image.dataset.fallbackApplied === "1") return;
+    if (!image || image.dataset.fallbackApplied === "1") {
+        return;
+    }
     image.dataset.fallbackApplied = "1";
     image.classList.add("image-fallback");
     image.src = missingPhotoUrl;
@@ -228,7 +260,9 @@
     "error",
     (event) => {
       const image = event.target;
-      if (!(image instanceof HTMLImageElement) || image.dataset.fallbackApplied === "1") return;
+      if (!(image instanceof HTMLImageElement) || image.dataset.fallbackApplied === "1") {
+          return;
+      }
       const failedUrl = image.currentSrc || image.src;
       const thumb = image.closest(".detail-thumb");
       if (thumb) {
@@ -238,8 +272,12 @@
         const visible = visibleGalleryButtons();
         if (wasActive) {
           const next = visible[0];
-          if (next) setMainPhoto(next);
-          else if (mainPhoto) useMissingPhoto(mainPhoto);
+          if (next) {
+              setMainPhoto(next);
+          }
+          else if (mainPhoto) {
+              useMissingPhoto(mainPhoto);
+          }
         }
         updateGalleryControls();
         return;
@@ -272,7 +310,9 @@
   galleryButtons.forEach((button) => button.addEventListener("click", () => setMainPhoto(button)));
   const stepPhoto = (delta) => {
     const visible = visibleGalleryButtons();
-    if (visible.length < 2) return;
+    if (visible.length < 2) {
+        return;
+    }
     let index = visible.findIndex((button) => button.classList.contains("active"));
     index = (index + delta + visible.length) % visible.length;
     setMainPhoto(visible[index]);
@@ -280,8 +320,12 @@
   galleryPrev?.addEventListener("click", () => stepPhoto(-1));
   galleryNext?.addEventListener("click", () => stepPhoto(1));
   mainPhoto?.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") stepPhoto(-1);
-    if (event.key === "ArrowRight") stepPhoto(1);
+    if (event.key === "ArrowLeft") {
+        stepPhoto(-1);
+    }
+    if (event.key === "ArrowRight") {
+        stepPhoto(1);
+    }
   });
   // Each color swatch is a link to a server-rendered gallery for that exact
   // finish. Keeping one color's photos in the DOM prevents mixed thumbnails.
