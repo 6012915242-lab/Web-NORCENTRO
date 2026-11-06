@@ -11,8 +11,8 @@ use App\Configuracion\Herramientas;
   <title><?= Herramientas::escaparHtml($titulo)?></title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix">
-  <link rel="stylesheet" href="css/listing.css?v=20261106-anclas">
-  <link rel="stylesheet" href="css/responsive.css?v=20261106-alineacion">
+  <link rel="stylesheet" href="css/listing.css?v=20261103-gallery-admin">
+  <link rel="stylesheet" href="css/responsive.css?v=20261105-inventario">
 </head>
 <body class="page-<?= Herramientas::escaparHtml($pagina)?><?= $mensajeError ? ' page-error' : ''?>">
 <?php
@@ -155,7 +155,7 @@ if ($usuarioActual && !in_array($pagina, $paginasSinPanelLateral, true)):?>
   <span>Norcentro S.A.C.</span>
   <span>Precios y disponibilidad sujetos a confirmación.</span>
 </footer>
-<script src="js/app.js?v=20261106-editar-unidad" defer></script>
+<script src="js/app.js?v=20261103-recargo-credito" defer></script>
 <script src="js/cart.js?v=20260929-credit-review" defer></script>
 <?php if ($pagina === 'compra'): ?>
   <script src="js/order-status.js?v=20260927-mp" defer></script>
@@ -164,13 +164,10 @@ if ($usuarioActual && !in_array($pagina, $paginasSinPanelLateral, true)):?>
   <script src="js/credit-checkout.js?v=20260929-credit-review" defer></script>
 <?php endif; ?>
 <?php if ($pagina === 'motos'): ?>
-  <script src="js/admin-motos.js?v=20261106-unidades-color" defer></script>
+  <script src="js/admin-motos.js?v=20261103-gallery-admin" defer></script>
 <?php endif; ?>
 <?php if ($pagina === 'clientes'): ?>
   <script src="js/consulta-dni.js" defer></script>
-<?php endif; ?>
-<?php if ($pagina === 'inventario'): ?>
-  <script src="js/inventario.js?v=20261106-ajax" defer></script>
 <?php endif; ?>
 </body>
 </html>

@@ -103,9 +103,9 @@ final class PaginaControlador
                 $datos['busquedaInventario'],
                 $datos['estadoInventario']
             );
-            $puedeGestionar = in_array('inventario.gestionar', $permisosUsuario, true);
-            $datos['coloresInventario'] = $puedeGestionar ? $this->motoDAO->coloresParaInventario() : [];
-            $datos['stockPorColor'] = $this->motoDAO->stockPorColor();
+            $datos['motosInventario'] = in_array('inventario.gestionar', $permisosUsuario, true)
+                ? $this->motoDAO->listar()
+                : [];
         }
 
         if ($pagina === 'ventas') {
@@ -228,9 +228,6 @@ final class PaginaControlador
             'coloresEdicion' => $editMoto !== null
                 ? $this->motoDAO->coloresPublicos((int) $editMoto['id'])
                 : [],
-            'disponiblesPorColor' => $editMoto !== null
-                ? $this->motoDAO->disponiblesPorColor((int) $editMoto['id'])
-                : [],
         ];
     }
 
@@ -254,7 +251,7 @@ final class PaginaControlador
         $busquedaClientes = mb_substr(trim((string) ($consulta['cliente_q'] ?? '')), 0, 100);
         $busquedaMoto = mb_substr(trim((string) ($consulta['moto_q'] ?? '')), 0, 100);
         $listaClientes = $this->clienteDAO->buscarActivos($busquedaClientes, 20);
-        $listaUnidades = $this->motoDAO->unidadesDisponibles($busquedaMoto, 100);
+        $listaUnidades = $this->motoDAO->unidadesDisponibles($busquedaMoto, 30);
         $idSolicitudCreditoVenta = (int) ($consulta['pedido_id'] ?? 0);
         $idClienteVentaSeleccionado = $idSolicitudCreditoVenta > 0
             ? ($this->pedidoDAO->clienteAprobadoPorPedido($idSolicitudCreditoVenta) ?? 0)
@@ -310,21 +307,20 @@ final class PaginaControlador
     }
 
     /**
-     * Agrupa las unidades disponibles por modelo y color para el selector de ventas:
-     * cada combinación aparece una vez y debajo se listan sus números de serie.
+     * Agrupa las unidades disponibles por modelo para el selector de ventas:
+     * cada modelo aparece una vez y debajo se listan sus números de serie.
      */
     private function agruparUnidadesPorModelo(array $unidades): array
     {
         $grupos = [];
         foreach ($unidades as $unidad) {
-            $clave = (int) $unidad['moto_id'].':'.(int) ($unidad['color_id'] ?? 0);
-            $grupos[$clave] ??= [
+            $motoId = (int) $unidad['moto_id'];
+            $grupos[$motoId] ??= [
                 'nombre' => $unidad['marca'].' '.$unidad['modelo'],
-                'color' => $unidad['color'] ?? 'Color por asignar',
                 'precio' => (float) $unidad['precio'],
                 'unidades' => [],
             ];
-            $grupos[$clave]['unidades'][] = $unidad;
+            $grupos[$motoId]['unidades'][] = $unidad;
         }
 
         return array_values($grupos);

@@ -72,12 +72,10 @@ final class PedidoDAO extends ModeloBaseORM
                 $disponible = $this->unidadesParaPedido(
                     $moto,
                     $cantidad,
-                    $unidadesAsignadas[$moto] ?? [],
-                    $color
+                    $unidadesAsignadas[$moto] ?? []
                 );
                 if (count($disponible) < $cantidad) {
-                    $detalleColor = $color !== null ? ' en color '.$nombreColor : '';
-                    throw new \DomainException('No hay suficientes unidades disponibles de '.$motoDetalle['marca'].' '.$motoDetalle['modelo'].$detalleColor.'.');
+                    throw new \DomainException('No hay suficientes unidades disponibles de '.$motoDetalle['marca'].' '.$motoDetalle['modelo'].'.');
                 }
                 $unidadesAsignadas[$moto] = array_merge($unidadesAsignadas[$moto] ?? [], $disponible);
                 $totalLinea = round($precio * $cantidad, 2);
@@ -204,11 +202,7 @@ final class PedidoDAO extends ModeloBaseORM
         }
     }
 
-    /**
-     * Reserva unidades disponibles del modelo. Si el cliente eligió un color, se toman
-     * unidades de ese color; las unidades sin color asignado se usan solo como respaldo.
-     */
-    private function unidadesParaPedido(int $motoId, int $cantidad, array $excluidas, ?int $colorId = null): array
+    private function unidadesParaPedido(int $motoId, int $cantidad, array $excluidas): array
     {
         if ($cantidad < 1 || $cantidad > 20) {
             throw new \DomainException('La cantidad de unidades solicitadas no es válida.');
@@ -216,13 +210,6 @@ final class PedidoDAO extends ModeloBaseORM
 
         $consultaSql = 'SELECT id FROM unidades_moto WHERE moto_id = ? AND estado = "Disponible"';
         $parametros = [$motoId];
-        $orden = 'id';
-
-        if ($colorId !== null) {
-            $consultaSql .= ' AND (color_id = ? OR color_id IS NULL)';
-            $parametros[] = $colorId;
-            $orden = 'color_id IS NULL, id';
-        }
 
         if ($excluidas !== []) {
             $marcadores = implode(', ', array_fill(0, count($excluidas), '?'));
@@ -230,7 +217,7 @@ final class PedidoDAO extends ModeloBaseORM
             $parametros = array_merge($parametros, $excluidas);
         }
 
-        $consultaSql .= ' ORDER BY '.$orden.' LIMIT '.$cantidad.' FOR UPDATE';
+        $consultaSql .= ' ORDER BY id LIMIT '.$cantidad.' FOR UPDATE';
         $consulta = $this->preparar($consultaSql, $parametros);
 
         return array_map('intval', $consulta->fetchAll(PDO::FETCH_COLUMN));

@@ -14,7 +14,7 @@ capa de seguridad con **middlewares y RBAC**.
    C:\xampp\php\php.exe scripts\migrar.php
    ```
 
-   (También puedes importar en phpMyAdmin los archivos de `migraciones/` en orden: 001 al 005).
+   (También puedes importar en phpMyAdmin los archivos de `migraciones/` en orden: 001, 002, 003 y 004).
 4. Abre `http://localhost:8080/nor_centro/`.
 
 La conexión por defecto es `127.0.0.1:4404`, usuario `root` y sin contraseña
@@ -47,7 +47,7 @@ Navegador ──► public/index.php (Front Controller)
 | `public/` | Única carpeta pública: `index.php`, APIs JSON (`api/`), CSS, JS e imágenes |
 | `nucleo/` | `ModeloBaseORM` (mapeo tabla → objeto, relaciones, transacciones), `EntidadORM`, `MotorVistas`, `DespachadorAcciones`, `ContenedorDatos` |
 | `middlewares/` | `SeguridadMiddleware`, `AutenticacionMiddleware`, `AutorizacionRbacMiddleware`, `AuditoriaMiddleware`, `ApiMiddleware` |
-| `migraciones/` | Esquema de la base de datos versionado (`001`–`005`) |
+| `migraciones/` | Esquema de la base de datos versionado (`001`–`004`) |
 | `scripts/` | Herramientas de consola: `migrar.php` y `crear-usuario.php` |
 | `configuracion/` | Conexión PDO, funciones de apoyo y certificados SSL para XAMPP |
 | `storage/sessions/` | Sesiones de PHP (no se suben a Git) |

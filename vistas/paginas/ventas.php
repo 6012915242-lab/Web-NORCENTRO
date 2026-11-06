@@ -53,29 +53,16 @@ use App\Configuracion\Herramientas;
       <?php if ($busquedaClientes !== ''): ?>
         <input type="hidden" name="cliente_q" value="<?= Herramientas::escaparHtml($busquedaClientes) ?>">
       <?php endif; ?>
-      <label for="sale-unit-search">Buscar motocicleta por marca, modelo, color o serie</label>
+      <label for="sale-unit-search">Buscar motocicleta por marca, modelo o serie</label>
       <div>
         <input id="sale-unit-search" name="moto_q" value="<?= Herramientas::escaparHtml($busquedaMoto) ?>"
-               placeholder="Ej.: FZ25 azul o NC-55-003" autocomplete="off"
-               list="sale-unit-sugerencias" data-buscador-unidades>
+               placeholder="Ej.: Yamaha FZ25 o NC-5-001" autocomplete="off">
         <button class="button small-button">Buscar moto</button>
       </div>
-      <datalist id="sale-unit-sugerencias">
-        <?php foreach ($unidadesPorModelo as $grupoModelo): ?>
-          <option value="<?= Herramientas::escaparHtml($grupoModelo['nombre'] . ' ' . $grupoModelo['color']) ?>">
-            <?= count($grupoModelo['unidades']) ?> disponible(s)
-          </option>
-          <?php foreach ($grupoModelo['unidades'] as $unidadInventario): ?>
-            <option value="<?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>">
-              <?= Herramientas::escaparHtml($grupoModelo['nombre'] . ' · ' . $grupoModelo['color']) ?>
-            </option>
-          <?php endforeach; ?>
-        <?php endforeach; ?>
-      </datalist>
-      <small data-buscador-unidades-estado>
-        <?= count($listaUnidades) === 100
-          ? 'Mostrando hasta 100 unidades disponibles; presiona "Buscar moto" para buscar otras.'
-          : count($listaUnidades) . ' unidad(es) disponible(s). Escribe para filtrar la lista al instante.' ?>
+      <small>
+        <?= count($listaUnidades) === 30
+          ? 'Mostrando hasta 30 unidades disponibles; afina la búsqueda si no aparece.'
+          : count($listaUnidades) . ' unidad(es) disponible(s) para esta búsqueda.' ?>
       </small>
     </form>
     <form method="post" class="form-grid" id="sale-form">
@@ -112,19 +99,16 @@ use App\Configuracion\Herramientas;
           <option value="">Seleccionar motocicleta de los resultados</option>
           <?php foreach ($unidadesPorModelo as $grupoModelo): ?>
             <optgroup label="<?= Herramientas::escaparHtml(
-                $grupoModelo['nombre'] . ' · ' . $grupoModelo['color']
-                . ' · ' . Herramientas::formatearDinero($grupoModelo['precio'])
+                $grupoModelo['nombre'] . ' · ' . Herramientas::formatearDinero($grupoModelo['precio'])
                 . ' · ' . count($grupoModelo['unidades']) . ' disponible(s)'
             ) ?>">
               <?php foreach ($grupoModelo['unidades'] as $unidadInventario): ?>
                 <option value="<?= (int) $unidadInventario['unidad_id'] ?>"
                         data-price="<?= Herramientas::escaparHtml($unidadInventario['precio']) ?>"
                         data-image="<?= Herramientas::escaparHtml(Herramientas::rutaImagen($unidadInventario['imagen'])) ?>"
-                        data-model="<?= Herramientas::escaparHtml($grupoModelo['nombre'] . ' · ' . $grupoModelo['color']) ?>"
+                        data-model="<?= Herramientas::escaparHtml($grupoModelo['nombre']) ?>"
                         data-series="<?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>">
-                  <?= Herramientas::escaparHtml(
-                      $grupoModelo['nombre'] . ' · ' . $grupoModelo['color'] . ' · Serie ' . $unidadInventario['codigo_serie']
-                  ) ?>
+                  <?= Herramientas::escaparHtml($grupoModelo['nombre'] . ' · Serie ' . $unidadInventario['codigo_serie']) ?>
                 </option>
               <?php endforeach; ?>
             </optgroup>

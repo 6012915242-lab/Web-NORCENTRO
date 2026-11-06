@@ -16,7 +16,7 @@ final class AutorizacionRbacMiddleware
     private const PERMISOS_POR_ACCION = [
         'guardar_moto' => 'motos.gestionar',
         'desactivar_moto' => 'motos.gestionar',
-        'actualizar_unidad' => 'inventario.gestionar',
+        'agregar_unidad_inventario' => 'inventario.gestionar',
         'guardar_cliente' => 'clientes.gestionar',
         'desactivar_cliente' => 'clientes.desactivar',
         'guardar_oferta' => 'ofertas.gestionar',

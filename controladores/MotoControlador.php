@@ -53,21 +53,15 @@ final class MotoControlador
         Herramientas::redirigir('motos');
     }
 
-    /** Guarda el número de serie y el color de una unidad del inventario. */
-    public function actualizarUnidad(array $post): never
+    public function agregarUnidadInventario(array $post): never
     {
         try {
-            $this->servicioComercial->validarYActualizarUnidad($this->dao, $post);
-            Herramientas::mostrarAviso('success', 'Unidad actualizada.');
+            $this->servicioComercial->validarYRegistrarUnidad($this->dao, $post);
+            Herramientas::mostrarAviso('success', 'Unidad registrada en el inventario.');
         } catch (DomainException $error) {
             Herramientas::mostrarAviso('error', $error->getMessage());
         }
 
-        // Vuelve a la misma fila y con el mismo filtro que tenía el usuario.
-        $filtro = array_filter([
-            'inventario_q' => mb_substr((string) ($post['inventario_q'] ?? ''), 0, 100),
-            'estado_inventario' => (string) ($post['estado_inventario'] ?? ''),
-        ], static fn (string $valor): bool => $valor !== '');
-        Herramientas::redirigir('inventario', $filtro, 'unidad-'.(int) ($post['unidad_id'] ?? 0));
+        Herramientas::redirigir('inventario');
     }
 }

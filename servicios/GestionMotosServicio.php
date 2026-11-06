@@ -28,6 +28,7 @@ final class GestionMotosServicio
         $modelo = TextoEntrada::normalizar($entrada['modelo'] ?? '');
         $descripcion = TextoEntrada::normalizar($entrada['descripcion'] ?? '');
         $precio = filter_var($entrada['precio'] ?? null, FILTER_VALIDATE_FLOAT);
+        $cantidad = filter_var($entrada['cantidad'] ?? 1, FILTER_VALIDATE_INT);
         $cc = filter_var($entrada['cilindrada'] ?? null, FILTER_VALIDATE_INT);
         $anio = filter_var($entrada['anio'] ?? null, FILTER_VALIDATE_INT);
 
@@ -61,8 +62,13 @@ final class GestionMotosServicio
             throw new DomainException('Revisa la cilindrada, el año y el precio de la motocicleta.');
         }
 
-        if (mb_strlen($descripcion) > 1200) {
-            throw new DomainException('La descripción puede tener como máximo 1200 caracteres.');
+        if (
+            $cantidad === false
+            || $cantidad < 1
+            || (! $esEdicion && $cantidad > 200)
+            || mb_strlen($descripcion) > 1200
+        ) {
+            throw new DomainException('Revisa la cantidad de unidades iniciales y la descripción.');
         }
 
         // Evita nombres como "Yamaha Yamaha FZ25": la marca ya se guarda aparte.
@@ -94,10 +100,6 @@ final class GestionMotosServicio
                 $modelo,
                 $rutasCreadas
             );
-            // En edición: unidades nuevas para los colores que ya existen [color_id => cantidad].
-            $unidadesColoresExistentes = $esEdicion
-                ? $this->leerUnidadesPorColor($entrada['unidades_existentes'] ?? [])
-                : [];
             $imagenPrincipal = $this->guardarImagenSubida(
                 $archivos['imagen_principal'] ?? null,
                 $rutasCreadas
@@ -127,12 +129,11 @@ final class GestionMotosServicio
                 'descripcion' => $descripcion,
                 'anio' => (int) $anio,
                 'imagen' => $imagen,
-                // Las unidades se crean por color (ver 'unidades' en cada color).
-                'cantidad' => 0,
+                'cantidad' => (int) $cantidad,
             ];
 
             if ($esEdicion) {
-                $motoDAO->actualizarConGaleria((int) $id, $datos, $colores, $unidadesColoresExistentes);
+                $motoDAO->actualizarConGaleria((int) $id, $datos, $colores);
             } else {
                 $motoDAO->guardarConGaleria($datos, $colores);
             }
@@ -155,7 +156,6 @@ final class GestionMotosServicio
         }
 
         $colores = [];
-        $totalUnidades = 0;
         foreach ($coloresEntrada as $indice => $datosColor) {
             if (! is_array($datosColor)) {
                 continue;
@@ -168,13 +168,6 @@ final class GestionMotosServicio
                 $archivosColor,
                 static fn (array $archivo): bool => (int) ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
             ));
-
-            $unidades = filter_var($datosColor['unidades'] ?? 0, FILTER_VALIDATE_INT, [
-                'options' => ['default' => -1],
-            ]);
-            if ($unidades < 0 || $unidades > 200) {
-                throw new DomainException('Las unidades de cada color deben estar entre 0 y 200.');
-            }
 
             if ($nombreColor === '' && $archivosSeleccionados === []) {
                 continue;
@@ -214,17 +207,11 @@ final class GestionMotosServicio
                 ];
             }
 
-            $totalUnidades += $unidades;
             $colores[] = [
                 'nombre' => $nombreColor,
                 'codigo_hex' => $codigoHex,
                 'imagenes' => $imagenes,
-                'unidades' => $unidades,
             ];
-        }
-
-        if ($totalUnidades > 200) {
-            throw new DomainException('Puedes registrar como máximo 200 unidades por operación.');
         }
 
         return $colores;
@@ -294,61 +281,22 @@ final class GestionMotosServicio
         return $ruta;
     }
 
-    /** Valida y guarda el código de serie y el color de una unidad que no esté vendida. */
-    public function validarYActualizarUnidad(MotoDAO $motoDAO, array $entrada): void
+    public function validarYRegistrarUnidad(MotoDAO $motoDAO, array $entrada): int
     {
-        $idUnidad = filter_var($entrada['unidad_id'] ?? null, FILTER_VALIDATE_INT);
-        if (! $idUnidad || $idUnidad < 1) {
-            throw new DomainException('Selecciona una unidad válida.');
-        }
-
+        $idMoto = filter_var($entrada['moto_id'] ?? null, FILTER_VALIDATE_INT);
         $codigoSerie = strtoupper(TextoEntrada::normalizar($entrada['codigo_serie'] ?? ''));
+
+        if (! $idMoto || $idMoto < 1) {
+            throw new DomainException('Selecciona una motocicleta activa.');
+        }
+
         if (! preg_match('/^[A-Z0-9][A-Z0-9-]{2,49}$/', $codigoSerie)) {
-            throw new DomainException('Escribe un código de serie válido de 3 a 50 letras, números o guiones.');
+            throw new DomainException(
+                'Escribe un código de serie válido de 3 a 50 letras, números o guiones.'
+            );
         }
 
-        $motoDAO->actualizarUnidad((int) $idUnidad, $codigoSerie, $this->leerColor($entrada));
-    }
-
-    /** El color llega como id; vacío significa "color por asignar". */
-    private function leerColor(array $entrada): ?int
-    {
-        $valor = trim((string) ($entrada['color_id'] ?? ''));
-        if ($valor === '') {
-            return null;
-        }
-
-        $idColor = filter_var($valor, FILTER_VALIDATE_INT);
-        if (! $idColor || $idColor < 1) {
-            throw new DomainException('Selecciona un color válido.');
-        }
-
-        return (int) $idColor;
-    }
-
-    /** Lee las cantidades enviadas como unidades_existentes[color_id] = n (de 0 a 200). */
-    private function leerUnidadesPorColor(mixed $entrada): array
-    {
-        if (! is_array($entrada)) {
-            return [];
-        }
-
-        $unidades = [];
-        foreach ($entrada as $idColor => $valor) {
-            $cantidad = filter_var($valor === '' ? 0 : $valor, FILTER_VALIDATE_INT);
-            if ($cantidad === false || $cantidad < 0 || $cantidad > 200) {
-                throw new DomainException('Las unidades de cada color deben estar entre 0 y 200.');
-            }
-            if ($cantidad > 0) {
-                $unidades[(int) $idColor] = $cantidad;
-            }
-        }
-
-        if (array_sum($unidades) > 200) {
-            throw new DomainException('Puedes registrar como máximo 200 unidades por operación.');
-        }
-
-        return $unidades;
+        return $motoDAO->registrarUnidad((int) $idMoto, $codigoSerie);
     }
 
     /** Si el modelo empieza con el nombre de la marca ("Yamaha FZ25"), deja solo "FZ25". */
