@@ -11,6 +11,9 @@ use PDO;
 /** Ejecuta consultas de catálogo, modelos, fotos e inventario de motos. */
 final class MotoDAO extends ModeloBaseORM
 {
+    protected const TABLA = 'motos';
+    protected const ENTIDAD = Moto::class;
+
     public function listar(string $buscar = ''): array
     {
         $consultaSQL = "
@@ -175,21 +178,7 @@ final class MotoDAO extends ModeloBaseORM
     public function guardar(array $datos): int
     {
         return $this->ejecutarEnTransaccion(function () use ($datos): int {
-            $consulta = $this->conexion->prepare('
-                INSERT INTO motos
-                    (marca_id, modelo, cilindrada, color, precio, descripcion, anio, imagen, estado)
-                VALUES (:marca, :modelo, :cc, :color, :precio, :descripcion, :anio, :imagen, "Activo")
-            ');
-            $consulta->bindValue(':marca', (int) $datos['marca_id'], PDO::PARAM_INT);
-            $consulta->bindValue(':modelo', (string) $datos['modelo'], PDO::PARAM_STR);
-            $consulta->bindValue(':cc', (int) $datos['cilindrada'], PDO::PARAM_INT);
-            $consulta->bindValue(':color', (string) $datos['color'], PDO::PARAM_STR);
-            $consulta->bindValue(':precio', (string) $datos['precio'], PDO::PARAM_STR);
-            $consulta->bindValue(':descripcion', (string) $datos['descripcion'], PDO::PARAM_STR);
-            $consulta->bindValue(':anio', (int) $datos['anio'], PDO::PARAM_INT);
-            $consulta->bindValue(':imagen', (string) $datos['imagen'], PDO::PARAM_STR);
-            $consulta->execute();
-            $id = (int) $this->conexion->lastInsertId();
+            $id = $this->insertar($this->columnasEditables($datos) + ['estado' => 'Activo']);
             $unidad = $this->conexion->prepare('INSERT INTO unidades_moto(moto_id,codigo_serie,estado) VALUES(:moto,:serie,"Disponible")');
             $unidad->bindValue(':moto', $id, PDO::PARAM_INT);
             for ($i = 1; $i <= (int) $datos['cantidad']; $i++) {
@@ -221,22 +210,14 @@ final class MotoDAO extends ModeloBaseORM
 
     public function actualizar(int $id, array $datos): void
     {
-        $consulta = $this->conexion->prepare('
-            UPDATE motos
-            SET marca_id = :marca, modelo = :modelo, cilindrada = :cc, color = :color,
-                precio = :precio, descripcion = :descripcion, anio = :anio, imagen = :imagen
-            WHERE id = :id
-        ');
-        $consulta->bindValue(':marca', (int) $datos['marca_id'], PDO::PARAM_INT);
-        $consulta->bindValue(':modelo', (string) $datos['modelo'], PDO::PARAM_STR);
-        $consulta->bindValue(':cc', (int) $datos['cilindrada'], PDO::PARAM_INT);
-        $consulta->bindValue(':color', (string) $datos['color'], PDO::PARAM_STR);
-        $consulta->bindValue(':precio', (string) $datos['precio'], PDO::PARAM_STR);
-        $consulta->bindValue(':descripcion', (string) $datos['descripcion'], PDO::PARAM_STR);
-        $consulta->bindValue(':anio', (int) $datos['anio'], PDO::PARAM_INT);
-        $consulta->bindValue(':imagen', (string) $datos['imagen'], PDO::PARAM_STR);
-        $consulta->bindValue(':id', $id, PDO::PARAM_INT);
-        $consulta->execute();
+        $this->actualizarPorId($id, $this->columnasEditables($datos));
+    }
+
+    private function columnasEditables(array $datos): array
+    {
+        $columnas = ['marca_id', 'modelo', 'cilindrada', 'color', 'precio', 'descripcion', 'anio', 'imagen'];
+
+        return array_intersect_key($datos, array_flip($columnas));
     }
 
     /** Guarda colores y varias tomas por color sin eliminar la galería existente. */

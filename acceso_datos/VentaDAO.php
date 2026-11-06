@@ -16,6 +16,9 @@ use PDO;
 /** Registra ventas, créditos, cuotas y pagos dentro de transacciones. */
 final class VentaDAO extends ModeloBaseORM
 {
+    protected const TABLA = 'ventas';
+    protected const ENTIDAD = Venta::class;
+
     public function obtenerConRelaciones(int $id): ?Venta
     {
         $registro = $this->obtenerUno(
@@ -133,18 +136,15 @@ final class VentaDAO extends ModeloBaseORM
             }
             $precio = (float) $unidad['precio'];
             $total = $precio - (float) $datos['descuento'];
-            $consulta = $this->conexion->prepare('
-                INSERT INTO ventas (cliente_id, usuario_id, unidad_id, precio, descuento, total, modalidad)
-                VALUES (:cliente, :usuario, :unidad, :precio, :descuento, :total, :modalidad)
-            ');
-            $consulta->execute(['cliente' => $datos['cliente_id'],
-                'usuario' => $datos['usuario_id'],
-                'unidad' => $datos['unidad_id'],
+            $venta = $this->insertar([
+                'cliente_id' => $datos['cliente_id'],
+                'usuario_id' => $datos['usuario_id'],
+                'unidad_id' => $datos['unidad_id'],
                 'precio' => $precio,
                 'descuento' => $datos['descuento'],
                 'total' => $total,
-                'modalidad' => $datos['modalidad']]);
-            $venta = (int) $this->conexion->lastInsertId();
+                'modalidad' => $datos['modalidad'],
+            ]);
             if ($itemSolicitud !== null) {
                 $this->ejecutar(
                     'INSERT INTO solicitud_credito_ventas (pedido_item_id, venta_id) VALUES (:item, :venta)',

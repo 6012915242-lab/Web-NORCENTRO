@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\AccesoDatos;
 
+use App\Modelos\Oferta;
 use App\Nucleo\ModeloBaseORM;
 use PDO;
 
 /** Consulta y actualiza las promociones del catálogo. */
 final class OfertaDAO extends ModeloBaseORM
 {
+    protected const TABLA = 'ofertas';
+    protected const ENTIDAD = Oferta::class;
+
     public function activas(): array
     {
         $sql = "
@@ -69,15 +73,22 @@ final class OfertaDAO extends ModeloBaseORM
 
     public function guardar(array $datos): int
     {
-        $consulta = $this->conexion->prepare("
-            INSERT INTO ofertas
-                (moto_id, titulo, descripcion, precio_normal, precio_oferta, fecha_inicio, fecha_fin, estado)
-            VALUES
-                (:moto, :titulo, :descripcion, :normal, :oferta, :inicio, :fin, 'Activa')
-        ");
-        $consulta->execute($datos);
+        return $this->insertar($this->columnasEditables($datos) + ['estado' => 'Activa']);
+    }
 
-        return $this->ultimoIdInsertado();
+    private function columnasEditables(array $datos): array
+    {
+        $mapa = ['moto' => 'moto_id', 'titulo' => 'titulo', 'descripcion' => 'descripcion',
+            'normal' => 'precio_normal', 'oferta' => 'precio_oferta',
+            'inicio' => 'fecha_inicio', 'fin' => 'fecha_fin'];
+        $resultado = [];
+        foreach ($mapa as $entrada => $columna) {
+            if (array_key_exists($entrada, $datos)) {
+                $resultado[$columna] = $datos[$entrada];
+            }
+        }
+
+        return $resultado;
     }
 
     public function actualizar(int $id, array $datos): void
