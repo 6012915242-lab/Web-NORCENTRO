@@ -98,7 +98,7 @@ use App\Configuracion\Herramientas;
                 <label>Precio de oferta (S/)<input type="number" min="0.01" step="0.01" name="precio_oferta" required></label>
                 <label>Inicio<input type="date" name="fecha_inicio" required></label>
                 <label>Fin<input type="date" name="fecha_fin" required></label>
-                <label class="full">Descripción<textarea name="descripcion" rows="2"></textarea></label>
+                <label class="full">Descripción<textarea name="descripcion" rows="2" maxlength="255"></textarea></label>
                 <div class="form-actions full">
                     <button class="button primary">Publicar oferta</button>
                 </div>

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\AccesoDatos;
 
-use App\Modelos\PlanCredito;
+use App\Modelos\Cliente;
 use App\Modelos\Credito;
+use App\Modelos\Moto;
+use App\Modelos\PlanCredito;
+use App\Modelos\Venta;
 use App\Nucleo\ModeloBaseORM;
 use DateTimeImmutable;
 use PDO;
@@ -13,6 +16,57 @@ use PDO;
 /** Registra ventas, créditos, cuotas y pagos dentro de transacciones. */
 final class VentaDAO extends ModeloBaseORM
 {
+    public function obtenerConRelaciones(int $id): ?Venta
+    {
+        $registro = $this->obtenerUno(
+            'SELECT v.*, c.id AS cliente_relacion_id, c.dni AS cliente_dni,
+                    c.nombres AS cliente_nombres, c.apellidos AS cliente_apellidos,
+                    c.telefono AS cliente_telefono, c.direccion AS cliente_direccion,
+                    c.correo AS cliente_correo, c.estado AS cliente_estado,
+                    m.id AS moto_relacion_id, m.marca_id, ma.nombre AS marca,
+                    m.modelo, m.cilindrada, m.color, m.precio AS moto_precio,
+                    m.descripcion, m.anio, m.imagen, m.estado AS moto_estado
+             FROM ventas v
+             JOIN clientes c ON c.id = v.cliente_id
+             JOIN unidades_moto u ON u.id = v.unidad_id
+             JOIN motos m ON m.id = u.moto_id
+             JOIN marcas ma ON ma.id = m.marca_id
+             WHERE v.id = :id',
+            ['id' => $id]
+        );
+
+        if ($registro === null) {
+            return null;
+        }
+
+        $venta = Venta::desdeRegistro($registro);
+        $venta->cliente = Cliente::desdeRegistro([
+            'id' => $registro['cliente_relacion_id'],
+            'dni' => $registro['cliente_dni'],
+            'nombres' => $registro['cliente_nombres'],
+            'apellidos' => $registro['cliente_apellidos'],
+            'telefono' => $registro['cliente_telefono'],
+            'direccion' => $registro['cliente_direccion'],
+            'correo' => $registro['cliente_correo'],
+            'estado' => $registro['cliente_estado'],
+        ]);
+        $venta->moto = Moto::desdeRegistro([
+            'id' => $registro['moto_relacion_id'],
+            'marca_id' => $registro['marca_id'],
+            'marca' => $registro['marca'],
+            'modelo' => $registro['modelo'],
+            'cilindrada' => $registro['cilindrada'],
+            'color' => $registro['color'],
+            'precio' => $registro['moto_precio'],
+            'descripcion' => $registro['descripcion'],
+            'anio' => $registro['anio'],
+            'imagen' => $registro['imagen'],
+            'estado' => $registro['moto_estado'],
+        ]);
+
+        return $venta;
+    }
+
     public function obtenerCredito(int $id): ?Credito
     {
         return $this->hidratarEntidad(
@@ -39,6 +93,9 @@ final class VentaDAO extends ModeloBaseORM
         ')->fetchAll();
     }
 
+    /**
+     * Bloquea el cliente y la unidad durante la venta; si falla, revierte toda la operación.
+     */
     public function crear(array $datos): int
     {
         $this->conexion->beginTransaction();
@@ -76,7 +133,10 @@ final class VentaDAO extends ModeloBaseORM
             }
             $precio = (float) $unidad['precio'];
             $total = $precio - (float) $datos['descuento'];
-            $consulta = $this->conexion->prepare('INSERT INTO ventas(cliente_id,usuario_id,unidad_id,precio,descuento,total,modalidad) VALUES(:cliente,:usuario,:unidad,:precio,:descuento,:total,:modalidad)');
+            $consulta = $this->conexion->prepare('
+                INSERT INTO ventas (cliente_id, usuario_id, unidad_id, precio, descuento, total, modalidad)
+                VALUES (:cliente, :usuario, :unidad, :precio, :descuento, :total, :modalidad)
+            ');
             $consulta->execute(['cliente' => $datos['cliente_id'],
                 'usuario' => $datos['usuario_id'],
                 'unidad' => $datos['unidad_id'],
@@ -113,29 +173,39 @@ final class VentaDAO extends ModeloBaseORM
     private function buscarItemSolicitud(int $pedidoId, int $clienteId, int $motoId): int
     {
         $solicitud = $this->obtenerUno(
-            'SELECT p.id FROM pedidos p JOIN clientes c ON c.dni = p.dni
-             WHERE p.id = :pedido AND c.id = :cliente AND p.modalidad = "Crédito"
-               AND p.estado = "Crédito aprobado" FOR UPDATE',
+            'SELECT p.id
+             FROM pedidos p
+             INNER JOIN clientes c ON c.dni = p.dni
+             WHERE p.id = :pedido
+               AND c.id = :cliente
+               AND p.modalidad = "Crédito"
+               AND p.estado = "Crédito aprobado"
+             FOR UPDATE',
             ['pedido' => $pedidoId, 'cliente' => $clienteId]
         );
         if ($solicitud === null) {
             throw new \DomainException('La solicitud no está aprobada o no corresponde al cliente.');
         }
 
-        $items = $this->obtenerTodos(
-            'SELECT id, cantidad FROM pedido_items
-             WHERE pedido_id = :pedido AND moto_id = :moto ORDER BY id FOR UPDATE',
+        $elementosPedido = $this->obtenerTodos(
+            'SELECT id, cantidad
+             FROM pedido_items
+             WHERE pedido_id = :pedido AND moto_id = :moto
+             ORDER BY id
+             FOR UPDATE',
             ['pedido' => $pedidoId, 'moto' => $motoId]
         );
-        foreach ($items as $item) {
+        foreach ($elementosPedido as $elementoPedido) {
             $cantidadVinculada = (int) $this->preparar(
-                'SELECT COUNT(*) FROM solicitud_credito_ventas vinculo
-                 JOIN ventas venta ON venta.id = vinculo.venta_id
-                 WHERE vinculo.pedido_item_id = :item AND venta.estado = "Confirmada"',
-                ['item' => $item['id']]
+                'SELECT COUNT(*)
+                 FROM solicitud_credito_ventas vinculo
+                 INNER JOIN ventas venta ON venta.id = vinculo.venta_id
+                 WHERE vinculo.pedido_item_id = :item
+                   AND venta.estado = "Confirmada"',
+                ['item' => $elementoPedido['id']]
             )->fetchColumn();
-            if ($cantidadVinculada < (int) $item['cantidad']) {
-                return (int) $item['id'];
+            if ($cantidadVinculada < (int) $elementoPedido['cantidad']) {
+                return (int) $elementoPedido['id'];
             }
         }
 
@@ -145,8 +215,8 @@ final class VentaDAO extends ModeloBaseORM
     private function crearCredito(int $venta, array $datos, float $total): void
     {
         $inicial = (float) $datos['inicial'];
-        $n = (int) $datos['numero_cuotas'];
-        $plan = PlanCredito::calcular($total, $inicial, $n);
+        $numeroCuotas = (int) $datos['numero_cuotas'];
+        $plan = PlanCredito::calcular($total, $inicial, $numeroCuotas);
         $financiado = $plan['financiado'];
         $consulta = $this->conexion->prepare('
             INSERT INTO creditos
@@ -157,15 +227,15 @@ final class VentaDAO extends ModeloBaseORM
         $consulta->execute(['venta' => $venta,
             'inicial' => $inicial,
             'financiado' => $financiado,
-            'n' => $n,
+            'n' => $numeroCuotas,
             'saldo' => $financiado,
             'porcentaje' => PlanCredito::PORCENTAJE_RECARGO,
             'recargo' => $plan['recargo']]);
         $credito = (int) $this->conexion->lastInsertId();
         $primeraFecha = new DateTimeImmutable($datos['fecha_primera_cuota']);
-        $fechas = PlanCredito::fechasCuotas($primeraFecha, $n);
+        $fechas = PlanCredito::fechasCuotas($primeraFecha, $numeroCuotas);
         $instancia = $this->conexion->prepare('INSERT INTO cuotas(credito_id,numero,fecha_vencimiento,monto,estado) VALUES(:credito,:numero,:fecha,:monto,"Pendiente")');
-        for ($i = 1; $i <= $n; $i++) {
+        for ($i = 1; $i <= $numeroCuotas; $i++) {
             $monto = $plan['cuotas'][$i - 1];
             $instancia->execute(['credito' => $credito,
                 'numero' => $i,

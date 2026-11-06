@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
@@ -18,8 +19,7 @@ final class Oferta implements EntidadORM
         public string $inicio,
         public string $fin,
         public string $estado
-    ) {
-    }
+    ) {}
 
     public static function desdeRegistro(array $registro): self
     {

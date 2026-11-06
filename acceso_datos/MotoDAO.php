@@ -181,6 +181,7 @@ final class MotoDAO extends ModeloBaseORM
                 $unidad->bindValue(':serie', 'NC-'.$id.'-'.str_pad((string) $i, 3, '0', STR_PAD_LEFT), PDO::PARAM_STR);
                 $unidad->execute();
             }
+
             return $id;
         });
     }
@@ -205,7 +206,12 @@ final class MotoDAO extends ModeloBaseORM
 
     public function actualizar(int $id, array $datos): void
     {
-        $consulta = $this->conexion->prepare('UPDATE motos SET marca_id=:marca,modelo=:modelo,cilindrada=:cc,color=:color,precio=:precio,descripcion=:descripcion,anio=:anio,imagen=:imagen WHERE id=:id');
+        $consulta = $this->conexion->prepare('
+            UPDATE motos
+            SET marca_id = :marca, modelo = :modelo, cilindrada = :cc, color = :color,
+                precio = :precio, descripcion = :descripcion, anio = :anio, imagen = :imagen
+            WHERE id = :id
+        ');
         $consulta->bindValue(':marca', (int) $datos['marca_id'], PDO::PARAM_INT);
         $consulta->bindValue(':modelo', (string) $datos['modelo'], PDO::PARAM_STR);
         $consulta->bindValue(':cc', (int) $datos['cilindrada'], PDO::PARAM_INT);
@@ -331,9 +337,9 @@ final class MotoDAO extends ModeloBaseORM
                     ? ''
                     : ' FOR UPDATE';
                 $consulta = $this->preparar(
-                    "SELECT m.id FROM motos m
+                    'SELECT m.id FROM motos m
                      JOIN marcas ma ON ma.id = m.marca_id
-                     WHERE m.id = :id AND m.estado = :estado AND ma.estado = :estado_marca" . $bloqueo,
+                     WHERE m.id = :id AND m.estado = :estado AND ma.estado = :estado_marca'.$bloqueo,
                     ['id' => $idMoto, 'estado' => 'Activo', 'estado_marca' => 'Activo']
                 );
 

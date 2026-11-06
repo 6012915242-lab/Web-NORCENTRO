@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
 
-use App\AccesoDatos\UsuarioDAO;
 use App\AccesoDatos\SesionDAO;
+use App\AccesoDatos\UsuarioDAO;
 use App\Configuracion\Herramientas;
 use App\Servicios\AutenticacionServicio;
 use DomainException;
@@ -19,7 +20,7 @@ final class SesionControlador
         private SesionDAO $sesionDAO,
         ?AutenticacionServicio $servicioAutenticacion = null
     ) {
-        $this->servicioAutenticacion = $servicioAutenticacion ?? new AutenticacionServicio();
+        $this->servicioAutenticacion = $servicioAutenticacion ?? new AutenticacionServicio;
     }
 
     public function iniciarSesion(array $datos): never

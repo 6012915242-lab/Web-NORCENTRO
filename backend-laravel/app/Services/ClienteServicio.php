@@ -45,7 +45,7 @@ class ClienteServicio
         }
 
         try {
-            $identificador = (new GestionClientesServicio())->validarYGuardarCliente(
+            $identificador = (new GestionClientesServicio)->validarYGuardarCliente(
                 $this->dao(),
                 $entrada,
                 $cliente !== null
@@ -67,7 +67,7 @@ class ClienteServicio
     public function desactivar(Cliente $cliente): void
     {
         try {
-            (new GestionClientesServicio())->desactivarCliente($this->dao(), (int) $cliente->id);
+            (new GestionClientesServicio)->desactivarCliente($this->dao(), (int) $cliente->id);
         } catch (DomainException $error) {
             throw ValidationException::withMessages(['cliente' => $error->getMessage()]);
         }

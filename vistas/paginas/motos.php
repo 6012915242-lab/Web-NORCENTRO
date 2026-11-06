@@ -49,7 +49,7 @@ $esAdministrador = $usuarioPuede('motos.gestionar');
           Modelo
           <input
             name="modelo"
-            maxlength="120"
+            maxlength="100"
             required
             value="<?= Herramientas::escaparHtml($formularioMoto['modelo'] ?? '') ?>"
           >
@@ -153,7 +153,7 @@ $esAdministrador = $usuarioPuede('motos.gestionar');
                   Nombre del color
                   <input
                     name="colores[0][nombre]"
-                    maxlength="60"
+                    maxlength="50"
                     placeholder="Ejemplo: Rojo / gris"
                     <?= !$editMoto ? 'required' : '' ?>
                   >

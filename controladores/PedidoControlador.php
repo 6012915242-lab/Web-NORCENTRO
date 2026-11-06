@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
@@ -18,7 +19,7 @@ final class PedidoControlador
         private PedidoDAO $pedidoDAO,
         ?EvaluacionCreditoServicio $servicioCredito = null
     ) {
-        $this->servicioCredito = $servicioCredito ?? new EvaluacionCreditoServicio();
+        $this->servicioCredito = $servicioCredito ?? new EvaluacionCreditoServicio;
     }
 
     public function evaluarCredito(array $post): never

@@ -19,7 +19,7 @@ class InventarioServicio
     public function registrar(array $entrada): UnidadMoto
     {
         $dao = new MotoDAO(DB::connection()->getPdo());
-        $identificador = (new GestionMotosServicio())->validarYRegistrarUnidad($dao, $entrada);
+        $identificador = (new GestionMotosServicio)->validarYRegistrarUnidad($dao, $entrada);
 
         return UnidadMoto::query()->findOrFail($identificador);
     }

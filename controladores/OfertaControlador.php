@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
@@ -16,7 +17,7 @@ final class OfertaControlador
         private OfertaDAO $dao,
         ?GestionOfertasServicio $servicioComercial = null
     ) {
-        $this->servicioComercial = $servicioComercial ?? new GestionOfertasServicio();
+        $this->servicioComercial = $servicioComercial ?? new GestionOfertasServicio;
     }
 
     public function guardar(array $post): never

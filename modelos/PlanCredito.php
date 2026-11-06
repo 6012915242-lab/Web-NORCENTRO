@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
 
-use DomainException;
 use DateTimeImmutable;
+use DomainException;
 
 /** Calcula el recargo único y distribuye las cuotas sin perder centavos. */
 final class PlanCredito
@@ -22,7 +23,7 @@ final class PlanCredito
         $fechas = [];
 
         for ($indice = 0; $indice < $numeroCuotas; $indice++) {
-            $mes = $primerMes->modify('+' . $indice . ' months');
+            $mes = $primerMes->modify('+'.$indice.' months');
             $dia = min($diaOriginal, (int) $mes->format('t'));
             $fechas[] = $mes->setDate((int) $mes->format('Y'), (int) $mes->format('n'), $dia);
         }
@@ -30,6 +31,7 @@ final class PlanCredito
         return $fechas;
     }
 
+    /** Aplica un recargo único del 5 % al saldo y distribuye los centavos entre las cuotas. */
     public static function calcular(float $precioVenta, float $inicial, int $numeroCuotas): array
     {
         $precioCentavos = (int) round($precioVenta * 100);

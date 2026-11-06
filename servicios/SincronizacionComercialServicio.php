@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -12,8 +13,7 @@ final class SincronizacionComercialServicio
     public function __construct(
         private OfertaDAO $ofertaDAO,
         private PedidoDAO $pedidoDAO
-    ) {
-    }
+    ) {}
 
     public function actualizar(): void
     {

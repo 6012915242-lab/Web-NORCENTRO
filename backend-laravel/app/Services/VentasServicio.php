@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\AccesoDatos\VentaDAO;
 use App\Modelos\Credito;
+use App\Modelos\Venta;
 use App\Servicios\EvaluacionCreditoServicio;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,18 @@ class VentasServicio
 
     public function registrar(array $datos, int $usuarioId): array
     {
-        return (new EvaluacionCreditoServicio())->procesarRegistroVenta($this->dao(), $datos, $usuarioId);
+        return (new EvaluacionCreditoServicio)->procesarRegistroVenta($this->dao(), $datos, $usuarioId);
+    }
+
+    public function obtener(int $id): Venta
+    {
+        $venta = $this->dao()->obtenerConRelaciones($id);
+
+        if ($venta === null) {
+            throw (new ModelNotFoundException)->setModel(Venta::class, [$id]);
+        }
+
+        return $venta;
     }
 
     public function listarCreditos(): array
@@ -28,7 +40,7 @@ class VentasServicio
     public function cuotas(int $creditoId): array
     {
         if ($this->dao()->obtenerCredito($creditoId) === null) {
-            throw (new ModelNotFoundException())->setModel(Credito::class, [$creditoId]);
+            throw (new ModelNotFoundException)->setModel(Credito::class, [$creditoId]);
         }
 
         return DB::table('cuotas')
@@ -40,7 +52,7 @@ class VentasServicio
 
     public function registrarPago(array $datos): void
     {
-        (new EvaluacionCreditoServicio())->procesarPagoCuota($this->dao(), $datos);
+        (new EvaluacionCreditoServicio)->procesarPagoCuota($this->dao(), $datos);
     }
 
     private function dao(): VentaDAO

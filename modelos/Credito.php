@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
@@ -19,8 +20,7 @@ final class Credito implements EntidadORM
         public string $creadoEn,
         public float $porcentajeRecargo = 0.0,
         public float $importeRecargo = 0.0
-    ) {
-    }
+    ) {}
 
     public static function desdeRegistro(array $registro): self
     {

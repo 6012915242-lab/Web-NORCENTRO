@@ -36,14 +36,16 @@ foreach ($_GET as $valorConsulta) {
     }
 }
 $pagina = preg_replace('/[^a-z_]/', '', (string) ($_GET['page'] ?? 'inicio')) ?: 'inicio';
-$paginasPublicas = ['inicio',
+$paginasPublicas = [
+    'inicio',
     'catalogo',
     'ofertas',
     'contacto',
     'login',
     'moto',
     'compra',
-    'compra_credito'];
+    'compra_credito',
+];
 $usuarioActual = $_SESSION['user'] ?? null;
 $mensajeError = '';
 $baseDatosNoDisponible = false;
@@ -121,10 +123,11 @@ try {
         $usuarioActual,
         $permisosActuales
     ), EXTR_OVERWRITE);
-} catch (Throwable $e) {
-    error_log((string) $e);
-    $esErrorDeConexion = $e instanceof PDOException
-        && str_contains($e->getMessage(), 'No se pudo conectar');
+} catch (Throwable $error) {
+    error_log((string) $error);
+    $esErrorDeConexion = $error instanceof PDOException
+        && str_contains($error->getMessage(), 'No se pudo conectar');
+    http_response_code($esErrorDeConexion ? 503 : 500);
     $mensajeError = 'No se pudo completar la solicitud. Revisa los datos y vuelve a intentarlo.';
     if ($esErrorDeConexion) {
         $baseDatosNoDisponible = true;
@@ -134,6 +137,7 @@ try {
 // La página de contacto puede mostrarse aunque MySQL no esté disponible.
 if ($baseDatosNoDisponible && $pagina === 'contacto') {
     $mensajeError = '';
+    http_response_code(200);
 }
 $motosDestacadas = [];
 $ofertaDestacada = null;
@@ -152,7 +156,8 @@ if (! isset($_SESSION['_flash'])) {
     $aviso = $_SESSION['_flash'];
     unset($_SESSION['_flash']);
 }
-$titulo = ['inicio' => 'Norcentro | Motocicletas',
+$titulosPaginas = [
+    'inicio' => 'Norcentro | Motocicletas',
     'catalogo' => 'Catálogo de motos',
     'ofertas' => 'Ofertas',
     'contacto' => 'Contacto | Norcentro',
@@ -165,5 +170,7 @@ $titulo = ['inicio' => 'Norcentro | Motocicletas',
     'clientes' => 'Clientes',
     'inventario' => 'Inventario',
     'ventas' => 'Ventas',
-    'creditos' => 'Créditos y cuotas'][$pagina] ?? 'Norcentro';
+    'creditos' => 'Créditos y cuotas',
+];
+$titulo = $titulosPaginas[$pagina] ?? 'Norcentro';
 echo (new MotorVistas(dirname(__DIR__).'/vistas'))->renderizar($pagina, get_defined_vars());

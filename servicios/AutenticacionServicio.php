@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -35,7 +36,7 @@ final class AutenticacionServicio
             throw new DomainException('La cuenta está bloqueada temporalmente. Intenta nuevamente en 15 minutos.');
         }
 
-        if (!password_verify($clave, $usuario->passwordHash)) {
+        if (! password_verify($clave, $usuario->passwordHash)) {
             $usuarioDAO->registrarFallo($usuario->id);
             $usuarioDAO->registrarIntento($nombreUsuario, $direccionIp, false, 'Contraseña incorrecta');
             throw new DomainException('Usuario o contraseña incorrectos.');

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
@@ -16,7 +17,7 @@ final class VentaControlador
         private VentaDAO $dao,
         ?EvaluacionCreditoServicio $servicioCredito = null
     ) {
-        $this->servicioCredito = $servicioCredito ?? new EvaluacionCreditoServicio();
+        $this->servicioCredito = $servicioCredito ?? new EvaluacionCreditoServicio;
     }
 
     public function crear(array $post, int $usuarioId): never
@@ -25,17 +26,17 @@ final class VentaControlador
 
         try {
             $resultado = $this->servicioCredito->procesarRegistroVenta($this->dao, $post, $usuarioId);
-            $idVenta   = (int) $resultado['venta_id'];
+            $idVenta = (int) $resultado['venta_id'];
 
             if ($resultado['es_credito']) {
                 Herramientas::mostrarAviso(
                     'success',
-                    'Venta ' . $idVenta . ' confirmada. Se generó el cronograma; desde aquí puedes registrar cada abono y consultar el saldo actualizado.'
+                    'Venta '.$idVenta.' confirmada. Se generó el cronograma; desde aquí puedes registrar cada abono y consultar el saldo actualizado.'
                 );
                 Herramientas::redirigir('creditos', ['venta_id' => $idVenta]);
             }
 
-            Herramientas::mostrarAviso('success', 'Venta ' . $idVenta . ' confirmada. La unidad pasó a estado Vendida.');
+            Herramientas::mostrarAviso('success', 'Venta '.$idVenta.' confirmada. La unidad pasó a estado Vendida.');
             Herramientas::redirigir('ventas');
         } catch (DomainException $error) {
             Herramientas::mostrarAviso('error', $error->getMessage());

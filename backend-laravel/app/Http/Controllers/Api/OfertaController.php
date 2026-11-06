@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class OfertaController extends Controller
 {
-    public function __construct(private OfertaServicio $servicio)
-    {
-    }
+    public function __construct(private OfertaServicio $servicio) {}
 
     public function index(): JsonResponse
     {

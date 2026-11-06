@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
@@ -16,7 +17,7 @@ final class MotoControlador
         private MotoDAO $dao,
         ?GestionMotosServicio $servicioComercial = null
     ) {
-        $this->servicioComercial = $servicioComercial ?? new GestionMotosServicio();
+        $this->servicioComercial = $servicioComercial ?? new GestionMotosServicio;
     }
 
     public function guardar(array $post, array $archivos, bool $esEdicion = false): never

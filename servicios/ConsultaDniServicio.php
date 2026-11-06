@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -11,7 +12,7 @@ final class ConsultaDniServicio
 {
     public function consultar(string $dni): array
     {
-        if (!preg_match('/^[0-9]{8}$/', $dni)) {
+        if (! preg_match('/^[0-9]{8}$/', $dni)) {
             throw new DomainException('El DNI debe tener exactamente 8 dígitos.');
         }
 
@@ -20,7 +21,7 @@ final class ConsultaDniServicio
             $tokenConfigurado = apache_getenv('FACTILIZA_TOKEN') ?: '';
         }
         if ($tokenConfigurado === '') {
-            $archivoCompartido = dirname(__DIR__) . '/configuracion/factiliza.ini';
+            $archivoCompartido = dirname(__DIR__).'/configuracion/factiliza.ini';
             if (is_readable($archivoCompartido)) {
                 $configuracion = parse_ini_file($archivoCompartido);
                 $tokenConfigurado = is_array($configuracion)
@@ -29,7 +30,7 @@ final class ConsultaDniServicio
             }
         }
         if ($tokenConfigurado === '') {
-            $archivoConfiguracion = dirname(__DIR__, 3) . '/apache/conf/extra/norcentro_factiliza.ini';
+            $archivoConfiguracion = dirname(__DIR__, 3).'/apache/conf/extra/norcentro_factiliza.ini';
             if (is_readable($archivoConfiguracion)) {
                 $configuracion = parse_ini_file($archivoConfiguracion);
                 $tokenConfigurado = is_array($configuracion)
@@ -49,13 +50,13 @@ final class ConsultaDniServicio
 
         $resultado = json_decode($respuesta, true);
         $datos = is_array($resultado) ? ($resultado['data'] ?? null) : null;
-        if (!is_array($datos) || ($resultado['success'] ?? false) !== true
+        if (! is_array($datos) || ($resultado['success'] ?? false) !== true
             || (string) ($datos['numero'] ?? '') !== $dni) {
             throw new RuntimeException('No se encontraron datos válidos para este DNI.');
         }
 
         $nombres = trim((string) ($datos['nombres'] ?? ''));
-        $apellidos = trim((string) ($datos['apellido_paterno'] ?? '') . ' ' . (string) ($datos['apellido_materno'] ?? ''));
+        $apellidos = trim((string) ($datos['apellido_paterno'] ?? '').' '.(string) ($datos['apellido_materno'] ?? ''));
         if ($nombres === '' || $apellidos === '') {
             throw new RuntimeException('La respuesta no contiene nombres y apellidos completos.');
         }
@@ -74,9 +75,9 @@ final class ConsultaDniServicio
 
     private function consultarProveedor(string $dni, string $token): string
     {
-        $url = 'https://api.factiliza.com/v1/dni/info/' . $dni;
+        $url = 'https://api.factiliza.com/v1/dni/info/'.$dni;
 
-        if (!function_exists('curl_init')) {
+        if (! function_exists('curl_init')) {
             return $this->consultarPorHttps($url, $token);
         }
 
@@ -88,7 +89,7 @@ final class ConsultaDniServicio
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_HTTPHEADER => [
                 'Accept: application/json',
-                'Authorization: Bearer ' . $token,
+                'Authorization: Bearer '.$token,
             ],
         ]);
         $respuesta = curl_exec($consulta);
@@ -104,15 +105,15 @@ final class ConsultaDniServicio
 
     private function consultarPorHttps(string $url, string $token): string
     {
-        if (!filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN)
-            || !in_array('https', stream_get_wrappers(), true)) {
+        if (! filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOLEAN)
+            || ! in_array('https', stream_get_wrappers(), true)) {
             throw new RuntimeException('No se pudo iniciar la consulta de DNI.');
         }
 
         $contexto = stream_context_create([
             'http' => [
                 'method' => 'GET',
-                'header' => "Accept: application/json\r\nAuthorization: Bearer " . $token . "\r\n",
+                'header' => "Accept: application/json\r\nAuthorization: Bearer ".$token."\r\n",
                 'timeout' => 15,
                 'follow_location' => 0,
                 'ignore_errors' => true,
@@ -126,7 +127,7 @@ final class ConsultaDniServicio
         $respuesta = @file_get_contents($url, false, $contexto);
         $estado = $http_response_header[0] ?? '';
 
-        if ($respuesta === false || !preg_match('/^HTTP\/\S+ 200(?:\s|$)/', $estado)) {
+        if ($respuesta === false || ! preg_match('/^HTTP\/\S+ 200(?:\s|$)/', $estado)) {
             throw new RuntimeException('No se pudo consultar el DNI. Revisa la configuración o ingresa los datos manualmente.');
         }
 

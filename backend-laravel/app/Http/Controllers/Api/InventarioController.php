@@ -10,9 +10,7 @@ use Illuminate\Http\Request;
 
 class InventarioController extends Controller
 {
-    public function __construct(private InventarioServicio $inventario)
-    {
-    }
+    public function __construct(private InventarioServicio $inventario) {}
 
     public function index(): JsonResponse
     {

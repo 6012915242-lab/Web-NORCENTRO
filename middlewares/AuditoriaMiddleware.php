@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Middlewares;
@@ -9,9 +10,7 @@ use Throwable;
 /** Registra acciones sensibles sin mezclar SQL con el middleware. */
 final class AuditoriaMiddleware
 {
-    public function __construct(private AuditoriaDAO $auditoriaDAO)
-    {
-    }
+    public function __construct(private AuditoriaDAO $auditoriaDAO) {}
 
     public function registrar(?array $usuario, string $accion, string $recurso): void
     {

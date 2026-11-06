@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Nucleo;
@@ -29,8 +30,7 @@ final class DespachadorAcciones
         private OfertaDAO $ofertaDAO,
         private PedidoDAO $pedidoDAO,
         private SesionDAO $sesionDAO
-    ) {
-    }
+    ) {}
 
     public function despachar(
         string $accion,

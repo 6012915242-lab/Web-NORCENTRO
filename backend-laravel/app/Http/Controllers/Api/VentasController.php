@@ -10,9 +10,7 @@ use Illuminate\Http\Request;
 
 class VentasController extends Controller
 {
-    public function __construct(private VentasServicio $servicio)
-    {
-    }
+    public function __construct(private VentasServicio $servicio) {}
 
     public function index(): JsonResponse
     {
@@ -28,6 +26,11 @@ class VentasController extends Controller
         }
 
         return response()->json(['data' => $resultado], 201);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        return response()->json(['data' => $this->servicio->obtener($id)]);
     }
 
     public function creditos(): JsonResponse

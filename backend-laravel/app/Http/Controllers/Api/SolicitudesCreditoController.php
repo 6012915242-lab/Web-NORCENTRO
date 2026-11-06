@@ -12,9 +12,7 @@ use InvalidArgumentException;
 
 class SolicitudesCreditoController extends Controller
 {
-    public function __construct(private SolicitudesCreditoServicio $servicio)
-    {
-    }
+    public function __construct(private SolicitudesCreditoServicio $servicio) {}
 
     public function index(): JsonResponse
     {

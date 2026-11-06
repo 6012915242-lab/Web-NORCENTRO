@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\AccesoDatos\PermisoDAO;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -30,9 +31,8 @@ class Usuario extends Authenticatable
             return false;
         }
 
-        return DB::table('vista_usuarios_permisos')
-            ->where('usuario_id', $this->getKey())
-            ->where('permiso', $permiso)
-            ->exists();
+        $permisos = new PermisoDAO(DB::connection()->getPdo());
+
+        return $permisos->usuarioTiene((int) $this->getKey(), $permiso);
     }
 }

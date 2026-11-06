@@ -15,7 +15,7 @@ class SolicitudesCreditoServicio
 
     public function evaluar(int $id, string $decision): string
     {
-        return (new EvaluacionCreditoServicio())->evaluarSolicitudCredito(
+        return (new EvaluacionCreditoServicio)->evaluarSolicitudCredito(
             $this->dao(),
             ['pedido_id' => $id, 'decision' => $decision]
         );

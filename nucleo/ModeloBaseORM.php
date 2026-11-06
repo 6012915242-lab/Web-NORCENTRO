@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Nucleo;
@@ -11,14 +12,13 @@ use Throwable;
 /** Base común para los DAO: centraliza PDO y el uso de consultas preparadas. */
 abstract class ModeloBaseORM
 {
-    public function __construct(protected PDO $conexion)
-    {
-    }
+    public function __construct(protected PDO $conexion) {}
 
     protected function preparar(string $consultaSql, array $parametros = []): PDOStatement
     {
         $consulta = $this->conexion->prepare($consultaSql);
         $consulta->execute($parametros);
+
         return $consulta;
     }
 
@@ -30,12 +30,14 @@ abstract class ModeloBaseORM
     protected function obtenerUno(string $consultaSql, array $parametros = []): ?array
     {
         $registro = $this->preparar($consultaSql, $parametros)->fetch();
+
         return $registro === false ? null : $registro;
     }
 
     /**
      * @template T of EntidadORM
-     * @param class-string<T> $claseEntidad
+     *
+     * @param  class-string<T>  $claseEntidad
      * @return T|null
      */
     protected function hidratarEntidad(
@@ -49,7 +51,7 @@ abstract class ModeloBaseORM
             return null;
         }
 
-        if (!is_subclass_of($claseEntidad, EntidadORM::class)) {
+        if (! is_subclass_of($claseEntidad, EntidadORM::class)) {
             throw new RuntimeException('La clase indicada no implementa EntidadORM.');
         }
 
@@ -58,7 +60,8 @@ abstract class ModeloBaseORM
 
     /**
      * @template T of EntidadORM
-     * @param class-string<T> $claseEntidad
+     *
+     * @param  class-string<T>  $claseEntidad
      * @return list<T>
      */
     protected function hidratarEntidades(
@@ -66,7 +69,7 @@ abstract class ModeloBaseORM
         string $consultaSql,
         array $parametros = []
     ): array {
-        if (!is_subclass_of($claseEntidad, EntidadORM::class)) {
+        if (! is_subclass_of($claseEntidad, EntidadORM::class)) {
             throw new RuntimeException('La clase indicada no implementa EntidadORM.');
         }
 
@@ -97,6 +100,7 @@ abstract class ModeloBaseORM
         try {
             $resultado = $operacion();
             $this->conexion->commit();
+
             return $resultado;
         } catch (Throwable $error) {
             if ($this->conexion->inTransaction()) {

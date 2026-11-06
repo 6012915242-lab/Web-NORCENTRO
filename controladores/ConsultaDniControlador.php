@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
@@ -19,7 +20,7 @@ final class ConsultaDniControlador
 
         try {
             $dni = TextoEntrada::normalizar($datos['dni'] ?? '');
-            $resultado = (new ConsultaDniServicio())->consultar($dni);
+            $resultado = (new ConsultaDniServicio)->consultar($dni);
             echo json_encode(['ok' => true, 'datos' => $resultado], JSON_UNESCAPED_UNICODE);
         } catch (DomainException $error) {
             http_response_code(422);
@@ -28,7 +29,7 @@ final class ConsultaDniControlador
             http_response_code(503);
             echo json_encode(['ok' => false, 'mensaje' => $error->getMessage()], JSON_UNESCAPED_UNICODE);
         } catch (Throwable $error) {
-            error_log('Error al consultar DNI: ' . get_class($error));
+            error_log('Error al consultar DNI: '.get_class($error));
             http_response_code(500);
             echo json_encode(['ok' => false, 'mensaje' => 'No se pudo completar la consulta.']);
         }

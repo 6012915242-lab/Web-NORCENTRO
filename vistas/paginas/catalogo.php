@@ -69,13 +69,7 @@ use App\Configuracion\Herramientas;
             <?php
             $coloresMoto = $variantesColorCatalogo[(int) $moto['id']] ?? [];
             $primerColor = $coloresMoto[0] ?? null;
-            $ofertaEnTarjeta = null;
-            foreach ($ofertas as $oferta) {
-                if ((int) $oferta['moto_id'] === (int) $moto['id']) {
-                    $ofertaEnTarjeta = $oferta;
-                    break;
-                }
-            }
+            $ofertaEnTarjeta = $ofertasPorMoto[(int) $moto['id']] ?? null;
             $precioTarjeta = (float) ($ofertaEnTarjeta['precio_oferta'] ?? $moto['precio']);
             ?>
             <article class="product-card">

@@ -11,6 +11,8 @@ use App\AccesoDatos\PanelDAO;
 use App\AccesoDatos\PedidoDAO;
 use App\AccesoDatos\VentaDAO;
 use App\Servicios\CatalogoFiltrosServicio;
+use App\Servicios\OfertasCatalogoServicio;
+use App\Servicios\ResumenCreditosServicio;
 
 /** Prepara los datos de cada vista sin mezclar consultas en el Front Controller. */
 final class PaginaControlador
@@ -98,11 +100,12 @@ final class PaginaControlador
     {
         $ofertas = $this->ofertaDAO->activas();
         $todasLasMotos = $this->motoDAO->listar();
-        $filtros = (new CatalogoFiltrosServicio())->preparar($todasLasMotos, $consulta, $pagina !== 'inicio');
+        $filtros = (new CatalogoFiltrosServicio)->preparar($todasLasMotos, $consulta, $pagina !== 'inicio');
         $variantes = $this->motoDAO->coloresPorMotos(array_column($filtros['catalogo'], 'id'));
 
         return array_merge($filtros, [
             'ofertas' => $ofertas,
+            'ofertasPorMoto' => (new OfertasCatalogoServicio)->agruparPorMoto($ofertas),
             'todasLasMotos' => $todasLasMotos,
             'variantesColorCatalogo' => $variantes,
         ]);
@@ -247,9 +250,12 @@ final class PaginaControlador
         $cuotas = $detalles['cuotas'];
         $pagosCredito = $detalles['pagos'];
 
-        return [
+        $solicitudes = $this->pedidoDAO->solicitudesCredito();
+        $resumen = (new ResumenCreditosServicio)->calcular($creditos, $cuotas, $solicitudes);
+
+        return $resumen + [
             'creditos' => $creditos,
-            'solicitudesCredito' => $this->pedidoDAO->solicitudesCredito(),
+            'solicitudesCredito' => $solicitudes,
             'cuotas' => $cuotas,
             'pagosCredito' => $pagosCredito,
             'idVentaResaltada' => (int) ($consulta['venta_id'] ?? 0),

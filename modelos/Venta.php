@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
@@ -18,9 +19,10 @@ final class Venta implements EntidadORM
         public float $total,
         public string $modalidad,
         public string $estado,
-        public string $fecha
-    ) {
-    }
+        public string $fecha,
+        public ?Cliente $cliente = null,
+        public ?Moto $moto = null
+    ) {}
 
     public static function desdeRegistro(array $registro): self
     {

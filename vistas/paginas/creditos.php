@@ -1,26 +1,6 @@
 <?php
 use App\Configuracion\Herramientas;
 
-$creditosPendientes = count(array_filter(
-    $solicitudesCredito,
-    static fn ($solicitud) => $solicitud['estado'] === 'En revisión de crédito'
-));
-$cantidadCreditosActivos = 0;
-$cantidadCuotasVencidas = 0;
-$saldoCreditoActivo = 0.0;
-
-foreach ($creditos as $credito) {
-    if ($credito['estado'] === 'Activo' && (float) $credito['saldo'] > 0) {
-        $cantidadCreditosActivos++;
-        $saldoCreditoActivo += (float) $credito['saldo'];
-    }
-
-    foreach ($cuotas[$credito['id']] ?? [] as $cuota) {
-        if ($cuota['estado'] === 'Vencida') {
-            $cantidadCuotasVencidas++;
-        }
-    }
-}
 ?>
 
 <div class="page-head">

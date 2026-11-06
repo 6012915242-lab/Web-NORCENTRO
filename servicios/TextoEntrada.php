@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -10,7 +11,7 @@ final class TextoEntrada
 {
     public static function normalizar(mixed $valor): string
     {
-        if (!is_string($valor) && !is_int($valor) && !is_float($valor)) {
+        if (! is_string($valor) && ! is_int($valor) && ! is_float($valor)) {
             throw new DomainException('Los campos deben contener texto válido.');
         }
 

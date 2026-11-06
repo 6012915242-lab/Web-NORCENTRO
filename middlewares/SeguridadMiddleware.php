@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Middlewares;
@@ -10,7 +11,7 @@ final class SeguridadMiddleware
 {
     public static function inicializarEntornoSeguro(string $rutaSesion): void
     {
-        if (!is_dir($rutaSesion)) {
+        if (! is_dir($rutaSesion)) {
             @mkdir($rutaSesion, 0770, true);
         }
         if (is_dir($rutaSesion) && is_writable($rutaSesion)) {
@@ -18,7 +19,7 @@ final class SeguridadMiddleware
         }
         session_set_cookie_params([
             'httponly' => true,
-            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'secure' => ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
             'samesite' => 'Lax',
         ]);
         if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -32,14 +33,15 @@ final class SeguridadMiddleware
     {
         $resultado = [];
         foreach ($entrada as $clave => $valor) {
-            $claveSegura = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$clave);
+            $claveSegura = preg_replace('/[^a-zA-Z0-9_-]/', '', (string) $clave);
             if ($claveSegura === '') {
                 continue;
             }
             $resultado[$claveSegura] = is_array($valor)
                 ? self::sanearArregloEntrada($valor)
-                : trim((string)$valor);
+                : trim((string) $valor);
         }
+
         return $resultado;
     }
 
@@ -61,6 +63,7 @@ final class SeguridadMiddleware
             $_SESSION = [];
             session_regenerate_id(true);
             $_SESSION['_flash'] = ['error', 'La sesión terminó por inactividad. Inicia sesión nuevamente.'];
+
             return;
         }
 

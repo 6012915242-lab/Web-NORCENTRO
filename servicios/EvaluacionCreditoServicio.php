@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -15,7 +16,7 @@ final class EvaluacionCreditoServicio
 {
     public function evaluarSolicitudCredito(PedidoDAO $pedidoDAO, array $entrada): string
     {
-        $id       = filter_var($entrada['pedido_id'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($entrada['pedido_id'] ?? null, FILTER_VALIDATE_INT);
         $decision = $this->textoDeEntrada($entrada['decision'] ?? '');
 
         if ($id === false || $id === null || $id < 1) {
@@ -31,14 +32,15 @@ final class EvaluacionCreditoServicio
         return 'Solicitud marcada como no aprobada.';
     }
 
+    /** Valida importes y exige entre 1 y 36 cuotas cuando la venta es a crédito. */
     public function procesarRegistroVenta(VentaDAO $ventaDAO, array $entrada, int $usuarioId): array
     {
-        $clienteId        = filter_var($entrada['cliente_id'] ?? null, FILTER_VALIDATE_INT);
-        $unidadId         = filter_var($entrada['unidad_id'] ?? null, FILTER_VALIDATE_INT);
-        $modalidad        = $this->textoDeEntrada($entrada['modalidad'] ?? '');
-        $descuento        = filter_var($entrada['descuento'] ?? 0, FILTER_VALIDATE_FLOAT);
-        $inicial          = filter_var($entrada['inicial'] ?? 0, FILTER_VALIDATE_FLOAT);
-        $cuotas           = filter_var($entrada['numero_cuotas'] ?? 0, FILTER_VALIDATE_INT);
+        $clienteId = filter_var($entrada['cliente_id'] ?? null, FILTER_VALIDATE_INT);
+        $unidadId = filter_var($entrada['unidad_id'] ?? null, FILTER_VALIDATE_INT);
+        $modalidad = $this->textoDeEntrada($entrada['modalidad'] ?? '');
+        $descuento = filter_var($entrada['descuento'] ?? 0, FILTER_VALIDATE_FLOAT);
+        $inicial = filter_var($entrada['inicial'] ?? 0, FILTER_VALIDATE_FLOAT);
+        $cuotas = filter_var($entrada['numero_cuotas'] ?? 0, FILTER_VALIDATE_INT);
         $fechaVencimiento = trim($this->textoDeEntrada($entrada['fecha_primera_cuota'] ?? ''));
         $pedidoEntrada = $entrada['pedido_id'] ?? null;
         $pedidoId = $pedidoEntrada === null || $pedidoEntrada === ''
@@ -47,18 +49,18 @@ final class EvaluacionCreditoServicio
 
         $esCredito = ($modalidad === 'Crédito');
 
-        if (!$clienteId || $clienteId < 1 || !$unidadId || $unidadId < 1 || $usuarioId < 1) {
+        if (! $clienteId || $clienteId < 1 || ! $unidadId || $unidadId < 1 || $usuarioId < 1) {
             throw new DomainException('Selecciona un cliente activo y una unidad disponible.');
         }
 
-        if ($pedidoId === false || ($pedidoId !== null && ($pedidoId < 1 || !$esCredito))) {
+        if ($pedidoId === false || ($pedidoId !== null && ($pedidoId < 1 || ! $esCredito))) {
             throw new DomainException('La solicitud vinculada requiere una venta a crédito válida.');
         }
 
         if (
-            !in_array($modalidad, ['Contado', 'Crédito'], true)
+            ! in_array($modalidad, ['Contado', 'Crédito'], true)
             || $descuento === false
-            || !$this->esImporteValido($entrada['descuento'] ?? 0)
+            || ! $this->esImporteValido($entrada['descuento'] ?? 0)
         ) {
             throw new DomainException('Revisa la modalidad de venta y el descuento.');
         }
@@ -66,7 +68,7 @@ final class EvaluacionCreditoServicio
         if ($esCredito) {
             if (
                 $inicial === false
-                || !$this->esImporteValido($entrada['inicial'] ?? 0)
+                || ! $this->esImporteValido($entrada['inicial'] ?? 0)
                 || $cuotas === false
                 || $cuotas < 1
                 || $cuotas > 36
@@ -74,27 +76,27 @@ final class EvaluacionCreditoServicio
                 throw new DomainException('Si es a crédito, revisa la cuota inicial y el número de cuotas (1 a 36).');
             }
 
-            if (!$this->esFechaValida($fechaVencimiento) || $fechaVencimiento < date('Y-m-d')) {
+            if (! $this->esFechaValida($fechaVencimiento) || $fechaVencimiento < date('Y-m-d')) {
                 throw new DomainException('Selecciona una fecha válida para la primera cuota.');
             }
         }
 
         $datosVenta = [
-            'cliente_id'          => (int) $clienteId,
-            'unidad_id'           => (int) $unidadId,
-            'usuario_id'          => $usuarioId,
-            'modalidad'           => $modalidad,
-            'descuento'           => (float) $descuento,
-            'inicial'             => $esCredito ? (float) $inicial : 0.0,
-            'numero_cuotas'       => $esCredito ? (int) $cuotas : 0,
+            'cliente_id' => (int) $clienteId,
+            'unidad_id' => (int) $unidadId,
+            'usuario_id' => $usuarioId,
+            'modalidad' => $modalidad,
+            'descuento' => (float) $descuento,
+            'inicial' => $esCredito ? (float) $inicial : 0.0,
+            'numero_cuotas' => $esCredito ? (int) $cuotas : 0,
             'fecha_primera_cuota' => $esCredito ? $fechaVencimiento : '',
-            'pedido_id'           => $pedidoId,
+            'pedido_id' => $pedidoId,
         ];
 
         $idVenta = $ventaDAO->crear($datosVenta);
 
         return [
-            'venta_id'   => $idVenta,
+            'venta_id' => $idVenta,
             'es_credito' => $esCredito,
         ];
     }
@@ -103,14 +105,14 @@ final class EvaluacionCreditoServicio
     {
         $montoTexto = trim($this->textoDeEntrada($entrada['monto'] ?? ''));
         $monto = filter_var($montoTexto, FILTER_VALIDATE_FLOAT);
-        $id    = filter_var($entrada['cuota_id'] ?? null, FILTER_VALIDATE_INT);
+        $id = filter_var($entrada['cuota_id'] ?? null, FILTER_VALIDATE_INT);
 
         if (
-            !$id
+            ! $id
             || $id < 1
             || $monto === false
             || $monto <= 0
-            || !preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', $montoTexto)
+            || ! preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', $montoTexto)
         ) {
             throw new DomainException('Selecciona una cuota y un monto válido de hasta dos decimales.');
         }
@@ -120,7 +122,7 @@ final class EvaluacionCreditoServicio
 
     private function textoDeEntrada(mixed $valor): string
     {
-        if (!is_string($valor) && !is_int($valor) && !is_float($valor)) {
+        if (! is_string($valor) && ! is_int($valor) && ! is_float($valor)) {
             throw new DomainException('El formato de los datos enviados no es válido.');
         }
 
@@ -129,17 +131,18 @@ final class EvaluacionCreditoServicio
 
     private function esFechaValida(string $valor): bool
     {
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor)) {
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor)) {
             return false;
         }
 
         $fecha = \DateTimeImmutable::createFromFormat('!Y-m-d', $valor);
+
         return $fecha !== false && $fecha->format('Y-m-d') === $valor;
     }
 
     private function esImporteValido(mixed $valor): bool
     {
-        if (!is_string($valor) && !is_int($valor) && !is_float($valor)) {
+        if (! is_string($valor) && ! is_int($valor) && ! is_float($valor)) {
             return false;
         }
 

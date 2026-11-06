@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\Moto;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class CatalogoServicio
 {
@@ -23,7 +23,7 @@ class CatalogoServicio
     {
         return $this->consultaPublica()
             ->when($buscar !== '', static function (Builder $consulta) use ($buscar): void {
-                $consulta->where('modelo', 'like', '%' . $buscar . '%');
+                $consulta->where('modelo', 'like', '%'.$buscar.'%');
             })
             ->orderBy('modelo')
             ->paginate(20);

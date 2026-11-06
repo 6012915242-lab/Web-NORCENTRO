@@ -58,13 +58,19 @@ if ($mostrarCarrito) {
     require __DIR__ . '/carrito.php';
 }
 ?>
-<?php
-if ($mensajeError):?><main class="container page-error-message"><div class="notice error"><strong>No se pudo cargar la aplicación.</strong><br><?= Herramientas::escaparHtml($mensajeError)?></div></main><?php
-else :?>
-<?php
-if ($aviso):?><div class="toast <?= Herramientas::escaparHtml($aviso[0])?>" role="status"><?= Herramientas::escaparHtml($aviso[1])?></div><?php
-endif;
-?>
+<?php if ($mensajeError): ?>
+  <main class="container page-error-message">
+    <div class="notice error">
+      <strong>No se pudo cargar la aplicación.</strong><br>
+      <?= Herramientas::escaparHtml($mensajeError) ?>
+    </div>
+  </main>
+<?php else: ?>
+<?php if ($aviso): ?>
+  <div class="toast <?= Herramientas::escaparHtml($aviso[0]) ?>" role="status">
+    <?= Herramientas::escaparHtml($aviso[1]) ?>
+  </div>
+<?php endif; ?>
 <?php
 $paginasSinPanelLateral = [
     'inicio',
@@ -137,29 +143,31 @@ if ($usuarioActual && !in_array($pagina, $paginasSinPanelLateral, true)):?>
     <?php endif; ?>
     <div class="side-foot"><?= $usuarioPuede('motos.gestionar')?'Administración completa':'Atención y ventas'?> · NORCENTRO</div>
   </aside>
-  <main class="workspace"><?php
-require $vista;
-?></main>
+  <main class="workspace">
+    <?php require $vista; ?>
+  </main>
 </div>
-<?php
-else :?><?php
-require $vista;
-?><?php
-endif;
-?>
-<?php
-endif;
-?>
-<footer class="footer"><span>Norcentro S.A.C.</span><span>Precios y disponibilidad sujetos a confirmación.</span></footer>
-<script src="js/app.js?v=20261103-recargo-credito" defer></script><script src="js/cart.js?v=20260929-credit-review" defer></script><?php
-if ($pagina === 'compra'):?><script src="js/order-status.js?v=20260927-mp" defer></script><?php
-endif;
-?><?php
-if ($pagina === 'compra_credito'):?><script src="js/credit-checkout.js?v=20260929-credit-review" defer></script><?php
-endif;
-?><?php
-if ($pagina === 'motos'):?><script src="js/admin-motos.js?v=20261103-gallery-admin" defer></script><?php
-endif;
-?>
-<?php if ($pagina === 'clientes'): ?><script src="js/consulta-dni.js" defer></script><?php endif; ?>
-</body></html>
+<?php else: ?>
+  <?php require $vista; ?>
+<?php endif; ?>
+<?php endif; ?>
+<footer class="footer">
+  <span>Norcentro S.A.C.</span>
+  <span>Precios y disponibilidad sujetos a confirmación.</span>
+</footer>
+<script src="js/app.js?v=20261103-recargo-credito" defer></script>
+<script src="js/cart.js?v=20260929-credit-review" defer></script>
+<?php if ($pagina === 'compra'): ?>
+  <script src="js/order-status.js?v=20260927-mp" defer></script>
+<?php endif; ?>
+<?php if ($pagina === 'compra_credito'): ?>
+  <script src="js/credit-checkout.js?v=20260929-credit-review" defer></script>
+<?php endif; ?>
+<?php if ($pagina === 'motos'): ?>
+  <script src="js/admin-motos.js?v=20261103-gallery-admin" defer></script>
+<?php endif; ?>
+<?php if ($pagina === 'clientes'): ?>
+  <script src="js/consulta-dni.js" defer></script>
+<?php endif; ?>
+</body>
+</html>

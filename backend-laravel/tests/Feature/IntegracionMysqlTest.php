@@ -190,6 +190,10 @@ class IntegracionMysqlTest extends TestCase
         $this->postJson('/api/ventas', $venta)
             ->assertCreated()
             ->assertJsonPath('data.es_credito', true);
+        $this->getJson('/api/ventas/1')
+            ->assertOk()
+            ->assertJsonPath('data.cliente.nombres', 'Cliente')
+            ->assertJsonPath('data.moto.modelo', 'Pulsar');
         $this->getJson('/api/creditos/1/cuotas')
             ->assertOk()
             ->assertJsonCount(3, 'data')

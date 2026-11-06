@@ -12,7 +12,7 @@ class SesionServicio
     public function autenticar(string $nombreUsuario, string $clave, string $direccionIp): Usuario
     {
         $dao = new UsuarioDAO(DB::connection()->getPdo());
-        $entidad = (new AutenticacionServicio())->autenticar(
+        $entidad = (new AutenticacionServicio)->autenticar(
             $dao,
             $nombreUsuario,
             $clave,

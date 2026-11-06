@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -10,7 +11,7 @@ final class GestionMotosServicio
 {
     public function desactivarMoto(MotoDAO $motoDAO, int $id): void
     {
-        if ($id < 1 || !$motoDAO->desactivar($id)) {
+        if ($id < 1 || ! $motoDAO->desactivar($id)) {
             throw new DomainException('No se encontró una motocicleta activa con ese identificador.');
         }
     }
@@ -20,8 +21,7 @@ final class GestionMotosServicio
         array $entrada,
         array $archivos,
         bool $esEdicion = false
-    ): void
-    {
+    ): void {
         $id = filter_var($entrada['id'] ?? 0, FILTER_VALIDATE_INT);
         $marcaId = filter_var($entrada['marca_id'] ?? null, FILTER_VALIDATE_INT);
         $modelo = TextoEntrada::normalizar($entrada['modelo'] ?? '');
@@ -34,8 +34,8 @@ final class GestionMotosServicio
         $anioValido = ($anio !== false && $anio >= 1970 && $anio <= (int) date('Y') + 2);
 
         if (
-            ($esEdicion && (!$id || $id < 1))
-            || !$marcaId
+            ($esEdicion && (! $id || $id < 1))
+            || ! $marcaId
             || $marcaId < 1
             || mb_strlen($modelo) < 2
             || mb_strlen($modelo) > 100
@@ -47,12 +47,12 @@ final class GestionMotosServicio
             $precio === false
             || $precio <= 0
             || $precio > 1000000
-            || !is_scalar($entrada['precio'] ?? null)
-            || !preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', trim((string) $entrada['precio']))
+            || ! is_scalar($entrada['precio'] ?? null)
+            || ! preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', trim((string) $entrada['precio']))
             || $cc === false
             || $cc < 1
             || $cc > 2000
-            || !$anioValido
+            || ! $anioValido
         ) {
             throw new DomainException('Revisa la cilindrada, el año y el precio de la motocicleta.');
         }
@@ -60,13 +60,13 @@ final class GestionMotosServicio
         if (
             $cantidad === false
             || $cantidad < 1
-            || (!$esEdicion && $cantidad > 200)
+            || (! $esEdicion && $cantidad > 200)
             || mb_strlen($descripcion) > 1200
         ) {
             throw new DomainException('Revisa la cantidad de unidades iniciales y la descripción.');
         }
 
-        if (!$motoDAO->marcaActiva((int) $marcaId)) {
+        if (! $motoDAO->marcaActiva((int) $marcaId)) {
             throw new DomainException('Selecciona una marca activa.');
         }
 
@@ -89,11 +89,11 @@ final class GestionMotosServicio
                 $rutasCreadas
             );
 
-            if (!$esEdicion && $imagenPrincipal === null && $colores !== []) {
+            if (! $esEdicion && $imagenPrincipal === null && $colores !== []) {
                 $imagenPrincipal = $colores[0]['imagenes'][0]['ruta'];
             }
 
-            if (!$esEdicion && $imagenPrincipal === null) {
+            if (! $esEdicion && $imagenPrincipal === null) {
                 throw new DomainException('Sube una foto principal o al menos una toma dentro de un color.');
             }
 
@@ -123,7 +123,7 @@ final class GestionMotosServicio
             }
         } catch (\Throwable $error) {
             foreach ($rutasCreadas as $ruta) {
-                @unlink(dirname(__DIR__) . '/public/' . $ruta);
+                @unlink(dirname(__DIR__).'/public/'.$ruta);
             }
             throw $error;
         }
@@ -141,7 +141,7 @@ final class GestionMotosServicio
 
         $colores = [];
         foreach ($coloresEntrada as $indice => $datosColor) {
-            if (!is_array($datosColor)) {
+            if (! is_array($datosColor)) {
                 continue;
             }
 
@@ -150,8 +150,7 @@ final class GestionMotosServicio
             $archivosColor = $this->normalizarArchivosColor($grupoArchivos, $indice);
             $archivosSeleccionados = array_values(array_filter(
                 $archivosColor,
-                static fn (array $archivo): bool =>
-                    (int) ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
+                static fn (array $archivo): bool => (int) ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
             ));
 
             if ($nombreColor === '' && $archivosSeleccionados === []) {
@@ -162,12 +161,12 @@ final class GestionMotosServicio
                 throw new DomainException('Cada color debe tener un nombre de 2 a 50 caracteres.');
             }
 
-            if (!preg_match('/^#[0-9a-f]{6}$/', $codigoHex)) {
+            if (! preg_match('/^#[0-9a-f]{6}$/', $codigoHex)) {
                 throw new DomainException('El código de cada color debe tener el formato #RRGGBB.');
             }
 
             if ($archivosSeleccionados === []) {
-                throw new DomainException('Selecciona al menos una fotografía para ' . $nombreColor . '.');
+                throw new DomainException('Selecciona al menos una fotografía para '.$nombreColor.'.');
             }
 
             if (count($archivosSeleccionados) > 10) {
@@ -205,7 +204,7 @@ final class GestionMotosServicio
     private function normalizarArchivosColor(array $grupo, int|string $indice): array
     {
         $nombres = $grupo['name'][$indice] ?? [];
-        if (!is_array($nombres)) {
+        if (! is_array($nombres)) {
             $nombres = [$nombres];
         }
 
@@ -233,7 +232,7 @@ final class GestionMotosServicio
             ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
             || (int) ($archivo['size'] ?? 0) > 5 * 1024 * 1024
             || empty($archivo['tmp_name'])
-            || !is_uploaded_file($archivo['tmp_name'])
+            || ! is_uploaded_file($archivo['tmp_name'])
         ) {
             throw new DomainException('Una imagen no pudo cargarse o supera el máximo de 5 MB.');
         }
@@ -250,17 +249,17 @@ final class GestionMotosServicio
             throw new DomainException('Usa únicamente imágenes JPG, PNG o WEBP válidas.');
         }
 
-        $carpeta = dirname(__DIR__) . '/public/img/motos/uploads';
-        if (!is_dir($carpeta) && !mkdir($carpeta, 0775, true) && !is_dir($carpeta)) {
+        $carpeta = dirname(__DIR__).'/public/img/motos/uploads';
+        if (! is_dir($carpeta) && ! mkdir($carpeta, 0775, true) && ! is_dir($carpeta)) {
             throw new DomainException('No se pudo preparar la carpeta de imágenes.');
         }
 
-        $nombreArchivo = bin2hex(random_bytes(12)) . '.' . $extension;
-        if (!move_uploaded_file($archivo['tmp_name'], $carpeta . '/' . $nombreArchivo)) {
+        $nombreArchivo = bin2hex(random_bytes(12)).'.'.$extension;
+        if (! move_uploaded_file($archivo['tmp_name'], $carpeta.'/'.$nombreArchivo)) {
             throw new DomainException('No se pudo guardar una de las imágenes.');
         }
 
-        $ruta = 'img/motos/uploads/' . $nombreArchivo;
+        $ruta = 'img/motos/uploads/'.$nombreArchivo;
         $rutasCreadas[] = $ruta;
 
         return $ruta;
@@ -271,11 +270,11 @@ final class GestionMotosServicio
         $idMoto = filter_var($entrada['moto_id'] ?? null, FILTER_VALIDATE_INT);
         $codigoSerie = strtoupper(TextoEntrada::normalizar($entrada['codigo_serie'] ?? ''));
 
-        if (!$idMoto || $idMoto < 1) {
+        if (! $idMoto || $idMoto < 1) {
             throw new DomainException('Selecciona una motocicleta activa.');
         }
 
-        if (!preg_match('/^[A-Z0-9][A-Z0-9-]{2,49}$/', $codigoSerie)) {
+        if (! preg_match('/^[A-Z0-9][A-Z0-9-]{2,49}$/', $codigoSerie)) {
             throw new DomainException(
                 'Escribe un código de serie válido de 3 a 50 letras, números o guiones.'
             );

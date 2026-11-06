@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controladores;
@@ -16,12 +17,12 @@ final class ClienteControlador
         private ClienteDAO $dao,
         ?GestionClientesServicio $servicioComercial = null
     ) {
-        $this->servicioComercial = $servicioComercial ?? new GestionClientesServicio();
+        $this->servicioComercial = $servicioComercial ?? new GestionClientesServicio;
     }
 
     public function guardar(array $post, bool $esEdicion = false): never
     {
-        $continuarVenta = !$esEdicion && ((string) ($post['continuar_venta'] ?? '') === '1');
+        $continuarVenta = ! $esEdicion && ((string) ($post['continuar_venta'] ?? '') === '1');
 
         try {
             $idCliente = $this->servicioComercial->validarYGuardarCliente($this->dao, $post, $esEdicion);
@@ -32,7 +33,7 @@ final class ClienteControlador
             }
 
             $mensaje = $esEdicion ? 'Cliente actualizado.' : 'Cliente registrado.';
-            $params  = (!$esEdicion && $idCliente > 0) ? ['cliente_registrado' => $idCliente] : [];
+            $params = (! $esEdicion && $idCliente > 0) ? ['cliente_registrado' => $idCliente] : [];
 
             Herramientas::mostrarAviso('success', $mensaje);
             Herramientas::redirigir('clientes', $params);

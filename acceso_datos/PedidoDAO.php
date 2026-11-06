@@ -131,7 +131,10 @@ final class PedidoDAO extends ModeloBaseORM
                 'estado' => $estado,
                 'expira' => $estado]);
             $idPedido = (int) $this->conexion->lastInsertId();
-            $insercionElemento = $this->conexion->prepare('INSERT INTO pedido_items(pedido_id,moto_id,color_id,cantidad,precio_unitario,subtotal) VALUES(:pedido,:moto,:color,:cantidad,:precio,:subtotal)');
+            $insercionElemento = $this->conexion->prepare('
+                INSERT INTO pedido_items (pedido_id, moto_id, color_id, cantidad, precio_unitario, subtotal)
+                VALUES (:pedido, :moto, :color, :cantidad, :precio, :subtotal)
+            ');
             $insercionUnidad = $this->conexion->prepare('INSERT INTO pedido_unidades(pedido_item_id,unidad_id) VALUES(:item,:unidad)');
             $reserva = $this->conexion->prepare('UPDATE unidades_moto SET estado="Reservada" WHERE id=:unidad AND estado="Disponible"');
             foreach ($lineas as $linea) {
@@ -188,10 +191,11 @@ final class PedidoDAO extends ModeloBaseORM
         $lineas = static function (array $productos): array {
             $resultado = [];
             foreach ($productos as $producto) {
-                $clave = (int) $producto['moto_id'] . ':' . (int) ($producto['color_id'] ?? 0);
+                $clave = (int) $producto['moto_id'].':'.(int) ($producto['color_id'] ?? 0);
                 $resultado[$clave] = (int) $producto['cantidad'];
             }
             ksort($resultado);
+
             return $resultado;
         };
 
@@ -211,11 +215,11 @@ final class PedidoDAO extends ModeloBaseORM
 
         if ($excluidas !== []) {
             $marcadores = implode(', ', array_fill(0, count($excluidas), '?'));
-            $consultaSql .= ' AND id NOT IN (' . $marcadores . ')';
+            $consultaSql .= ' AND id NOT IN ('.$marcadores.')';
             $parametros = array_merge($parametros, $excluidas);
         }
 
-        $consultaSql .= ' ORDER BY id LIMIT ' . $cantidad . ' FOR UPDATE';
+        $consultaSql .= ' ORDER BY id LIMIT '.$cantidad.' FOR UPDATE';
         $consulta = $this->conexion->prepare($consultaSql);
         $consulta->execute($parametros);
 
@@ -349,7 +353,11 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function clienteAprobadoPorPedido(int $id): ?int
     {
-        $consulta = $this->conexion->prepare('SELECT c.id FROM pedidos p JOIN clientes c ON c.dni=p.dni AND c.estado="Activo" WHERE p.id=:id AND p.modalidad="Crédito" AND p.estado="Crédito aprobado"');
+        $consulta = $this->conexion->prepare('
+            SELECT c.id FROM pedidos p
+            JOIN clientes c ON c.dni = p.dni AND c.estado = "Activo"
+            WHERE p.id = :id AND p.modalidad = "Crédito" AND p.estado = "Crédito aprobado"
+        ');
         $consulta->execute(['id' => $id]);
         $id = $consulta->fetchColumn();
 
@@ -402,7 +410,10 @@ final class PedidoDAO extends ModeloBaseORM
                 $consulta->execute(['dni' => $pedido['dni']]);
                 $idCliente = (int) ($consulta->fetchColumn() ?: 0);
                 if (! $idCliente) {
-                    $consulta = $this->conexion->prepare('INSERT INTO clientes(dni,nombres,apellidos,telefono,correo,estado) VALUES(:dni,:nombres,:apellidos,:telefono,:correo,"Activo")');
+                    $consulta = $this->conexion->prepare('
+                        INSERT INTO clientes (dni, nombres, apellidos, telefono, correo, estado)
+                        VALUES (:dni, :nombres, :apellidos, :telefono, :correo, "Activo")
+                    ');
                     $consulta->execute(['dni' => $pedido['dni'],
                         'nombres' => $pedido['nombres'],
                         'apellidos' => $pedido['apellidos'],
@@ -410,12 +421,20 @@ final class PedidoDAO extends ModeloBaseORM
                         'correo' => $pedido['correo']]);
                     $idCliente = (int) $this->conexion->lastInsertId();
                 }
-                $consulta = $this->conexion->query('SELECT u.id FROM usuarios u JOIN roles r ON r.id=u.rol_id WHERE r.nombre="Administrador" AND u.estado="Activo" ORDER BY u.id LIMIT 1');
+                $consulta = $this->conexion->query('
+                    SELECT u.id FROM usuarios u
+                    JOIN roles r ON r.id = u.rol_id
+                    WHERE r.nombre = "Administrador" AND u.estado = "Activo"
+                    ORDER BY u.id LIMIT 1
+                ');
                 $idVendedor = (int) $consulta->fetchColumn();
                 if (! $idVendedor) {
                     throw new \DomainException('No existe un usuario administrador activo para registrar la venta pagada.');
                 }
-                $venta = $this->conexion->prepare('INSERT INTO ventas(cliente_id,usuario_id,unidad_id,precio,descuento,total,modalidad,estado) VALUES(:cliente,:usuario,:unidad,:precio,0,:total,"Contado","Confirmada")');
+                $venta = $this->conexion->prepare('
+                    INSERT INTO ventas (cliente_id, usuario_id, unidad_id, precio, descuento, total, modalidad, estado)
+                    VALUES (:cliente, :usuario, :unidad, :precio, 0, :total, "Contado", "Confirmada")
+                ');
                 foreach ($elementos as $elemento) {
                     foreach ($elemento['unidades'] as $idUnidad) {
                         $venta->execute(['cliente' => $idCliente,

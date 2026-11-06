@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -30,7 +31,7 @@ final class CatalogoFiltrosServicio
             }
         }
 
-        if ($modeloSeleccionado !== '' && !isset($modelosCatalogo[$modeloSeleccionado])) {
+        if ($modeloSeleccionado !== '' && ! isset($modelosCatalogo[$modeloSeleccionado])) {
             $modeloSeleccionado = '';
         }
 

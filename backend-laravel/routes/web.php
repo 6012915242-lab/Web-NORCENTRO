@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SesionController;
+use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 

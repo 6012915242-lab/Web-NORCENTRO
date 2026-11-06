@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 
 class CatalogoController extends Controller
 {
-    public function __construct(private CatalogoServicio $catalogo)
-    {
-    }
+    public function __construct(private CatalogoServicio $catalogo) {}
 
     public function index(Request $solicitud): JsonResponse
     {

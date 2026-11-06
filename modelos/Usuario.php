@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
@@ -20,8 +21,7 @@ final class Usuario implements EntidadORM
         public int $intentosFallidos = 0,
         public ?string $bloqueadoHasta = null,
         public ?bool $bloqueadoActual = null
-    ) {
-    }
+    ) {}
 
     public static function desdeRegistro(array $registro): self
     {
@@ -49,6 +49,6 @@ final class Usuario implements EntidadORM
             return false;
         }
 
-        return new DateTimeImmutable($this->bloqueadoHasta) > new DateTimeImmutable();
+        return new DateTimeImmutable($this->bloqueadoHasta) > new DateTimeImmutable;
     }
 }

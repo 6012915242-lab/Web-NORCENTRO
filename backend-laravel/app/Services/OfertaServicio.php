@@ -25,7 +25,7 @@ class OfertaServicio
     public function guardar(array $entrada, ?Oferta $oferta = null): Oferta
     {
         try {
-            $servicio = new GestionOfertasServicio();
+            $servicio = new GestionOfertasServicio;
             if ($oferta === null) {
                 $id = $servicio->validarYGuardarOferta($this->dao(), $entrada);
             } else {
@@ -42,7 +42,7 @@ class OfertaServicio
     public function desactivar(Oferta $oferta): void
     {
         try {
-            (new GestionOfertasServicio())->desactivarOferta($this->dao(), (int) $oferta->id);
+            (new GestionOfertasServicio)->desactivarOferta($this->dao(), (int) $oferta->id);
         } catch (DomainException $error) {
             throw ValidationException::withMessages(['oferta' => $error->getMessage()]);
         }

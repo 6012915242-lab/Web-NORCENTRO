@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
@@ -17,8 +18,7 @@ final class Cliente implements EntidadORM
         public string $direccion,
         public string $correo,
         public string $estado
-    ) {
-    }
+    ) {}
 
     public static function desdeRegistro(array $registro): self
     {
@@ -36,6 +36,6 @@ final class Cliente implements EntidadORM
 
     public function nombreCompleto(): string
     {
-        return trim($this->nombres . ' ' . $this->apellidos);
+        return trim($this->nombres.' '.$this->apellidos);
     }
 }

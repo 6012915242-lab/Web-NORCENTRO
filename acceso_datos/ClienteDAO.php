@@ -1,9 +1,12 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
+
 namespace App\AccesoDatos;
 
 use App\Modelos\Cliente;
 use App\Nucleo\ModeloBaseORM;
+
 /** Guarda y consulta la información de los clientes en MySQL. */
 final class ClienteDAO extends ModeloBaseORM
 {
@@ -13,7 +16,7 @@ final class ClienteDAO extends ModeloBaseORM
         $parametros = [];
         if ($buscar !== '') {
             $consultaSQL .= ' AND (dni LIKE :term1 OR nombres LIKE :term2 OR apellidos LIKE :term3)';
-            $terminoBusqueda = '%' . $buscar . '%';
+            $terminoBusqueda = '%'.$buscar.'%';
             $parametros = ['term1' => $terminoBusqueda,
                 'term2' => $terminoBusqueda,
                 'term3' => $terminoBusqueda];
@@ -21,6 +24,7 @@ final class ClienteDAO extends ModeloBaseORM
         $consultaSQL .= ' ORDER BY apellidos,nombres';
         $consulta = $this->conexion->prepare($consultaSQL);
         $consulta->execute($parametros);
+
         return $consulta->fetchAll();
     }
 
@@ -30,17 +34,22 @@ final class ClienteDAO extends ModeloBaseORM
         $consultaSQL = 'SELECT id,dni,nombres,apellidos,telefono,correo FROM clientes WHERE estado="Activo"';
         $parametros = [];
         if ($buscar !== '') {
-            $consultaSQL .= ' AND (dni LIKE :term1 OR CONCAT(nombres," ",apellidos) LIKE :term2 OR CONCAT(apellidos," ",nombres) LIKE :term3 OR nombres LIKE :term4 OR apellidos LIKE :term5)';
-            $terminoBusqueda = '%' . $buscar . '%';
+            $consultaSQL .= ' AND (
+                dni LIKE :term1 OR CONCAT(nombres, " ", apellidos) LIKE :term2
+                OR CONCAT(apellidos, " ", nombres) LIKE :term3
+                OR nombres LIKE :term4 OR apellidos LIKE :term5
+            )';
+            $terminoBusqueda = '%'.$buscar.'%';
             $parametros = ['term1' => $terminoBusqueda,
                 'term2' => $terminoBusqueda,
                 'term3' => $terminoBusqueda,
                 'term4' => $terminoBusqueda,
                 'term5' => $terminoBusqueda];
         }
-        $consultaSQL .= ' ORDER BY apellidos,nombres LIMIT ' . $limite;
+        $consultaSQL .= ' ORDER BY apellidos,nombres LIMIT '.$limite;
         $consulta = $this->conexion->prepare($consultaSQL);
         $consulta->execute($parametros);
+
         return $consulta->fetchAll();
     }
 
@@ -48,7 +57,8 @@ final class ClienteDAO extends ModeloBaseORM
     {
         $consulta = $this->conexion->prepare('SELECT id,dni,nombres,apellidos,telefono,correo FROM clientes WHERE id=:id AND estado="Activo"');
         $consulta->execute(['id' => $id]);
-        return $consulta->fetch()?:null;
+
+        return $consulta->fetch() ?: null;
     }
 
     public function obtener(int $id): ?array

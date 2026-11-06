@@ -104,7 +104,15 @@ class VentasCreditoTest extends TestCase
         auth()->logout();
 
         $this->postJson('/api/ventas', [])->assertUnauthorized();
+        $this->getJson('/api/ventas/1')->assertUnauthorized();
         $this->getJson('/api/creditos')->assertUnauthorized();
         $this->getJson('/api/solicitudes-credito')->assertUnauthorized();
+    }
+
+    public function test_detalle_de_venta_exige_permiso(): void
+    {
+        DB::table('vista_usuarios_permisos')->where('permiso', 'ventas.registrar')->delete();
+
+        $this->getJson('/api/ventas/1')->assertForbidden();
     }
 }

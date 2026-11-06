@@ -26,14 +26,29 @@ use App\Configuracion\Herramientas;
            target="_blank" rel="noopener">¿Necesitas ayuda? Escríbenos por WhatsApp ↗</a>
         <form class="cart-checkout" id="cart-checkout" data-endpoint="api/pedidos.php" hidden>
             <h3>Datos para el pedido</h3>
-            <input type="hidden" name="_csrf"
-                   value="<?= Herramientas::escaparHtml($_SESSION['_csrf'] ??= bin2hex(random_bytes(32))) ?>">
-            <label>Nombres<input name="nombres" autocomplete="given-name" maxlength="100" required></label>
-            <label>Apellidos<input name="apellidos" autocomplete="family-name" maxlength="100" required></label>
-            <label>DNI<input name="dni" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" required></label>
-            <label>Celular<input name="telefono" type="tel" autocomplete="tel" maxlength="20" required></label>
-            <label>Correo<input name="correo" type="email" autocomplete="email" maxlength="120" required></label>
-            <label>Forma de pago
+            <?= Herramientas::campoCsrf() ?>
+            <label>
+                Nombres
+                <input name="nombres" autocomplete="given-name" maxlength="100" required>
+            </label>
+            <label>
+                Apellidos
+                <input name="apellidos" autocomplete="family-name" maxlength="100" required>
+            </label>
+            <label>
+                DNI
+                <input name="dni" inputmode="numeric" pattern="[0-9]{8}" maxlength="8" required>
+            </label>
+            <label>
+                Celular
+                <input name="telefono" type="tel" autocomplete="tel" maxlength="20" required>
+            </label>
+            <label>
+                Correo
+                <input name="correo" type="email" autocomplete="email" maxlength="120" required>
+            </label>
+            <label>
+                Forma de pago
                 <select name="modalidad" id="cart-mode">
                     <option value="Contado">Contado · pagar con Mercado Pago</option>
                     <option value="Crédito">Crédito · ir a solicitud de crédito</option>

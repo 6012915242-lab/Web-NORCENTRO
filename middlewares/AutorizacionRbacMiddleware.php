@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Middlewares;
 
-use App\AccesoDatos\PermisoDAO;
 use App\AccesoDatos\AuditoriaDAO;
+use App\AccesoDatos\PermisoDAO;
 use App\Configuracion\Herramientas;
 use App\Nucleo\MotorVistas;
 use Throwable;
@@ -39,14 +40,12 @@ final class AutorizacionRbacMiddleware
     public function __construct(
         private PermisoDAO $permisoDAO,
         private ?AuditoriaDAO $auditoriaDAO = null
-    )
-    {
-    }
+    ) {}
 
     /** Devuelve los permisos vigentes para controlar las opciones de la interfaz. */
     public function permisosDeUsuario(int $usuarioId): array
     {
-        if (!array_key_exists($usuarioId, $this->permisosUsuario)) {
+        if (! array_key_exists($usuarioId, $this->permisosUsuario)) {
             $this->permisosUsuario[$usuarioId] = $this->permisoDAO->codigosPorUsuario($usuarioId);
         }
 
@@ -125,9 +124,9 @@ final class AutorizacionRbacMiddleware
             ? $this->permisosDeUsuario((int) ($usuario['id'] ?? 0))
             : [];
         $usuarioPuede = static fn (string $codigo): bool => in_array($codigo, $permisosActuales, true);
-        $vista = dirname(__DIR__) . '/vistas/paginas/acceso_denegado.php';
+        $vista = dirname(__DIR__).'/vistas/paginas/acceso_denegado.php';
 
-        echo (new MotorVistas(dirname(__DIR__) . '/vistas'))->renderizar($pagina, compact(
+        echo (new MotorVistas(dirname(__DIR__).'/vistas'))->renderizar($pagina, compact(
             'pagina',
             'titulo',
             'usuarioActual',

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
@@ -20,8 +21,7 @@ final class Moto implements EntidadORM
         public int $anio,
         public string $imagen,
         public string $estado
-    ) {
-    }
+    ) {}
 
     public static function desdeRegistro(array $registro): self
     {

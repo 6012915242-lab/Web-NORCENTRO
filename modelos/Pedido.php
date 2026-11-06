@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Modelos;
@@ -18,8 +19,7 @@ final class Pedido implements EntidadORM
         public float $total,
         public string $estado,
         public string $creadoEn
-    ) {
-    }
+    ) {}
 
     public static function desdeRegistro(array $registro): self
     {

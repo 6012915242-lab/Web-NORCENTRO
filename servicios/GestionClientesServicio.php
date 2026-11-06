@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Servicios;
@@ -10,22 +11,22 @@ final class GestionClientesServicio
 {
     public function desactivarCliente(ClienteDAO $clienteDAO, int $id): void
     {
-        if ($id < 1 || !$clienteDAO->desactivar($id)) {
+        if ($id < 1 || ! $clienteDAO->desactivar($id)) {
             throw new DomainException('No se encontró un cliente activo con ese identificador.');
         }
     }
 
     public function validarYGuardarCliente(ClienteDAO $clienteDAO, array $entrada, bool $esEdicion = false): int
     {
-        $id        = filter_var($entrada['id'] ?? 0, FILTER_VALIDATE_INT);
-        $dni       = TextoEntrada::normalizar($entrada['dni'] ?? '');
-        $nombres   = TextoEntrada::normalizar($entrada['nombres'] ?? '');
+        $id = filter_var($entrada['id'] ?? 0, FILTER_VALIDATE_INT);
+        $dni = TextoEntrada::normalizar($entrada['dni'] ?? '');
+        $nombres = TextoEntrada::normalizar($entrada['nombres'] ?? '');
         $apellidos = TextoEntrada::normalizar($entrada['apellidos'] ?? '');
-        $telefono  = TextoEntrada::normalizar($entrada['telefono'] ?? '');
+        $telefono = TextoEntrada::normalizar($entrada['telefono'] ?? '');
         $direccion = TextoEntrada::normalizar($entrada['direccion'] ?? '');
-        $correo    = TextoEntrada::normalizar($entrada['correo'] ?? '');
+        $correo = TextoEntrada::normalizar($entrada['correo'] ?? '');
 
-        if ($esEdicion && (!$id || $id < 1)) {
+        if ($esEdicion && (! $id || $id < 1)) {
             throw new DomainException('El identificador del cliente a editar no es válido.');
         }
 
@@ -37,21 +38,21 @@ final class GestionClientesServicio
             }
         }
 
-        if (!preg_match('/^\d{8}$/', $dni)) {
+        if (! preg_match('/^\d{8}$/', $dni)) {
             throw new DomainException('El DNI debe contener exactamente 8 dígitos numéricos.');
         }
 
         $patronNombre = "/^[\p{L}\p{M}][\p{L}\p{M} .'-]*$/u";
 
-        if (mb_strlen($nombres) < 2 || mb_strlen($nombres) > 100 || !preg_match($patronNombre, $nombres)) {
+        if (mb_strlen($nombres) < 2 || mb_strlen($nombres) > 100 || ! preg_match($patronNombre, $nombres)) {
             throw new DomainException('Ingresa nombres válidos (entre 2 y 100 caracteres).');
         }
 
-        if (mb_strlen($apellidos) < 2 || mb_strlen($apellidos) > 100 || !preg_match($patronNombre, $apellidos)) {
+        if (mb_strlen($apellidos) < 2 || mb_strlen($apellidos) > 100 || ! preg_match($patronNombre, $apellidos)) {
             throw new DomainException('Ingresa apellidos válidos (entre 2 y 100 caracteres).');
         }
 
-        if ($telefono !== '' && (mb_strlen($telefono) > 20 || !preg_match('/^[+0-9 ()-]{7,20}$/', $telefono))) {
+        if ($telefono !== '' && (mb_strlen($telefono) > 20 || ! preg_match('/^[+0-9 ()-]{7,20}$/', $telefono))) {
             throw new DomainException('Ingresa un número de teléfono válido (7 a 20 caracteres).');
         }
 
@@ -59,7 +60,7 @@ final class GestionClientesServicio
             throw new DomainException('La dirección o el correo superan la longitud máxima permitida.');
         }
 
-        if ($correo !== '' && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+        if ($correo !== '' && ! filter_var($correo, FILTER_VALIDATE_EMAIL)) {
             throw new DomainException('Ingresa un correo válido.');
         }
 
@@ -68,16 +69,17 @@ final class GestionClientesServicio
         }
 
         $datos = [
-            'dni'       => $dni,
-            'nombres'   => $nombres,
+            'dni' => $dni,
+            'nombres' => $nombres,
             'apellidos' => $apellidos,
-            'telefono'  => $telefono,
+            'telefono' => $telefono,
             'direccion' => $direccion,
-            'correo'    => $correo,
+            'correo' => $correo,
         ];
 
         if ($esEdicion) {
             $clienteDAO->actualizar((int) $id, $datos);
+
             return (int) $id;
         }
 
