@@ -370,28 +370,51 @@ final class VentaDAO extends ModeloBaseORM
                 throw new \DomainException('El pago debe ser mayor que cero y no superar el saldo de la cuota.');
             }
             $pagado = round((float) $resultado['pagado'] + $monto, 2);
-            $estado = $pagado >= (float) $resultado['monto'] ? 'Pagada' : ((string) $resultado['fecha_vencimiento'] < date('Y-m-d') ? 'Vencida' : 'Pendiente');
-            $consulta = $this->conexion->prepare('UPDATE cuotas SET pagado=:pagado,estado=:estado WHERE id=:id');
-            $consulta->execute(['pagado' => $pagado,
+            if ($pagado >= (float) $resultado['monto']) {
+                $estado = 'Pagada';
+            } elseif ((string) $resultado['fecha_vencimiento'] < date('Y-m-d')) {
+                $estado = 'Vencida';
+            } else {
+                $estado = 'Pendiente';
+            }
+
+            $consulta = $this->conexion->prepare('
+                UPDATE cuotas
+                SET pagado = :pagado, estado = :estado
+                WHERE id = :id
+            ');
+            $consulta->execute([
+                'pagado' => $pagado,
                 'estado' => $estado,
-                'id' => $cuotaId]);
-            $consulta = $this->conexion->prepare('UPDATE creditos SET estado=IF(saldo<=:monto_estado,"Cancelado","Activo"),saldo=GREATEST(0,saldo-:monto_restar) WHERE id=:id');
-            $consulta->execute(['monto_estado' => $monto,
+                'id' => $cuotaId,
+            ]);
+
+            $consulta = $this->conexion->prepare('
+                UPDATE creditos
+                SET estado = IF(saldo <= :monto_estado, "Cancelado", "Activo"),
+                    saldo = GREATEST(0, saldo - :monto_restar)
+                WHERE id = :id
+            ');
+            $consulta->execute([
+                'monto_estado' => $monto,
                 'monto_restar' => $monto,
-                'id' => $resultado['credito_id']]);
+                'id' => $resultado['credito_id'],
+            ]);
             $consulta = $this->conexion->prepare('
                 INSERT INTO pagos (credito_id, cuota_id, monto, fecha, concepto)
                 VALUES (:credito, :cuota, :monto, CURDATE(), "Abono de cuota")
             ');
-            $consulta->execute(['credito' => $resultado['credito_id'],
+            $consulta->execute([
+                'credito' => $resultado['credito_id'],
                 'cuota' => $cuotaId,
-                'monto' => $monto]);
+                'monto' => $monto,
+            ]);
             $this->conexion->commit();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $error) {
             if ($this->conexion->inTransaction()) {
                 $this->conexion->rollBack();
             }
-            throw $e;
+            throw $error;
         }
     }
 }
