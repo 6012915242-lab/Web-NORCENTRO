@@ -23,7 +23,7 @@
         try {
           const value = JSON.parse(localStorage.getItem(key) || "[]");
           if (Array.isArray(value)) {
-              cart = value;
+            cart = value;
           }
         } catch {}
         const id = Number(button.dataset.id);
@@ -86,7 +86,7 @@
     lines.hidden = cart.length === 0;
     startCheckout.disabled = cart.length === 0;
     if (!cart.length) {
-        checkout.hidden = true;
+      checkout.hidden = true;
     }
     lines.innerHTML = cart
       .map(
@@ -152,28 +152,27 @@
   document.querySelector("#cart-close")?.addEventListener("click", () => dialog.close());
   dialog.addEventListener("click", (event) => {
     if (event.target === dialog) {
-        dialog.close();
+      dialog.close();
     }
   });
   lines.addEventListener("click", (event) => {
     const line = event.target.closest("[data-line-key]");
     if (!line) {
-        return;
+      return;
     }
     const [id, colorId] = line.dataset.lineKey.split(":").map(Number);
     const item = cart.find(
       (entry) => Number(entry.id) === id && Number(entry.colorId || 0) === colorId,
     );
     if (!item) {
-        return;
+      return;
     }
     if (event.target.closest("[data-cart-plus]"))
       item.quantity = Math.min(20, Number(item.quantity) + 1);
     else if (event.target.closest("[data-cart-minus]")) {
-        item.quantity -= 1;
-    }
-    else if (event.target.closest("[data-cart-remove]")) {
-        item.quantity = 0;
+      item.quantity -= 1;
+    } else if (event.target.closest("[data-cart-remove]")) {
+      item.quantity = 0;
     }
     checkout.dataset.requestId = "";
     cart = cart.filter((entry) => entry.quantity > 0);
@@ -218,7 +217,7 @@
   checkout.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!cart.length || !checkout.reportValidity()) {
-        return;
+      return;
     }
     const formData = new FormData(checkout);
     const payload = {
@@ -254,13 +253,13 @@
       });
       const result = await response.json();
       if (!response.ok || !result.ok)
-        throw new Error(result.message || "No se pudo completar el pedido.");
+        throw new Error(result.mensaje || "No se pudo completar el pedido.");
       if (result.checkout_url) {
         localStorage.removeItem(storageKey);
         window.location.assign(result.checkout_url);
         return;
       }
-      setFeedback(result.message || `Pedido #${result.pedido_id} creado.`, "success");
+      setFeedback(result.mensaje || `Pedido #${result.pedido_id} creado.`, "success");
     } catch (error) {
       setFeedback(error.message || "No se pudo conectar con la tienda. Intenta de nuevo.", "error");
     } finally {

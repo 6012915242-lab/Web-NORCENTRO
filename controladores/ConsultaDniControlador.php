@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controladores;
 
+use App\Middlewares\ApiMiddleware;
 use App\Servicios\ConsultaDniServicio;
 use App\Servicios\TextoEntrada;
 use DomainException;
@@ -15,27 +16,20 @@ final class ConsultaDniControlador
 {
     public function consultar(array $datos): never
     {
-        header('Content-Type: application/json; charset=utf-8');
-        header('Cache-Control: no-store');
-
         try {
             $dni = TextoEntrada::normalizar($datos['dni'] ?? '');
             $resultado = (new ConsultaDniServicio)->consultar($dni);
-            echo json_encode(['ok' => true, 'datos' => $resultado], JSON_UNESCAPED_UNICODE);
         } catch (DomainException $error) {
-            http_response_code(422);
-            echo json_encode(['ok' => false, 'mensaje' => $error->getMessage()], JSON_UNESCAPED_UNICODE);
+            // Dato mal ingresado por el usuario (por ejemplo, DNI incompleto).
+            ApiMiddleware::error(422, $error->getMessage());
         } catch (RuntimeException $error) {
-            http_response_code(503);
-            echo json_encode(['ok' => false, 'mensaje' => $error->getMessage()], JSON_UNESCAPED_UNICODE);
+            // El proveedor no respondió o no está configurado.
+            ApiMiddleware::error(503, $error->getMessage());
         } catch (Throwable $error) {
             error_log('Error al consultar DNI: '.get_class($error));
-            http_response_code(500);
-            echo json_encode([
-                'ok' => false,
-                'mensaje' => 'No se pudo completar la consulta.'
-            ]);
+            ApiMiddleware::error(500, 'No se pudo completar la consulta.');
         }
-        exit;
+
+        ApiMiddleware::responder(200, ['ok' => true, 'datos' => $resultado]);
     }
 }

@@ -2,7 +2,7 @@
 (() => {
   const form = document.querySelector("#credit-checkout");
   if (!form) {
-      return;
+    return;
   }
 
   const storageKey = "norcentro.cart.v1";
@@ -64,7 +64,7 @@
     const customer = JSON.parse(sessionStorage.getItem(customerKey) || "{}");
     for (const key of ["nombres", "apellidos", "dni", "telefono", "correo", "inicial", "cuotas"]) {
       if (customer[key]) {
-          form.elements[key].value = customer[key];
+        form.elements[key].value = customer[key];
       }
     }
   } catch {
@@ -80,7 +80,7 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!cart.length || !form.reportValidity()) {
-        return;
+      return;
     }
     const values = new FormData(form);
     const requestId = form.dataset.requestId || (form.dataset.requestId = crypto.randomUUID());
@@ -118,14 +118,14 @@
       });
       const result = await response.json();
       if (!response.ok || !result.ok)
-        throw new Error(result.message || "No se pudo enviar la solicitud.");
+        throw new Error(result.mensaje || "No se pudo enviar la solicitud.");
       localStorage.removeItem(storageKey);
       sessionStorage.removeItem(customerKey);
       cart = [];
       renderCart();
       form.hidden = true;
       if (summary) {
-          summary.hidden = true;
+        summary.hidden = true;
       }
       layout?.classList.add("credit-request-sent");
       const proposedInitial = Number(values.get("inicial") || 0);
@@ -134,7 +134,7 @@
       if (successId)
         successId.textContent = `Solicitud #${result.pedido_id} · Pendiente de evaluación${proposalText}`;
       if (success) {
-          success.hidden = false;
+        success.hidden = false;
       }
     } catch (error) {
       setFeedback(

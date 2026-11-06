@@ -8,44 +8,82 @@ use App\AccesoDatos\PermisoDAO;
 use App\AccesoDatos\SesionDAO;
 use PDO;
 
-/** Centraliza las comprobaciones comunes de los endpoints JSON. */
+/**
+ * Middleware de los endpoints JSON (public/api).
+ *
+ * Aplica a las APIs las mismas reglas que el Front Controller aplica a las páginas:
+ * método HTTP permitido, token CSRF, sesión válida y permiso RBAC.
+ * Si una comprobación falla, responde un JSON de error y detiene la petición.
+ */
 final class ApiMiddleware
 {
-    private static function rechazar(int $estado, string $clave, string $mensaje, int $opciones): never
+    private const OPCIONES_JSON = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+
+    /** Prepara la petición: sesión segura, cabeceras de seguridad y respuesta JSON sin caché. */
+    public static function iniciar(): void
     {
-        http_response_code($estado);
-        echo json_encode(['ok' => false, $clave => $mensaje], $opciones);
+        SeguridadMiddleware::inicializarEntornoSeguro(dirname(__DIR__).'/storage/sessions');
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+    }
+
+    /** Envía una respuesta JSON con el código HTTP indicado y termina la ejecución. */
+    public static function responder(int $estadoHttp, array $datos): never
+    {
+        http_response_code($estadoHttp);
+        echo json_encode($datos, self::OPCIONES_JSON);
         exit;
     }
 
-    public static function exigirMetodo(array $metodos, string $clave = 'mensaje', int $opciones = 0): void
+    /** Respuesta de error con el formato común: {"ok": false, "mensaje": "..."}. */
+    public static function error(int $estadoHttp, string $mensaje): never
     {
-        if (! in_array($_SERVER['REQUEST_METHOD'] ?? '', $metodos, true)) {
-            self::rechazar(405, $clave, 'Método no permitido.', $opciones);
+        self::responder($estadoHttp, ['ok' => false, 'mensaje' => $mensaje]);
+    }
+
+    /** @param  list<string>  $metodosPermitidos  por ejemplo ['GET', 'POST'] */
+    public static function exigirMetodo(array $metodosPermitidos): void
+    {
+        if (! in_array($_SERVER['REQUEST_METHOD'] ?? '', $metodosPermitidos, true)) {
+            self::error(405, 'Método no permitido.');
         }
     }
 
-    public static function validarCsrfJson(mixed $recibido, string $mensaje, string $clave = 'mensaje', int $opciones = 0): void
+    /** Compara el token recibido con el de la sesión en tiempo constante (hash_equals). */
+    public static function validarCsrf(mixed $tokenRecibido, string $mensaje): void
     {
-        $sesion = $_SESSION['_csrf'] ?? null;
-        if (! is_string($sesion) || ! is_string($recibido) || $sesion === '' || $recibido === '' || ! hash_equals($sesion, $recibido)) {
-            self::rechazar(403, $clave, $mensaje, $opciones);
+        $tokenSesion = $_SESSION['_csrf'] ?? null;
+        $esValido = is_string($tokenSesion) && $tokenSesion !== ''
+            && is_string($tokenRecibido) && $tokenRecibido !== ''
+            && hash_equals($tokenSesion, $tokenRecibido);
+
+        if (! $esValido) {
+            self::error(403, $mensaje);
         }
     }
 
-    public static function exigirSesionJson(PDO $conexion, string $mensaje): array
+    /** Devuelve el usuario de la sesión o responde 401 si no hay una sesión válida. */
+    public static function exigirSesion(PDO $conexion, string $mensaje): array
     {
-        $usuario = AutenticacionMiddleware::validarSesionPersistida($_SESSION['user'] ?? null, new SesionDAO($conexion));
+        $usuario = AutenticacionMiddleware::validarSesionPersistida(
+            $_SESSION['user'] ?? null,
+            new SesionDAO($conexion)
+        );
+
         if ($usuario === null) {
-            self::rechazar(401, 'mensaje', $mensaje, 0);
+            self::error(401, $mensaje);
         }
+
         return $usuario;
     }
 
-    public static function exigirPermisoJson(PDO $conexion, array $usuario, string $permiso, string $mensaje): void
+    /** Responde 403 si el rol del usuario no tiene el permiso indicado (RBAC). */
+    public static function exigirPermiso(PDO $conexion, array $usuario, string $codigoPermiso, string $mensaje): void
     {
-        if (! (new PermisoDAO($conexion))->usuarioTiene((int) ($usuario['id'] ?? 0), $permiso)) {
-            self::rechazar(403, 'mensaje', $mensaje, 0);
+        $usuarioId = (int) ($usuario['id'] ?? 0);
+
+        if (! (new PermisoDAO($conexion))->usuarioTiene($usuarioId, $codigoPermiso)) {
+            self::error(403, $mensaje);
         }
     }
 }
