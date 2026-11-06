@@ -6,16 +6,20 @@ namespace App\Configuracion;
 use PDO;
 use PDOException;
 
-/** Crea una única conexión PDO para las consultas de la aplicación. */
+/**
+ * Crea una única conexión PDO para las consultas de la aplicación.
+ * Valores por defecto: XAMPP local (MySQL/MariaDB en el puerto 4404, usuario root sin clave).
+ * Se pueden sobrescribir con las variables de entorno NORCENTRO_DB_*.
+ */
 final class BaseDatos
 {
     public static function conectar(): PDO
     {
         $servidor = getenv('NORCENTRO_DB_HOST') ?: '127.0.0.1';
-        $puerto = getenv('NORCENTRO_DB_PORT') ?: '58475';
+        $puerto = getenv('NORCENTRO_DB_PORT') ?: '4404';
         $nombreBaseDatos = getenv('NORCENTRO_DB_NAME') ?: 'norcentro_web';
-        $usuarioBaseDatos = getenv('NORCENTRO_DB_USER') ?: 'frank';
-        $claveBaseDatos = getenv('NORCENTRO_DB_PASS') ?: '900286';
+        $usuarioBaseDatos = getenv('NORCENTRO_DB_USER') ?: 'root';
+        $claveBaseDatos = getenv('NORCENTRO_DB_PASS') !== false ? (string) getenv('NORCENTRO_DB_PASS') : '';
 
         $dsn = sprintf(
             'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
