@@ -1,5 +1,15 @@
 // Mantiene el carrito del catálogo y dirige al flujo de contado o de crédito.
 (() => {
+  const createItem = (button, id, colorId) => ({
+    id,
+    colorId,
+    color: button.dataset.color || "",
+    name: button.dataset.name || "",
+    price: Number(button.dataset.price || 0),
+    image: button.dataset.image || "",
+    quantity: 1,
+  });
+
   const dialog = document.querySelector("#cart-dialog");
   // Algunas páginas solo necesitan el botón de compra a crédito.
   if (!dialog) {
@@ -22,15 +32,7 @@
         if (item) {
           item.quantity = Math.min(20, Number(item.quantity) + 1);
         } else {
-          cart.push({
-            id,
-            colorId,
-            color: button.dataset.color || "",
-            name: button.dataset.name || "",
-            price: Number(button.dataset.price || 0),
-            image: button.dataset.image || "",
-            quantity: 1,
-          });
+          cart.push(createItem(button, id, colorId));
         }
         localStorage.setItem(key, JSON.stringify(cart));
         window.location.assign("index.php?page=compra_credito");
@@ -122,15 +124,7 @@
     if (existing) {
       existing.quantity = Math.min(20, Number(existing.quantity) + 1);
     } else {
-      cart.push({
-        id,
-        colorId,
-        color: button.dataset.color || "",
-        name: button.dataset.name || "",
-        price: Number(button.dataset.price || 0),
-        image: button.dataset.image || "",
-        quantity: 1,
-      });
+      cart.push(createItem(button, id, colorId));
     }
     checkout.dataset.requestId = "";
     render();
