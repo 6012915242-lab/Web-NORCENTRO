@@ -275,6 +275,7 @@ final class PaginaControlador
             'busquedaMoto' => $busquedaMoto,
             'listaClientes' => $listaClientes,
             'listaUnidades' => $listaUnidades,
+            'unidadesPorModelo' => $this->agruparUnidadesPorModelo($listaUnidades),
             'idSolicitudCreditoVenta' => $idSolicitudCreditoVenta,
             'idClienteVentaSeleccionado' => $idClienteVentaSeleccionado,
             'clienteVentaSeleccionado' => $clienteVentaSeleccionado,
@@ -303,5 +304,25 @@ final class PaginaControlador
             'pagosCredito' => $pagosCredito,
             'idVentaResaltada' => (int) ($consulta['venta_id'] ?? 0),
         ];
+    }
+
+    /**
+     * Agrupa las unidades disponibles por modelo para el selector de ventas:
+     * cada modelo aparece una vez y debajo se listan sus números de serie.
+     */
+    private function agruparUnidadesPorModelo(array $unidades): array
+    {
+        $grupos = [];
+        foreach ($unidades as $unidad) {
+            $motoId = (int) $unidad['moto_id'];
+            $grupos[$motoId] ??= [
+                'nombre' => $unidad['marca'].' '.$unidad['modelo'],
+                'precio' => (float) $unidad['precio'],
+                'unidades' => [],
+            ];
+            $grupos[$motoId]['unidades'][] = $unidad;
+        }
+
+        return array_values($grupos);
     }
 }

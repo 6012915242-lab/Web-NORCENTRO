@@ -97,18 +97,21 @@ use App\Configuracion\Herramientas;
         Unidad disponible
         <select name="unidad_id" id="unit-select" required>
           <option value="">Seleccionar motocicleta de los resultados</option>
-          <?php foreach ($listaUnidades as $unidadInventario): ?>
-            <option value="<?= (int) $unidadInventario['unidad_id'] ?>"
-                    data-price="<?= Herramientas::escaparHtml($unidadInventario['precio']) ?>"
-                    data-image="<?= Herramientas::escaparHtml(Herramientas::rutaImagen($unidadInventario['imagen'])) ?>"
-                    data-model="<?= Herramientas::escaparHtml($unidadInventario['marca'] . ' ' . $unidadInventario['modelo']) ?>"
-                    data-series="<?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>">
-              <?= Herramientas::escaparHtml(
-                  $unidadInventario['marca'] . ' ' . $unidadInventario['modelo']
-                  . ' · Serie ' . $unidadInventario['codigo_serie']
-                  . ' · ' . Herramientas::formatearDinero($unidadInventario['precio'])
-              ) ?>
-            </option>
+          <?php foreach ($unidadesPorModelo as $grupoModelo): ?>
+            <optgroup label="<?= Herramientas::escaparHtml(
+                $grupoModelo['nombre'] . ' · ' . Herramientas::formatearDinero($grupoModelo['precio'])
+                . ' · ' . count($grupoModelo['unidades']) . ' disponible(s)'
+            ) ?>">
+              <?php foreach ($grupoModelo['unidades'] as $unidadInventario): ?>
+                <option value="<?= (int) $unidadInventario['unidad_id'] ?>"
+                        data-price="<?= Herramientas::escaparHtml($unidadInventario['precio']) ?>"
+                        data-image="<?= Herramientas::escaparHtml(Herramientas::rutaImagen($unidadInventario['imagen'])) ?>"
+                        data-model="<?= Herramientas::escaparHtml($grupoModelo['nombre']) ?>"
+                        data-series="<?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>">
+                  <?= Herramientas::escaparHtml($grupoModelo['nombre'] . ' · Serie ' . $unidadInventario['codigo_serie']) ?>
+                </option>
+              <?php endforeach; ?>
+            </optgroup>
           <?php endforeach; ?>
         </select>
         <?php if (!$listaUnidades): ?>

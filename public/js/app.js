@@ -39,7 +39,7 @@
     const precio = Number(option.dataset.price).toLocaleString("es-PE", {
       minimumFractionDigits: 2,
     });
-    const serie = option.textContent.split("·")[1]?.trim() || "";
+    const serie = option.dataset.series ? `Serie ${option.dataset.series}` : "";
     preview.querySelector("span").innerHTML = `
       <b>${escapeHtml(option.dataset.model)}</b>
       <small>Precio de lista: S/ ${precio} · ${escapeHtml(serie)}</small>

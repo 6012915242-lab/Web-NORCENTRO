@@ -71,6 +71,12 @@ final class GestionMotosServicio
             throw new DomainException('Revisa la cantidad de unidades iniciales y la descripción.');
         }
 
+        // Evita nombres como "Yamaha Yamaha FZ25": la marca ya se guarda aparte.
+        $modelo = $this->quitarMarcaDelModelo($modelo, $motoDAO->marcaPorId((int) $marcaId)?->nombre ?? '');
+        if (mb_strlen($modelo) < 2) {
+            throw new DomainException('Escribe solo el nombre del modelo, sin la marca (por ejemplo: FZ25 ABS).');
+        }
+
         $registroAnterior = $esEdicion ? $motoDAO->obtenerEntidad((int) $id) : null;
         $marcaAnterior = $registroAnterior !== null && $registroAnterior->marcaId === (int) $marcaId
             ? $motoDAO->obtenerMarca($registroAnterior)
@@ -291,5 +297,16 @@ final class GestionMotosServicio
         }
 
         return $motoDAO->registrarUnidad((int) $idMoto, $codigoSerie);
+    }
+
+    /** Si el modelo empieza con el nombre de la marca ("Yamaha FZ25"), deja solo "FZ25". */
+    private function quitarMarcaDelModelo(string $modelo, string $nombreMarca): string
+    {
+        $prefijo = $nombreMarca.' ';
+        if ($nombreMarca !== '' && mb_stripos($modelo, $prefijo) === 0) {
+            return trim(mb_substr($modelo, mb_strlen($prefijo)));
+        }
+
+        return $modelo;
     }
 }

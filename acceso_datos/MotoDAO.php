@@ -65,6 +65,14 @@ final class MotoDAO extends ModeloBaseORM
         );
     }
 
+    /** Marca por su id, usando la relación N:1 del ORM (Moto -> Marca). */
+    public function marcaPorId(int $marcaId): ?Marca
+    {
+        $marca = $this->perteneceA(MarcaDAO::class, $marcaId);
+
+        return $marca instanceof Marca ? $marca : null;
+    }
+
     public function obtenerMarca(Moto $moto): ?Marca
     {
         $marca = $this->perteneceA(MarcaDAO::class, $moto->marcaId);
