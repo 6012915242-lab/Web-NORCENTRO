@@ -196,7 +196,7 @@ final class PaginaControlador
 
         return [
             'idSolicitud' => $requestId,
-            'pedidoCompra' => $pedidoCompra
+            'pedidoCompra' => $pedidoCompra,
         ];
     }
 
@@ -289,13 +289,6 @@ final class PaginaControlador
             : $this->ventaDAO->creditos($busquedaCredito);
         $detalles = $this->ventaDAO->detallesCreditos(array_column($todosLosCreditos, 'id'));
         $cuotas = $detalles['cuotas'];
-        if (count($todosLosCreditos) === 1) {
-            $creditoId = (int) $todosLosCreditos[0]['id'];
-            $cuotas[$creditoId] = array_map(
-                static fn (\App\Modelos\Cuota $cuota): array => $cuota->aRegistro(),
-                $this->ventaDAO->obtenerCuotasDeCredito($creditoId)
-            );
-        }
         $pagosCredito = $detalles['pagos'];
 
         $solicitudes = $this->pedidoDAO->solicitudesCredito();

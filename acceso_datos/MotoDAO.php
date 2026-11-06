@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\AccesoDatos;
 
-use App\Modelos\Moto;
 use App\Modelos\Marca;
+use App\Modelos\Moto;
 use App\Nucleo\ModeloBaseORM;
 use PDO;
 
@@ -33,8 +33,7 @@ final class MotoDAO extends ModeloBaseORM
                 'term2' => $terminoBusqueda];
         }
         $consultaSQL .= ' ORDER BY ma.nombre,m.modelo';
-        $consulta = $this->conexion->prepare($consultaSQL);
-        $consulta->execute($parametros);
+        $consulta = $this->preparar($consultaSQL, $parametros);
 
         return $consulta->fetchAll();
     }
@@ -69,6 +68,7 @@ final class MotoDAO extends ModeloBaseORM
     public function obtenerMarca(Moto $moto): ?Marca
     {
         $marca = $this->perteneceA(MarcaDAO::class, $moto->marcaId);
+
         return $marca instanceof Marca ? $marca : null;
     }
 
@@ -90,13 +90,12 @@ final class MotoDAO extends ModeloBaseORM
 
     public function imagenesPublicas(int $id): array
     {
-        $consulta = $this->conexion->prepare('
+        $consulta = $this->preparar('
             SELECT ruta, texto_alt, orden, es_principal
             FROM moto_imagenes
             WHERE moto_id = :id
             ORDER BY es_principal DESC, orden, id
-        ');
-        $consulta->execute(['id' => $id]);
+        ', ['id' => $id]);
 
         return $consulta->fetchAll();
     }
@@ -118,15 +117,14 @@ final class MotoDAO extends ModeloBaseORM
         }
 
         $marcadores = implode(', ', array_fill(0, count($identificadores), '?'));
-        $consulta = $this->conexion->prepare("
+        $consulta = $this->preparar("
             SELECT c.moto_id, c.id AS color_id, c.nombre, c.codigo_hex,
                    i.ruta, i.texto_alt
             FROM moto_colores c
             JOIN moto_color_imagenes i ON i.color_id = c.id
             WHERE c.moto_id IN ($marcadores)
             ORDER BY c.moto_id, c.orden, i.orden, i.id
-        ");
-        $consulta->execute($identificadores);
+        ", $identificadores);
         $coloresPorMoto = [];
 
         foreach ($consulta->fetchAll() as $fila) {
@@ -157,20 +155,19 @@ final class MotoDAO extends ModeloBaseORM
 
     public function especificacionesPublicas(int $id): array
     {
-        $consulta = $this->conexion->prepare('
+        $consulta = $this->preparar('
             SELECT grupo, nombre, valor, fuente_url
             FROM moto_especificaciones
             WHERE moto_id = :id
             ORDER BY orden, id
-        ');
-        $consulta->execute(['id' => $id]);
+        ', ['id' => $id]);
 
         return $consulta->fetchAll();
     }
 
     public function marcas(): array
     {
-        return $this->conexion->query('SELECT id,nombre FROM marcas WHERE estado="Activo" ORDER BY nombre')->fetchAll();
+        return $this->preparar('SELECT id,nombre FROM marcas WHERE estado="Activo" ORDER BY nombre')->fetchAll();
     }
 
     public function marcaActiva(int $id): bool
@@ -235,10 +232,10 @@ final class MotoDAO extends ModeloBaseORM
         }
 
         $this->ejecutarEnTransaccion(function () use ($motoId, $colores): void {
-            $consultaOrdenColor = $this->conexion->prepare(
-                'SELECT COALESCE(MAX(orden), 0) FROM moto_colores WHERE moto_id = :moto_id'
+            $consultaOrdenColor = $this->preparar(
+                'SELECT COALESCE(MAX(orden), 0) FROM moto_colores WHERE moto_id = :moto_id',
+                ['moto_id' => $motoId]
             );
-            $consultaOrdenColor->execute(['moto_id' => $motoId]);
             $ordenColor = (int) $consultaOrdenColor->fetchColumn();
 
             $guardarColor = $this->conexion->prepare(
@@ -291,7 +288,7 @@ final class MotoDAO extends ModeloBaseORM
             [
                 'nuevo_estado' => 'Inactivo',
                 'estado_actual' => 'Activo',
-                'id' => $id
+                'id' => $id,
             ]
         );
 
@@ -319,8 +316,7 @@ final class MotoDAO extends ModeloBaseORM
                 'term4' => $terminoBusqueda];
         }
         $consultaSQL .= ' ORDER BY ma.nombre,m.modelo,u.codigo_serie LIMIT '.$limite;
-        $consulta = $this->conexion->prepare($consultaSQL);
-        $consulta->execute($parametros);
+        $consulta = $this->preparar($consultaSQL, $parametros);
 
         return $consulta->fetchAll();
     }
@@ -342,7 +338,7 @@ final class MotoDAO extends ModeloBaseORM
             $parametros = [
                 'serie' => $termino,
                 'modelo' => $termino,
-                'marca' => $termino
+                'marca' => $termino,
             ];
         }
 
@@ -370,7 +366,7 @@ final class MotoDAO extends ModeloBaseORM
                     [
                         'id' => $idMoto,
                         'estado' => 'Activo',
-                        'estado_marca' => 'Activo'
+                        'estado_marca' => 'Activo',
                     ]
                 );
 
@@ -384,7 +380,7 @@ final class MotoDAO extends ModeloBaseORM
                     [
                         'moto' => $idMoto,
                         'serie' => $codigoSerie,
-                        'estado' => 'Disponible'
+                        'estado' => 'Disponible',
                     ]
                 );
 

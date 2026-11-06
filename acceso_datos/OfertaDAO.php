@@ -29,18 +29,17 @@ final class OfertaDAO extends ModeloBaseORM
             ORDER BY o.precio_oferta, o.fecha_fin, o.id
         ";
 
-        return $this->conexion->query($sql)->fetchAll();
+        return $this->preparar($sql)->fetchAll();
     }
 
     public function activaParaMoto(int $idMoto): ?array
     {
-        $consulta = $this->conexion->prepare("
+        $consulta = $this->preparar("
             SELECT o.* FROM ofertas o
             WHERE o.moto_id = :moto AND o.estado = 'Activa'
               AND CURDATE() BETWEEN o.fecha_inicio AND o.fecha_fin
             ORDER BY o.precio_oferta, o.fecha_fin, o.id LIMIT 1
-        ");
-        $consulta->execute(['moto' => $idMoto]);
+        ", ['moto' => $idMoto]);
 
         return $consulta->fetch() ?: null;
     }
@@ -55,7 +54,7 @@ final class OfertaDAO extends ModeloBaseORM
             ORDER BY o.fecha_fin DESC
         ';
 
-        return $this->conexion->query($sql)->fetchAll();
+        return $this->preparar($sql)->fetchAll();
     }
 
     public function motoActiva(int $idMoto): bool
@@ -119,7 +118,7 @@ final class OfertaDAO extends ModeloBaseORM
             [
                 'nuevo_estado' => 'Inactiva',
                 'estado_anterior' => 'Inactiva',
-                'id' => $id
+                'id' => $id,
             ]
         );
 

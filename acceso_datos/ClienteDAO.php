@@ -109,7 +109,7 @@ final class ClienteDAO extends ModeloBaseORM
             [
                 'nuevo_estado' => 'Inactivo',
                 'estado_actual' => 'Activo',
-                'id' => $id
+                'id' => $id,
             ]
         );
 

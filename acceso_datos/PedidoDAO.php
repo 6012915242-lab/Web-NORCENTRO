@@ -15,8 +15,7 @@ final class PedidoDAO extends ModeloBaseORM
         $this->conexion->beginTransaction();
         try {
             $this->liberarPedidosVencidos();
-            $existente = $this->conexion->prepare('SELECT * FROM pedidos WHERE request_id=:key FOR UPDATE');
-            $existente->execute(['key' => $datos['request_id']]);
+            $existente = $this->preparar('SELECT * FROM pedidos WHERE request_id=:key FOR UPDATE', ['key' => $datos['request_id']]);
             $conocido = $existente->fetch();
             if ($conocido) {
                 $elementos = $this->items((int) $conocido['id']);
@@ -107,7 +106,7 @@ final class PedidoDAO extends ModeloBaseORM
             if ($datos['modalidad'] === 'Crédito' && empty($datos['acepta_credito'])) {
                 throw new \DomainException('Autoriza el uso de tus datos para gestionar la solicitud de crédito.');
             }
-            $consulta = $this->conexion->prepare('
+            $consulta = $this->preparar('
                 INSERT INTO pedidos
                     (request_id, nombres, apellidos, dni, telefono, correo, modalidad,
                      inicial, numero_cuotas, credito_autorizado_en, subtotal, total, estado, vence_en)
@@ -115,8 +114,7 @@ final class PedidoDAO extends ModeloBaseORM
                     (:request, :nombres, :apellidos, :dni, :telefono, :correo, :modalidad,
                      :inicial, :cuotas, IF(:consent = 1, NOW(), NULL), :subtotal, :total, :estado,
                      IF(:expira = "Pendiente de pago", DATE_ADD(NOW(), INTERVAL 20 MINUTE), NULL))
-            ');
-            $consulta->execute(['request' => $datos['request_id'],
+            ', ['request' => $datos['request_id'],
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
                 'dni' => $datos['dni'],
@@ -220,22 +218,20 @@ final class PedidoDAO extends ModeloBaseORM
         }
 
         $consultaSql .= ' ORDER BY id LIMIT '.$cantidad.' FOR UPDATE';
-        $consulta = $this->conexion->prepare($consultaSql);
-        $consulta->execute($parametros);
+        $consulta = $this->preparar($consultaSql, $parametros);
 
         return array_map('intval', $consulta->fetchAll(PDO::FETCH_COLUMN));
     }
 
     public function guardarMercadoPago(int $id, string $idMercadoPago, string $url): void
     {
-        $consulta = $this->conexion->prepare('
+        $consulta = $this->preparar('
             UPDATE pedidos
             SET mp_order_id = :mp, checkout_url = :url, estado = "Pendiente de pago",
                 vence_en = DATE_ADD(NOW(), INTERVAL 20 MINUTE)
             WHERE id = :id AND modalidad = "Contado"
               AND estado IN ("Pendiente de pago", "Error de pago")
-        ');
-        $consulta->execute(['mp' => $idMercadoPago,
+        ', ['mp' => $idMercadoPago,
             'url' => $url,
             'id' => $id]);
         if ($consulta->rowCount() !== 1) {
@@ -243,49 +239,31 @@ final class PedidoDAO extends ModeloBaseORM
         }
     }
 
-    public function errorPago(int $id): void
-    {
-        $this->conexion->beginTransaction();
-        try {
-            $this->liberarUnidades($id);
-            $consulta = $this->conexion->prepare('UPDATE pedidos SET estado="Error de pago",checkout_url=NULL WHERE id=:id AND estado="Pendiente de pago"');
-            $consulta->execute(['id' => $id]);
-            $this->conexion->commit();
-        } catch (\Throwable $e) {
-            if ($this->conexion->inTransaction()) {
-                $this->conexion->rollBack();
-            }
-            throw $e;
-        }
-    }
-
     public function obtenerPorRequest(string $idSolicitud): ?array
     {
-        $consulta = $this->conexion->prepare('
+        $consulta = $this->preparar('
             SELECT id, request_id, modalidad, total, estado, mp_order_id, checkout_url
             FROM pedidos
             WHERE request_id = :id
-        ');
-        $consulta->execute(['id' => $idSolicitud]);
+        ', ['id' => $idSolicitud]);
 
         return $consulta->fetch() ?: null;
     }
 
     public function obtenerPorMercadoPago(string $idMercadoPago): ?array
     {
-        $consulta = $this->conexion->prepare('
+        $consulta = $this->preparar('
             SELECT id, request_id, modalidad, total, estado, mp_order_id, checkout_url
             FROM pedidos
             WHERE mp_order_id = :id
-        ');
-        $consulta->execute(['id' => $idMercadoPago]);
+        ', ['id' => $idMercadoPago]);
 
         return $consulta->fetch() ?: null;
     }
 
     public function solicitudesCredito(): array
     {
-        return $this->conexion->query('
+        return $this->preparar('
             SELECT p.id, p.nombres, p.apellidos, p.dni, p.telefono, p.correo,
                    p.inicial, p.numero_cuotas, p.total, p.estado, p.creado_en,
                    p.credito_autorizado_en, items.motocicletas, items.unidades_solicitadas,
@@ -312,7 +290,7 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function contarSolicitudesCreditoPendientes(): int
     {
-        return (int) $this->conexion->query('SELECT COUNT(*) FROM pedidos WHERE modalidad="Crédito" AND estado="En revisión de crédito"')->fetchColumn();
+        return (int) $this->preparar('SELECT COUNT(*) FROM pedidos WHERE modalidad="Crédito" AND estado="En revisión de crédito"')->fetchColumn();
     }
 
     public function evaluarSolicitudCredito(int $id, string $decision): void
@@ -364,12 +342,11 @@ final class PedidoDAO extends ModeloBaseORM
                     $consulta->execute(['id' => $cliente['id']]);
                 }
             }
-            $consulta = $this->conexion->prepare('
+            $consulta = $this->preparar('
                 UPDATE pedidos
                 SET estado = :estado
                 WHERE id = :id AND estado = "En revisión de crédito"
-            ');
-            $consulta->execute([
+            ', [
                 'estado' => $estado,
                 'id' => $id,
             ]);
@@ -387,12 +364,11 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function clienteAprobadoPorPedido(int $id): ?int
     {
-        $consulta = $this->conexion->prepare('
+        $consulta = $this->preparar('
             SELECT c.id FROM pedidos p
             JOIN clientes c ON c.dni = p.dni AND c.estado = "Activo"
             WHERE p.id = :id AND p.modalidad = "Crédito" AND p.estado = "Crédito aprobado"
-        ');
-        $consulta->execute(['id' => $id]);
+        ', ['id' => $id]);
         $id = $consulta->fetchColumn();
 
         return $id === false ? null : (int) $id;
@@ -455,7 +431,7 @@ final class PedidoDAO extends ModeloBaseORM
                         'correo' => $pedido['correo']]);
                     $idCliente = (int) $this->conexion->lastInsertId();
                 }
-                $consulta = $this->conexion->query('
+                $consulta = $this->preparar('
                     SELECT u.id FROM usuarios u
                     JOIN roles r ON r.id = u.rol_id
                     WHERE r.nombre = "Administrador" AND u.estado = "Activo"
@@ -475,8 +451,10 @@ final class PedidoDAO extends ModeloBaseORM
                             'usuario' => $idVendedor,
                             'unidad' => $idUnidad,
                             'precio' => $elemento['precio'],
-                            'total' => round($elemento['precio'],
-                                2)]);
+                            'total' => round(
+                                $elemento['precio'],
+                                2
+                            )]);
                     }
                 }
                 $consulta = $this->conexion->prepare('
@@ -492,8 +470,7 @@ final class PedidoDAO extends ModeloBaseORM
             } elseif (in_array($estado, ['canceled',
                 'expired'], true)) {
                 $this->liberarUnidades($id);
-                $consulta = $this->conexion->prepare('UPDATE pedidos SET estado="Cancelado" WHERE id=:id');
-                $consulta->execute(['id' => $id]);
+                $consulta = $this->preparar('UPDATE pedidos SET estado="Cancelado" WHERE id=:id', ['id' => $id]);
             }
             $this->conexion->commit();
         } catch (\Throwable $e) {
@@ -506,7 +483,7 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function liberarPedidosVencidos(): void
     {
-        $vencido = $this->conexion->query('SELECT id FROM pedidos WHERE estado="Pendiente de pago" AND vence_en<NOW()')->fetchAll(PDO::FETCH_COLUMN);
+        $vencido = $this->preparar('SELECT id FROM pedidos WHERE estado="Pendiente de pago" AND vence_en<NOW()')->fetchAll(PDO::FETCH_COLUMN);
         foreach ($vencido as $id) {
             $this->liberarUnidades((int) $id);
         }
@@ -523,13 +500,12 @@ final class PedidoDAO extends ModeloBaseORM
             WHERE pi.pedido_id = :id AND u.estado = "Reservada"
         ');
         $consulta->execute(['id' => $id]);
-        $consulta = $this->conexion->prepare('DELETE pu FROM pedido_unidades pu JOIN pedido_items pi ON pi.id=pu.pedido_item_id WHERE pi.pedido_id=:id');
-        $consulta->execute(['id' => $id]);
+        $consulta = $this->preparar('DELETE pu FROM pedido_unidades pu JOIN pedido_items pi ON pi.id=pu.pedido_item_id WHERE pi.pedido_id=:id', ['id' => $id]);
     }
 
     private function items(int $id): array
     {
-        $consulta = $this->conexion->prepare('
+        $consulta = $this->preparar('
             SELECT pi.moto_id, pi.color_id, pi.cantidad, pi.precio_unitario precio,
                    pi.subtotal, ma.nombre marca, m.modelo,
                    CONCAT(ma.nombre, " ", m.modelo) name,
@@ -539,8 +515,7 @@ final class PedidoDAO extends ModeloBaseORM
             JOIN marcas ma ON ma.id = m.marca_id
             LEFT JOIN moto_colores mc ON mc.id = pi.color_id
             WHERE pi.pedido_id = :id
-        ');
-        $consulta->execute(['id' => $id]);
+        ', ['id' => $id]);
 
         return $consulta->fetchAll();
     }
