@@ -158,6 +158,28 @@ use App\Configuracion\Herramientas;
     </section>
 <?php endif; ?>
 
+<section class="panel" aria-label="Buscar créditos">
+    <h2>Buscar crédito de un cliente</h2>
+    <form method="get" action="index.php">
+        <input type="hidden" name="page" value="creditos">
+        <label for="buscar-credito">Nombre, apellido o DNI</label>
+        <input id="buscar-credito" name="buscar_credito" type="search" maxlength="100"
+               value="<?= Herramientas::escaparHtml($busquedaCredito) ?>"
+               placeholder="Escribe el nombre o DNI">
+        <button type="submit" class="button primary">Buscar</button>
+        <a href="index.php?page=creditos">Mostrar todos</a>
+    </form>
+    <?php if ($busquedaCredito !== ''): ?>
+        <p><?= count($creditos) ?> crédito(s) encontrado(s).</p>
+    <?php endif; ?>
+</section>
+
+<?php if (!$creditos && $busquedaCredito !== ''): ?>
+    <div class="empty-state panel">
+        <p>No se encontraron créditos para mostrar.</p>
+    </div>
+<?php endif; ?>
+
 <?php foreach ($creditos as $credito): ?>
     <?php
     $montoFinanciado = (float) $credito['monto_financiado'];
@@ -176,6 +198,7 @@ use App\Configuracion\Herramientas;
                 <h2><?= Herramientas::escaparHtml($credito['marca'] . ' ' . $credito['modelo']) ?></h2>
                 <p>
                     <?= Herramientas::escaparHtml($credito['nombres'] . ' ' . $credito['apellidos']) ?> ·
+                    DNI <?= Herramientas::escaparHtml($credito['dni']) ?> ·
                     Inicial <?= Herramientas::formatearDinero($credito['inicial']) ?> ·
                     <?= (int) $credito['numero_cuotas'] ?> cuotas
                 </p>
@@ -284,7 +307,7 @@ use App\Configuracion\Herramientas;
     </section>
 <?php endforeach; ?>
 
-<?php if (!$creditos): ?>
+<?php if (!$creditos && $busquedaCredito === ''): ?>
     <section class="panel empty-state">
         <h2>Aún no hay créditos activos</h2>
         <p>Registra una venta con modalidad Crédito para generar su cronograma de cuotas.</p>

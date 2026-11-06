@@ -249,18 +249,30 @@ final class VentaDAO extends ModeloBaseORM
         }
     }
 
-    public function creditos(): array
+    public function creditos(string $busqueda = ''): array
     {
-        return $this->conexion->query('
-            SELECT cr.*, v.id venta_id, c.nombres, c.apellidos, m.modelo, ma.nombre marca
+        $consulta = '
+            SELECT cr.*, v.id venta_id, c.dni, c.nombres, c.apellidos, m.modelo, ma.nombre marca
             FROM creditos cr
             JOIN ventas v ON v.id = cr.venta_id
             JOIN clientes c ON c.id = v.cliente_id
             JOIN unidades_moto u ON u.id = v.unidad_id
             JOIN motos m ON m.id = u.moto_id
             JOIN marcas ma ON ma.id = m.marca_id
-            ORDER BY cr.id DESC
-        ')->fetchAll();
+            WHERE 1 = 1
+        ';
+        $parametros = [];
+        $palabras = preg_split('/\s+/u', trim($busqueda), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        foreach ($palabras as $indice => $palabra) {
+            $consulta .= " AND (c.dni LIKE :dni$indice OR c.nombres LIKE :nombres$indice OR c.apellidos LIKE :apellidos$indice)";
+            $termino = '%'.$palabra.'%';
+            $parametros['dni'.$indice] = $termino;
+            $parametros['nombres'.$indice] = $termino;
+            $parametros['apellidos'.$indice] = $termino;
+        }
+
+        return $this->obtenerTodos($consulta.' ORDER BY cr.id DESC', $parametros);
     }
 
     /** Obtiene las cuotas de un crédito en el orden de su cronograma. */

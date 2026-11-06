@@ -245,16 +245,21 @@ final class PaginaControlador
 
     private function prepararCreditos(array $consulta): array
     {
-        $creditos = $this->ventaDAO->creditos();
-        $detalles = $this->ventaDAO->detallesCreditos(array_column($creditos, 'id'));
+        $busquedaCredito = mb_substr(trim((string) ($consulta['buscar_credito'] ?? '')), 0, 100);
+        $todosLosCreditos = $this->ventaDAO->creditos();
+        $creditos = $busquedaCredito === ''
+            ? $todosLosCreditos
+            : $this->ventaDAO->creditos($busquedaCredito);
+        $detalles = $this->ventaDAO->detallesCreditos(array_column($todosLosCreditos, 'id'));
         $cuotas = $detalles['cuotas'];
         $pagosCredito = $detalles['pagos'];
 
         $solicitudes = $this->pedidoDAO->solicitudesCredito();
-        $resumen = (new ResumenCreditosServicio)->calcular($creditos, $cuotas, $solicitudes);
+        $resumen = (new ResumenCreditosServicio)->calcular($todosLosCreditos, $cuotas, $solicitudes);
 
         return $resumen + [
             'creditos' => $creditos,
+            'busquedaCredito' => $busquedaCredito,
             'solicitudesCredito' => $solicitudes,
             'cuotas' => $cuotas,
             'pagosCredito' => $pagosCredito,
