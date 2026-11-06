@@ -47,44 +47,24 @@ $solicitudesCreditoPendientes = 0;
 try {
     $conexion = BaseDatos::conectar();
     $datos = new ContenedorDatos($conexion);
-    $usuariosDAO = $datos->usuarios;
-    $motosDAO = $datos->motos;
-    $clientesDAO = $datos->clientes;
-    $ventasDAO = $datos->ventas;
-    $ofertasDAO = $datos->ofertas;
-    $resumenDAO = $datos->panel;
-    $pedidosDAO = $datos->pedidos;
-    $sesionesDAO = $datos->sesiones;
-    $permisosDAO = $datos->permisos;
-    $auditoriaDAO = $datos->auditoria;
-    $auditoria = new AuditoriaMiddleware($auditoriaDAO);
-    $autorizacionRbac = new AutorizacionRbacMiddleware($permisosDAO, $auditoriaDAO);
+    $auditoria = new AuditoriaMiddleware($datos->auditoria);
+    $autorizacionRbac = new AutorizacionRbacMiddleware($datos->permisos, $datos->auditoria);
     $usuarioActual = AutenticacionMiddleware::validarSesionPersistida(
         $usuarioActual,
-        $sesionesDAO
+        $datos->sesiones
     );
-    $sincronizacion = new SincronizacionComercialServicio($ofertasDAO, $pedidosDAO);
-    $sincronizacion->actualizar();
+    (new SincronizacionComercialServicio($datos->ofertas, $datos->pedidos))->actualizar();
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         SeguridadMiddleware::validarPeticionPostCsrf();
         $datosPost = SeguridadMiddleware::sanearArregloEntrada($_POST);
         $accion = (string) ($datosPost['action'] ?? '');
         if ($accion === 'iniciar_sesion') {
-            (new SesionControlador($usuariosDAO, $sesionesDAO))->iniciarSesion($datosPost);
+            (new SesionControlador($datos->usuarios, $datos->sesiones))->iniciarSesion($datosPost);
         }
         AutenticacionMiddleware::exigirSesionParaAccion($usuarioActual);
         $autorizacionRbac->verificarPermisoAccion($accion, $usuarioActual);
         $auditoria->registrar($usuarioActual, $accion, $pagina);
-        $despachador = new DespachadorAcciones(
-            $usuariosDAO,
-            $motosDAO,
-            $clientesDAO,
-            $ventasDAO,
-            $ofertasDAO,
-            $pedidosDAO,
-            $sesionesDAO
-        );
-        $despachador->despachar($accion, $datosPost, $_FILES, $usuarioActual);
+        DespachadorAcciones::desdeContenedor($datos)->despachar($accion, $datosPost, $_FILES, $usuarioActual);
 
         Herramientas::redirigir($pagina);
     }
@@ -101,15 +81,7 @@ try {
         $permisosActuales,
         true
     );
-    $paginaControlador = new PaginaControlador(
-        $motosDAO,
-        $clientesDAO,
-        $ventasDAO,
-        $ofertasDAO,
-        $resumenDAO,
-        $pedidosDAO
-    );
-    extract($paginaControlador->preparar(
+    extract(PaginaControlador::desdeContenedor($datos)->preparar(
         $pagina,
         $_GET,
         $usuarioActual,

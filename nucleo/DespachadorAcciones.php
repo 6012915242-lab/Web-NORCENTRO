@@ -32,6 +32,20 @@ final class DespachadorAcciones
         private SesionDAO $sesionDAO
     ) {}
 
+    /** Construye el despachador con los DAO que comparte la petición. */
+    public static function desdeContenedor(ContenedorDatos $datos): self
+    {
+        return new self(
+            $datos->usuarios,
+            $datos->motos,
+            $datos->clientes,
+            $datos->ventas,
+            $datos->ofertas,
+            $datos->pedidos,
+            $datos->sesiones
+        );
+    }
+
     public function despachar(
         string $accion,
         array $datos,

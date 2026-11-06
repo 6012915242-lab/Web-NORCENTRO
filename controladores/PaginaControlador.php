@@ -10,6 +10,7 @@ use App\AccesoDatos\OfertaDAO;
 use App\AccesoDatos\PanelDAO;
 use App\AccesoDatos\PedidoDAO;
 use App\AccesoDatos\VentaDAO;
+use App\Nucleo\ContenedorDatos;
 use App\Servicios\CatalogoFiltrosServicio;
 use App\Servicios\OfertasCatalogoServicio;
 use App\Servicios\ResumenCreditosServicio;
@@ -25,6 +26,19 @@ final class PaginaControlador
         private PanelDAO $panelDAO,
         private PedidoDAO $pedidoDAO
     ) {}
+
+    /** Construye el controlador con los DAO que comparte la petición. */
+    public static function desdeContenedor(ContenedorDatos $datos): self
+    {
+        return new self(
+            $datos->motos,
+            $datos->clientes,
+            $datos->ventas,
+            $datos->ofertas,
+            $datos->panel,
+            $datos->pedidos
+        );
+    }
 
     public function preparar(
         string $pagina,
