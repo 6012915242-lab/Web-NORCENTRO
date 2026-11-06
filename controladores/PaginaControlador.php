@@ -118,11 +118,16 @@ final class PaginaControlador
         return $datos;
     }
 
+    /** Prepara las motos, ofertas y filtros que utilizan inicio y catálogo. */
     private function prepararCatalogo(string $pagina, array $consulta): array
     {
         $ofertas = $this->ofertaDAO->activas();
         $todasLasMotos = $this->motoDAO->listar();
-        $filtros = (new CatalogoFiltrosServicio)->preparar($todasLasMotos, $consulta, $pagina !== 'inicio');
+        $filtros = (new CatalogoFiltrosServicio)->preparar(
+            $todasLasMotos,
+            $consulta,
+            $pagina !== 'inicio'
+        );
         $variantes = $this->motoDAO->coloresPorMotos(array_column($filtros['catalogo'], 'id'));
 
         return array_merge($filtros, [

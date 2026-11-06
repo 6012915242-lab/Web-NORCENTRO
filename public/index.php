@@ -1,8 +1,9 @@
 <?php
 
 declare(strict_types=1);
-// Front Controller: inicia seguridad, enruta acciones y renderiza la vista solicitada.
+
 require_once dirname(__DIR__).'/autoload.php';
+
 use App\Configuracion\BaseDatos;
 use App\Configuracion\Herramientas;
 use App\Controladores\PaginaControlador;
@@ -17,6 +18,7 @@ use App\Nucleo\MotorVistas;
 use App\Servicios\InicioServicio;
 use App\Servicios\SincronizacionComercialServicio;
 
+/** Inicia la sesión segura y valida los parámetros de la ruta. */
 $rutaSesion = dirname(__DIR__).'/storage/sessions';
 SeguridadMiddleware::inicializarEntornoSeguro($rutaSesion);
 $_GET = SeguridadMiddleware::sanearArregloEntrada($_GET);
@@ -26,6 +28,7 @@ foreach ($_GET as $valorConsulta) {
         exit('Los parámetros de la página no son válidos.');
     }
 }
+/** Identifica la página solicitada y las rutas públicas disponibles. */
 $pagina = preg_replace('/[^a-z_]/', '', (string) ($_GET['page'] ?? 'inicio')) ?: 'inicio';
 $paginasPublicas = [
     'inicio',
@@ -44,6 +47,7 @@ $ofertas = [];
 $todasLasMotos = [];
 $motoDestacada = null;
 $solicitudesCreditoPendientes = 0;
+/** Prepara los controladores y comprueba la sesión persistida. */
 try {
     $conexion = BaseDatos::conectar();
     $datos = new ContenedorDatos($conexion);
@@ -54,6 +58,7 @@ try {
         $datos->sesiones
     );
     (new SincronizacionComercialServicio($datos->ofertas, $datos->pedidos))->actualizar();
+    /** Una petición POST ejecuta una acción después de validar su seguridad. */
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         SeguridadMiddleware::validarPeticionPostCsrf();
         $datosPost = SeguridadMiddleware::sanearArregloEntrada($_POST);
@@ -81,6 +86,7 @@ try {
         $permisosActuales,
         true
     );
+    /** El controlador prepara los datos que recibirá la vista. */
     extract(PaginaControlador::desdeContenedor($datos)->preparar(
         $pagina,
         $_GET,
@@ -137,4 +143,5 @@ $titulosPaginas = [
     'creditos' => 'Créditos y cuotas',
 ];
 $titulo = $titulosPaginas[$pagina] ?? 'Norcentro';
+/** Renderiza la página con los datos preparados durante la petición. */
 echo (new MotorVistas(dirname(__DIR__).'/vistas'))->renderizar($pagina, get_defined_vars());

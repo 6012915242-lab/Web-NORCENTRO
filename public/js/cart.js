@@ -1,10 +1,13 @@
 // Mantiene el carrito del catálogo y dirige al flujo de contado o de crédito.
 (() => {
   const dialog = document.querySelector("#cart-dialog");
+  // Algunas páginas solo necesitan el botón de compra a crédito.
   if (!dialog) {
     document.querySelectorAll(".buy-on-credit").forEach((button) =>
       button.addEventListener("click", () => {
-        if (button.disabled) return;
+        if (button.disabled) {
+          return;
+        }
         const key = "norcentro.cart.v1";
         let cart = [];
         try {
@@ -16,8 +19,9 @@
         const item = cart.find(
           (entry) => Number(entry.id) === id && Number(entry.colorId || 0) === colorId,
         );
-        if (item) item.quantity = Math.min(20, Number(item.quantity) + 1);
-        else
+        if (item) {
+          item.quantity = Math.min(20, Number(item.quantity) + 1);
+        } else {
           cart.push({
             id,
             colorId,
@@ -27,6 +31,7 @@
             image: button.dataset.image || "",
             quantity: 1,
           });
+        }
         localStorage.setItem(key, JSON.stringify(cart));
         window.location.assign("index.php?page=compra_credito");
       }),
@@ -52,6 +57,7 @@
       /[&<>"']/g,
       (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char],
     );
+  // Recupera el carrito guardado en el navegador.
   const readCart = () => {
     try {
       const value = JSON.parse(localStorage.getItem(storageKey) || "[]");
@@ -62,6 +68,7 @@
   };
   let cart = readCart();
   const save = () => localStorage.setItem(storageKey, JSON.stringify(cart));
+  // Actualiza los productos, la cantidad y el total que ve el usuario.
   const render = () => {
     cart = cart.filter(
       (item) =>
@@ -104,14 +111,17 @@
   };
 
   const addItem = (button) => {
-    if (button.disabled) return;
+    if (button.disabled) {
+      return;
+    }
     const id = Number(button.dataset.id);
     const colorId = Number(button.dataset.colorId || 0);
     const existing = cart.find(
       (item) => Number(item.id) === id && Number(item.colorId || 0) === colorId,
     );
-    if (existing) existing.quantity = Math.min(20, Number(existing.quantity) + 1);
-    else
+    if (existing) {
+      existing.quantity = Math.min(20, Number(existing.quantity) + 1);
+    } else {
       cart.push({
         id,
         colorId,
@@ -121,6 +131,7 @@
         image: button.dataset.image || "",
         quantity: 1,
       });
+    }
     checkout.dataset.requestId = "";
     render();
     const oldLabel = button.textContent;
@@ -195,6 +206,7 @@
     checkout.dataset.requestId = "";
   });
 
+  // Envía los datos del pedido al endpoint indicado por el formulario.
   checkout.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!cart.length || !checkout.reportValidity()) return;

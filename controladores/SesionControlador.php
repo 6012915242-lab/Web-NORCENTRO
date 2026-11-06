@@ -26,6 +26,7 @@ final class SesionControlador
     public function iniciarSesion(array $datos): never
     {
         try {
+            /** El servicio valida las credenciales y el estado de la cuenta. */
             $usuario = $this->servicioAutenticacion->autenticar(
                 $this->usuarioDAO,
                 (string) ($datos['usuario'] ?? ''),
@@ -33,6 +34,7 @@ final class SesionControlador
                 (string) ($_SERVER['REMOTE_ADDR'] ?? '')
             );
 
+            /** Renueva la sesión y registra los datos necesarios para identificar al usuario. */
             session_regenerate_id(true);
             $this->sesionDAO->registrar($usuario->id, session_id());
             $_SESSION['_csrf'] = bin2hex(random_bytes(32));
@@ -55,6 +57,7 @@ final class SesionControlador
     {
         $usuarioId = (int) ($_SESSION['user']['id'] ?? 0);
 
+        /** Revoca la sesión persistida antes de limpiar la sesión local. */
         if ($usuarioId > 0) {
             $this->sesionDAO->revocar($usuarioId, session_id());
         }

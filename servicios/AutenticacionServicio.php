@@ -24,6 +24,7 @@ final class AutenticacionServicio
             throw new DomainException('Usuario o contraseña incorrectos.');
         }
 
+        /** Busca la cuenta y verifica que pueda iniciar sesión. */
         $usuario = $usuarioDAO->buscarActivo($nombreUsuario);
 
         if ($usuario === null) {
@@ -36,6 +37,7 @@ final class AutenticacionServicio
             throw new DomainException('La cuenta está bloqueada temporalmente. Intenta nuevamente en 15 minutos.');
         }
 
+        /** Comprueba la contraseña y registra el resultado del intento. */
         if (! password_verify($clave, $usuario->passwordHash)) {
             $usuarioDAO->registrarFallo($usuario->id);
             $usuarioDAO->registrarIntento($nombreUsuario, $direccionIp, false, 'Contraseña incorrecta');

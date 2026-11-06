@@ -20,6 +20,7 @@ final class CatalogoFiltrosServicio
         $cilindradasCatalogo = [];
         $motoDestacada = null;
 
+        /** Reúne las opciones disponibles y localiza la moto destacada. */
         foreach ($motos as $moto) {
             $marcasCatalogo[(int) $moto['marca_id']] = $moto['marca'];
             if ($marcaSeleccionada === 0 || (int) $moto['marca_id'] === $marcaSeleccionada) {
@@ -39,6 +40,7 @@ final class CatalogoFiltrosServicio
         ksort($modelosCatalogo);
         sort($cilindradasCatalogo);
 
+        /** En el catálogo se aplican las opciones seleccionadas; en inicio no se filtra. */
         $catalogo = $mostrarCatalogo ? array_values(array_filter(
             $motos,
             static function (array $moto) use (
