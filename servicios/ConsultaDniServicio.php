@@ -87,16 +87,25 @@ final class ConsultaDniServicio
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT => 15,
             CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_HTTPHEADER => [
                 'Accept: application/json',
                 'Authorization: Bearer '.$token,
             ],
         ]);
+        // XAMPP en Windows no trae certificados raíz: se usa el paquete del proyecto.
+        $certificados = self::rutaCertificados();
+        if ($certificados !== null) {
+            curl_setopt($consulta, CURLOPT_CAINFO, $certificados);
+        }
         $respuesta = curl_exec($consulta);
         $estado = (int) curl_getinfo($consulta, CURLINFO_RESPONSE_CODE);
+        $errorCurl = curl_error($consulta);
         curl_close($consulta);
 
         if ($respuesta === false || $estado !== 200) {
+            error_log(sprintf('Factiliza respondió HTTP %d. cURL: %s', $estado, $errorCurl));
             throw new RuntimeException('No se pudo consultar el DNI. Revisa la configuración o ingresa los datos manualmente.');
         }
 
@@ -118,10 +127,11 @@ final class ConsultaDniServicio
                 'follow_location' => 0,
                 'ignore_errors' => true,
             ],
-            'ssl' => [
+            'ssl' => array_filter([
                 'verify_peer' => true,
                 'verify_peer_name' => true,
-            ],
+                'cafile' => self::rutaCertificados(),
+            ], static fn ($valor): bool => $valor !== null),
         ]);
 
         $respuesta = @file_get_contents($url, false, $contexto);
@@ -132,5 +142,13 @@ final class ConsultaDniServicio
         }
 
         return $respuesta;
+    }
+
+    /** Devuelve el paquete de certificados raíz incluido en el proyecto, si existe. */
+    private static function rutaCertificados(): ?string
+    {
+        $archivo = dirname(__DIR__).'/configuracion/cacert.pem';
+
+        return is_readable($archivo) ? $archivo : null;
     }
 }
