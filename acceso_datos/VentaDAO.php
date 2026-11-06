@@ -6,6 +6,7 @@ namespace App\AccesoDatos;
 
 use App\Modelos\Cliente;
 use App\Modelos\Credito;
+use App\Modelos\Cuota;
 use App\Modelos\Moto;
 use App\Modelos\PlanCredito;
 use App\Modelos\Venta;
@@ -285,6 +286,14 @@ final class VentaDAO extends ModeloBaseORM
         }
 
         return $this->obtenerTodos($consulta.' ORDER BY cr.id DESC', $parametros);
+    }
+
+    /** Devuelve las cuotas como entidades ordenadas por número. */
+    public function obtenerCuotasDeCredito(int $creditoId): array
+    {
+        $cuotas = $this->tieneMuchos(Cuota::class, 'cuotas', 'credito_id', $creditoId);
+        usort($cuotas, static fn (Cuota $a, Cuota $b): int => $a->numero <=> $b->numero);
+        return $cuotas;
     }
 
     /** Obtiene las cuotas de un crédito en el orden de su cronograma. */

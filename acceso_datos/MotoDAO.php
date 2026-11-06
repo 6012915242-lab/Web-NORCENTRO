@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\AccesoDatos;
 
 use App\Modelos\Moto;
+use App\Modelos\Marca;
 use App\Nucleo\ModeloBaseORM;
 use PDO;
 
@@ -63,6 +64,12 @@ final class MotoDAO extends ModeloBaseORM
              WHERE m.id = :id',
             ['id' => $id]
         );
+    }
+
+    public function obtenerMarca(Moto $moto): ?Marca
+    {
+        $marca = $this->perteneceA(MarcaDAO::class, $moto->marcaId);
+        return $marca instanceof Marca ? $marca : null;
     }
 
     public function detallePublico(int $id): ?array

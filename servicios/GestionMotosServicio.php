@@ -66,11 +66,16 @@ final class GestionMotosServicio
             throw new DomainException('Revisa la cantidad de unidades iniciales y la descripción.');
         }
 
-        if (! $motoDAO->marcaActiva((int) $marcaId)) {
+        $registroAnterior = $esEdicion ? $motoDAO->obtenerEntidad((int) $id) : null;
+        $marcaAnterior = $registroAnterior !== null && $registroAnterior->marcaId === (int) $marcaId
+            ? $motoDAO->obtenerMarca($registroAnterior)
+            : null;
+        $marcaActiva = $marcaAnterior !== null
+            ? $marcaAnterior->estado === 'Activo'
+            : $motoDAO->marcaActiva((int) $marcaId);
+        if (! $marcaActiva) {
             throw new DomainException('Selecciona una marca activa.');
         }
-
-        $registroAnterior = $esEdicion ? $motoDAO->obtenerEntidad((int) $id) : null;
 
         if ($esEdicion && ($registroAnterior === null || $registroAnterior->estado !== 'Activo')) {
             throw new DomainException('No se encontró una motocicleta activa con ese identificador.');

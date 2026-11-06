@@ -115,6 +115,23 @@ abstract class ModeloBaseORM
         );
     }
 
+    /** Consulta una entidad relacionada mediante su DAO. */
+    protected function perteneceA(string $claseDao, int $idForaneo): ?EntidadORM
+    {
+        if (! is_subclass_of($claseDao, self::class)) {
+            throw new RuntimeException('La clase indicada no es un DAO válido.');
+        }
+        return (new $claseDao($this->conexion))->buscarPorId($idForaneo);
+    }
+
+    /** Consulta entidades relacionadas por una clave foránea. */
+    protected function tieneMuchos(string $claseEntidad, string $tabla, string $columnaForanea, int $id): array
+    {
+        return $this->hidratarEntidades($claseEntidad,
+            'SELECT * FROM '.$this->identificador($tabla).' WHERE '.$this->identificador($columnaForanea).' = :id',
+            ['id' => $id]);
+    }
+
     /** @return array{0: string, 1: array} */
     private function construirCondiciones(array $condiciones): array
     {
