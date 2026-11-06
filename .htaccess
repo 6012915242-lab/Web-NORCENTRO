@@ -1,10 +1,16 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # La aplicación pública no necesita acceso directo a estas carpetas.
-    RewriteRule ^(?:acceso_datos|configuracion|controladores|middlewares|modelos|nucleo|servicios|scripts|sql|storage|vistas|migraciones)(?:/|$) - [F,NC,L]
+    # La raíz del proyecto redirige a public/, donde está el Front Controller.
+    RewriteRule ^$ %{REQUEST_URI}public/ [R=302,L]
+
+    # Archivos ocultos (.git, .gitignore, .htaccess...) nunca se sirven.
+    RewriteRule (?:^|/)\. - [F,L]
+
+    # Las capas internas solo se cargan desde PHP; el navegador no puede abrirlas.
+    RewriteRule ^(?:acceso_datos|configuracion|controladores|middlewares|migraciones|modelos|nucleo|scripts|servicios|storage|vistas)(?:/|$) - [F,NC,L]
     RewriteRule ^autoload\.php$ - [F,NC,L]
 
-    # Laravel solo debe servir archivos desde su directorio public.
+    # Laravel solo debe servir archivos desde su carpeta public.
     RewriteRule ^backend-laravel/(?!public(?:/|$)) - [F,NC,L]
 </IfModule>

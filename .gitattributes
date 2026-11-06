@@ -1,6 +1,11 @@
-# Normaliza los saltos de línea entre Windows y Linux
-* text=auto
+# Todos los archivos de texto se guardan con saltos de línea LF (Unix),
+# así Windows y Linux muestran los mismos cambios en Git.
+* text=auto eol=lf
+
+# Archivos binarios: Git no debe modificarlos.
 *.jpg binary
 *.jpeg binary
 *.png binary
 *.gif binary
+*.webp binary
+*.ico binary

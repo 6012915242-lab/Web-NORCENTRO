@@ -1,29 +1,27 @@
-# Configuración y credenciales locales
+# Credenciales locales (nunca se suben al repositorio)
 .env
 .env.*
-!.env.example
 /configuracion/factiliza.ini
 
-# Dependencias instaladas y archivos temporales
+# Archivos generados durante la ejecución
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+/public/img/motos/uploads/*
+!/public/img/motos/uploads/.keep
+*.log
+
+# Backend Laravel: dependencias y archivos generados
+/backend-laravel/.env
 /backend-laravel/vendor/
 /backend-laravel/node_modules/
 /backend-laravel/public/build/
 /backend-laravel/public/hot
-.phpunit.result.cache
-.phpunit.cache/
-*.log
-
-# Sesiones y vistas generadas durante la ejecución
-/storage/sessions/*
-!/storage/sessions/.gitignore
 /backend-laravel/storage/framework/sessions/*
-!/backend-laravel/storage/framework/sessions/.gitignore
 /backend-laravel/storage/framework/views/*
-!/backend-laravel/storage/framework/views/.gitignore
 /backend-laravel/storage/framework/cache/data/*
-!/backend-laravel/storage/framework/cache/data/.gitignore
 /backend-laravel/storage/logs/*
-!/backend-laravel/storage/logs/.gitignore
+!/backend-laravel/storage/**/.gitignore
+.phpunit.result.cache
 
 # Archivos locales del editor y del sistema
 .DS_Store
@@ -31,7 +29,5 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Copias antiguas y archivos temporales de diagnóstico
-/Web-NORCENTRO/
+# Archivos temporales de diagnóstico
 /public/diagnostico.php
-/scripts/prueba_credito_temporal.php
