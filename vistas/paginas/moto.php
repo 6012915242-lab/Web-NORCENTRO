@@ -177,12 +177,32 @@ use App\Configuracion\Herramientas;
             <h2>Características de la motocicleta</h2>
             <p><?= Herramientas::escaparHtml($motoDetalle['descripcion']) ?></p>
             <dl>
-                <div><dt>Marca</dt><dd><?= Herramientas::escaparHtml($motoDetalle['marca']) ?></dd></div>
-                <div><dt>Modelo</dt><dd><?= Herramientas::escaparHtml($motoDetalle['modelo']) ?></dd></div>
-                <div><dt>Cilindrada</dt><dd><?= (int) $motoDetalle['cilindrada'] ?> cc</dd></div>
-                <div><dt>Año</dt><dd><?= Herramientas::escaparHtml($motoDetalle['anio']) ?></dd></div>
-                <div><dt>Color</dt><dd id="selected-color-detail"><?= Herramientas::escaparHtml($colorSeleccionado['nombre'] ?? $motoDetalle['color']) ?></dd></div>
-                <div><dt>Disponibilidad</dt><dd><?= (int) $motoDetalle['disponibles'] ?> unidad(es)</dd></div>
+                <div>
+                    <dt>Marca</dt>
+                    <dd><?= Herramientas::escaparHtml($motoDetalle['marca']) ?></dd>
+                </div>
+                <div>
+                    <dt>Modelo</dt>
+                    <dd><?= Herramientas::escaparHtml($motoDetalle['modelo']) ?></dd>
+                </div>
+                <div>
+                    <dt>Cilindrada</dt>
+                    <dd><?= (int) $motoDetalle['cilindrada'] ?> cc</dd>
+                </div>
+                <div>
+                    <dt>Año</dt>
+                    <dd><?= Herramientas::escaparHtml($motoDetalle['anio']) ?></dd>
+                </div>
+                <div>
+                    <dt>Color</dt>
+                    <dd id="selected-color-detail">
+                        <?= Herramientas::escaparHtml($colorSeleccionado['nombre'] ?? $motoDetalle['color']) ?>
+                    </dd>
+                </div>
+                <div>
+                    <dt>Disponibilidad</dt>
+                    <dd><?= (int) $motoDetalle['disponibles'] ?> unidad(es)</dd>
+                </div>
             </dl>
             <?php if (!empty($especificacionesMoto)): ?>
                 <div class="specification-table">

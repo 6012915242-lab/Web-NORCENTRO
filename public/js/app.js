@@ -186,23 +186,26 @@
   const updateGalleryControls = () => {
     const visible = visibleGalleryButtons();
     const index = visible.findIndex((button) => button.classList.contains("active"));
-    if (galleryCounter)
+    if (galleryCounter) {
       galleryCounter.textContent = `${index < 0 ? 0 : index + 1} / ${visible.length}`;
+    }
     if (galleryPrev) {
-        galleryPrev.hidden = visible.length < 2;
+      galleryPrev.hidden = visible.length < 2;
     }
     if (galleryNext) {
-        galleryNext.hidden = visible.length < 2;
+      galleryNext.hidden = visible.length < 2;
     }
   };
   const setMainPhoto = (button) => {
     if (!mainPhoto) {
-        return;
+      return;
     }
     mainPhoto.src = button.dataset.gallerySrc;
     mainPhoto.alt = button.dataset.galleryAlt || "";
     if (galleryCaption) {
-        galleryCaption.textContent = button.dataset.galleryLabel || button.dataset.galleryAlt || "Vista de la motocicleta";
+      galleryCaption.textContent = button.dataset.galleryLabel
+        || button.dataset.galleryAlt
+        || "Vista de la motocicleta";
     }
     const colorGroup = button.dataset.colorGroup;
     if (colorGroup) {
@@ -214,17 +217,18 @@
           const active = item === swatch;
           item.classList.toggle("active", active);
           if (active) {
-              item.setAttribute("aria-current", "true");
+            item.setAttribute("aria-current", "true");
+          } else {
+            item.removeAttribute("aria-current");
           }
-          else item.removeAttribute("aria-current");
         });
         const label = document.querySelector("#selected-color-name");
         if (label) {
-            label.textContent = swatch.title;
+          label.textContent = swatch.title;
         }
         const detailColor = document.querySelector("#selected-color-detail");
         if (detailColor) {
-            detailColor.textContent = swatch.title;
+          detailColor.textContent = swatch.title;
         }
         document
           .querySelectorAll(
@@ -247,21 +251,19 @@
   const missingPhotoUrl = new URL("img/motos/foto-no-disponible.svg", document.baseURI).href;
   const useMissingPhoto = (image) => {
     if (!image || image.dataset.fallbackApplied === "1") {
-        return;
+      return;
     }
     image.dataset.fallbackApplied = "1";
     image.classList.add("image-fallback");
     image.src = missingPhotoUrl;
   };
-  // A failed angle disappears from the gallery and its counter. Other broken
-  // product images get an explicit neutral placeholder instead of an empty box
-  // or a different motorcycle/color.
+  // Oculta las tomas que fallan y usa una imagen neutra cuando no queda ninguna.
   document.addEventListener(
     "error",
     (event) => {
       const image = event.target;
       if (!(image instanceof HTMLImageElement) || image.dataset.fallbackApplied === "1") {
-          return;
+        return;
       }
       const failedUrl = image.currentSrc || image.src;
       const thumb = image.closest(".detail-thumb");
@@ -273,10 +275,9 @@
         if (wasActive) {
           const next = visible[0];
           if (next) {
-              setMainPhoto(next);
-          }
-          else if (mainPhoto) {
-              useMissingPhoto(mainPhoto);
+            setMainPhoto(next);
+          } else if (mainPhoto) {
+            useMissingPhoto(mainPhoto);
           }
         }
         updateGalleryControls();
@@ -301,7 +302,7 @@
     },
     true,
   );
-  // Images may have failed before this script was evaluated.
+  // Revisa imágenes que pudieron fallar antes de cargar este script.
   document.querySelectorAll("img").forEach((image) => {
     if (image.complete && image.naturalWidth === 0 && image.src !== missingPhotoUrl) {
       image.dispatchEvent(new Event("error"));
@@ -327,8 +328,7 @@
         stepPhoto(1);
     }
   });
-  // Each color swatch is a link to a server-rendered gallery for that exact
-  // finish. Keeping one color's photos in the DOM prevents mixed thumbnails.
+  // Cada color abre su propia galería para evitar mezclar fotografías.
   const contactForm = document.querySelector("#contact-form");
   contactForm?.addEventListener("submit", (event) => {
     event.preventDefault();
