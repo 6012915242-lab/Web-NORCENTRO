@@ -189,7 +189,13 @@ use App\Configuracion\Herramientas;
                     <h3>Datos de referencia</h3>
                     <div class="table-wrap">
                         <table>
-                            <thead><tr><th>Grupo</th><th>Característica</th><th>Detalle</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Grupo</th>
+                                    <th>Característica</th>
+                                    <th>Detalle</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 <?php foreach ($especificacionesMoto as $especificacion): ?>
                                     <tr>

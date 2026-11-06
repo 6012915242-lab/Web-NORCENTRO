@@ -224,8 +224,12 @@ use App\Configuracion\Herramientas;
             <table>
                 <thead>
                     <tr>
-                        <th>N.º</th><th>Vencimiento</th><th>Monto</th>
-                        <th>Pagado</th><th>Estado</th><th>Registrar pago</th>
+                        <th>N.º</th>
+                        <th>Vencimiento</th>
+                        <th>Monto</th>
+                        <th>Pagado</th>
+                        <th>Estado</th>
+                        <th>Registrar pago</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -287,7 +291,14 @@ use App\Configuracion\Herramientas;
             <?php if (!empty($pagosCredito[$credito['id']])): ?>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Fecha</th><th>Concepto</th><th>Cuota</th><th>Importe</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Concepto</th>
+                                <th>Cuota</th>
+                                <th>Importe</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             <?php foreach ($pagosCredito[$credito['id']] as $pago): ?>
                                 <tr>

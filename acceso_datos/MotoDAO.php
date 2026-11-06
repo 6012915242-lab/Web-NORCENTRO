@@ -37,7 +37,12 @@ final class MotoDAO extends ModeloBaseORM
 
     public function obtener(int $id): ?array
     {
-        $consulta = $this->conexion->prepare('SELECT m.*,ma.nombre marca FROM motos m JOIN marcas ma ON ma.id=m.marca_id WHERE m.id=:id AND ma.estado="Activo"');
+        $consulta = $this->conexion->prepare('
+            SELECT m.*, ma.nombre AS marca
+            FROM motos m
+            INNER JOIN marcas ma ON ma.id = m.marca_id
+            WHERE m.id = :id AND ma.estado = "Activo"
+        ');
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->execute();
 
@@ -75,7 +80,12 @@ final class MotoDAO extends ModeloBaseORM
 
     public function imagenesPublicas(int $id): array
     {
-        $consulta = $this->conexion->prepare('SELECT ruta,texto_alt,orden,es_principal FROM moto_imagenes WHERE moto_id=:id ORDER BY es_principal DESC,orden,id');
+        $consulta = $this->conexion->prepare('
+            SELECT ruta, texto_alt, orden, es_principal
+            FROM moto_imagenes
+            WHERE moto_id = :id
+            ORDER BY es_principal DESC, orden, id
+        ');
         $consulta->execute(['id' => $id]);
 
         return $consulta->fetchAll();
@@ -137,7 +147,12 @@ final class MotoDAO extends ModeloBaseORM
 
     public function especificacionesPublicas(int $id): array
     {
-        $consulta = $this->conexion->prepare('SELECT grupo,nombre,valor,fuente_url FROM moto_especificaciones WHERE moto_id=:id ORDER BY orden,id');
+        $consulta = $this->conexion->prepare('
+            SELECT grupo, nombre, valor, fuente_url
+            FROM moto_especificaciones
+            WHERE moto_id = :id
+            ORDER BY orden, id
+        ');
         $consulta->execute(['id' => $id]);
 
         return $consulta->fetchAll();

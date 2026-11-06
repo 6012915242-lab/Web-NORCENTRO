@@ -224,28 +224,40 @@ final class VentaDAO extends ModeloBaseORM
                  estado, porcentaje_recargo, importe_recargo)
             VALUES (:venta, :inicial, :financiado, :n, :saldo, "Activo", :porcentaje, :recargo)
         ');
-        $consulta->execute(['venta' => $venta,
+        $consulta->execute([
+            'venta' => $venta,
             'inicial' => $inicial,
             'financiado' => $financiado,
             'n' => $numeroCuotas,
             'saldo' => $financiado,
             'porcentaje' => PlanCredito::PORCENTAJE_RECARGO,
-            'recargo' => $plan['recargo']]);
+            'recargo' => $plan['recargo'],
+        ]);
         $credito = (int) $this->conexion->lastInsertId();
         $primeraFecha = new DateTimeImmutable($datos['fecha_primera_cuota']);
         $fechas = PlanCredito::fechasCuotas($primeraFecha, $numeroCuotas);
-        $instancia = $this->conexion->prepare('INSERT INTO cuotas(credito_id,numero,fecha_vencimiento,monto,estado) VALUES(:credito,:numero,:fecha,:monto,"Pendiente")');
+        $consultaCuota = $this->conexion->prepare('
+            INSERT INTO cuotas (credito_id, numero, fecha_vencimiento, monto, estado)
+            VALUES (:credito, :numero, :fecha, :monto, "Pendiente")
+        ');
         for ($i = 1; $i <= $numeroCuotas; $i++) {
             $monto = $plan['cuotas'][$i - 1];
-            $instancia->execute(['credito' => $credito,
+            $consultaCuota->execute([
+                'credito' => $credito,
                 'numero' => $i,
                 'fecha' => $fechas[$i - 1]->format('Y-m-d'),
-                'monto' => $monto]);
+                'monto' => $monto,
+            ]);
         }
         if ($inicial > 0) {
-            $p = $this->conexion->prepare('INSERT INTO pagos(credito_id,cuota_id,monto,fecha,concepto) VALUES(:credito,NULL,:monto,CURDATE(),"Cuota inicial")');
-            $p->execute(['credito' => $credito,
-                'monto' => $inicial]);
+            $consultaPago = $this->conexion->prepare('
+                INSERT INTO pagos (credito_id, cuota_id, monto, fecha, concepto)
+                VALUES (:credito, NULL, :monto, CURDATE(), "Cuota inicial")
+            ');
+            $consultaPago->execute([
+                'credito' => $credito,
+                'monto' => $inicial,
+            ]);
         }
     }
 
@@ -341,7 +353,13 @@ final class VentaDAO extends ModeloBaseORM
     {
         $this->conexion->beginTransaction();
         try {
-            $consulta = $this->conexion->prepare('SELECT q.*,c.saldo,c.id credito_id FROM cuotas q JOIN creditos c ON c.id=q.credito_id WHERE q.id=:id FOR UPDATE');
+            $consulta = $this->conexion->prepare('
+                SELECT q.*, c.saldo, c.id AS credito_id
+                FROM cuotas q
+                INNER JOIN creditos c ON c.id = q.credito_id
+                WHERE q.id = :id
+                FOR UPDATE
+            ');
             $consulta->execute(['id' => $cuotaId]);
             $resultado = $consulta->fetch();
             if (! $resultado || $resultado['estado'] === 'Pagada') {
@@ -361,7 +379,10 @@ final class VentaDAO extends ModeloBaseORM
             $consulta->execute(['monto_estado' => $monto,
                 'monto_restar' => $monto,
                 'id' => $resultado['credito_id']]);
-            $consulta = $this->conexion->prepare('INSERT INTO pagos(credito_id,cuota_id,monto,fecha,concepto) VALUES(:credito,:cuota,:monto,CURDATE(),"Abono de cuota")');
+            $consulta = $this->conexion->prepare('
+                INSERT INTO pagos (credito_id, cuota_id, monto, fecha, concepto)
+                VALUES (:credito, :cuota, :monto, CURDATE(), "Abono de cuota")
+            ');
             $consulta->execute(['credito' => $resultado['credito_id'],
                 'cuota' => $cuotaId,
                 'monto' => $monto]);

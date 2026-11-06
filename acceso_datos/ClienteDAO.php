@@ -55,7 +55,11 @@ final class ClienteDAO extends ModeloBaseORM
 
     public function obtenerActivo(int $id): ?array
     {
-        $consulta = $this->conexion->prepare('SELECT id,dni,nombres,apellidos,telefono,correo FROM clientes WHERE id=:id AND estado="Activo"');
+        $consulta = $this->conexion->prepare('
+            SELECT id, dni, nombres, apellidos, telefono, correo
+            FROM clientes
+            WHERE id = :id AND estado = "Activo"
+        ');
         $consulta->execute(['id' => $id]);
 
         return $consulta->fetch() ?: null;

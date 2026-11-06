@@ -106,7 +106,12 @@ use App\Configuracion\Herramientas;
             <div class="table-wrap">
                 <table>
                     <thead>
-                        <tr><th>Oferta</th><th>Vigencia</th><th>Estado</th><th></th></tr>
+                        <tr>
+                            <th>Oferta</th>
+                            <th>Vigencia</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($listaOfertas as $ofertaLista): ?>

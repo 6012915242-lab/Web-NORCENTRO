@@ -261,7 +261,11 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function obtenerPorRequest(string $idSolicitud): ?array
     {
-        $consulta = $this->conexion->prepare('SELECT id,request_id,modalidad,total,estado,mp_order_id,checkout_url FROM pedidos WHERE request_id=:id');
+        $consulta = $this->conexion->prepare('
+            SELECT id, request_id, modalidad, total, estado, mp_order_id, checkout_url
+            FROM pedidos
+            WHERE request_id = :id
+        ');
         $consulta->execute(['id' => $idSolicitud]);
 
         return $consulta->fetch() ?: null;
@@ -269,7 +273,11 @@ final class PedidoDAO extends ModeloBaseORM
 
     public function obtenerPorMercadoPago(string $idMercadoPago): ?array
     {
-        $consulta = $this->conexion->prepare('SELECT id,request_id,modalidad,total,estado,mp_order_id,checkout_url FROM pedidos WHERE mp_order_id=:id');
+        $consulta = $this->conexion->prepare('
+            SELECT id, request_id, modalidad, total, estado, mp_order_id, checkout_url
+            FROM pedidos
+            WHERE mp_order_id = :id
+        ');
         $consulta->execute(['id' => $idMercadoPago]);
 
         return $consulta->fetch() ?: null;
