@@ -219,15 +219,3 @@ INNER JOIN rol_permisos ON rol_permisos.rol_id = roles.id
 INNER JOIN permisos ON permisos.id = rol_permisos.permiso_id
 WHERE usuarios.estado = 'Activo'
   AND permisos.estado = 'Activo';
-
--- Comprobacion final visible desde phpMyAdmin.
-SELECT roles.nombre AS rol, COUNT(rol_permisos.permiso_id) AS total_permisos
-FROM roles
-LEFT JOIN rol_permisos ON rol_permisos.rol_id = roles.id
-GROUP BY roles.id, roles.nombre
-ORDER BY roles.id;
-
-SELECT
-    (SELECT COUNT(*) FROM permisos WHERE estado = 'Activo') AS permisos_activos,
-    (SELECT COUNT(*) FROM usuarios WHERE estado = 'Activo') AS usuarios_activos,
-    (SELECT COUNT(*) FROM auditoria_seguridad) AS registros_auditoria;
