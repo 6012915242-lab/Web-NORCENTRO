@@ -2,7 +2,6 @@
 use App\Configuracion\Herramientas;
 $formularioCliente = $editCliente ?? [];
 $puedeDesactivarCliente = $usuarioPuede('clientes.desactivar');
-$continuarVenta = ($_GET['next'] ?? '') === 'venta';
 ?>
 <div class="page-head">
     <div>
@@ -17,9 +16,6 @@ $continuarVenta = ($_GET['next'] ?? '') === 'venta';
         y quedará seleccionado automáticamente.
     </div>
 <?php endif; ?>
-<?php
-$idClienteRegistrado = (int)($_GET['cliente_registrado'] ?? 0);
-?>
 <?php if ($idClienteRegistrado > 0): ?>
     <div class="notice info client-next-step">
         <span>Cliente registrado correctamente. Puedes continuar a la siguiente ficha.</span>
@@ -83,7 +79,7 @@ $idClienteRegistrado = (int)($_GET['cliente_registrado'] ?? 0);
       <h2>Clientes registrados</h2>
       <form class="search-form" method="get">
         <input type="hidden" name="page" value="clientes">
-        <input name="q" placeholder="DNI o nombre" value="<?= Herramientas::escaparHtml($_GET['q'] ?? '') ?>">
+        <input name="q" placeholder="DNI o nombre" value="<?= Herramientas::escaparHtml($busquedaClientes) ?>">
         <button class="button small-button">Buscar</button>
       </form>
     </div>

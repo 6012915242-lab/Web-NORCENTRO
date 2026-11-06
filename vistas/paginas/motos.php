@@ -206,7 +206,7 @@ $esAdministrador = $usuarioPuede('motos.gestionar');
         <input
           name="q"
           placeholder="Buscar marca o modelo"
-          value="<?= Herramientas::escaparHtml($_GET['q'] ?? '') ?>"
+          value="<?= Herramientas::escaparHtml($busquedaMotos) ?>"
         >
         <button class="button small-button">Buscar</button>
       </form>

@@ -192,12 +192,14 @@ final class PaginaControlador
 
     private function prepararMotos(array $consulta): array
     {
+        $busqueda = mb_substr(trim((string) ($consulta['q'] ?? '')), 0, 100);
         $editMoto = isset($consulta['edit'])
             ? $this->motoDAO->obtener((int) $consulta['edit'])
             : null;
 
         return [
-            'elementos' => $this->motoDAO->listar(trim((string) ($consulta['q'] ?? ''))),
+            'elementos' => $this->motoDAO->listar($busqueda),
+            'busquedaMotos' => $busqueda,
             'marcas' => $this->motoDAO->marcas(),
             'editMoto' => $editMoto,
             'coloresEdicion' => $editMoto !== null
@@ -208,8 +210,13 @@ final class PaginaControlador
 
     private function prepararClientes(array $consulta): array
     {
+        $busqueda = mb_substr(trim((string) ($consulta['q'] ?? '')), 0, 100);
+
         return [
-            'elementos' => $this->clienteDAO->listar(trim((string) ($consulta['q'] ?? ''))),
+            'elementos' => $this->clienteDAO->listar($busqueda),
+            'busquedaClientes' => $busqueda,
+            'continuarVenta' => ($consulta['next'] ?? '') === 'venta',
+            'idClienteRegistrado' => (int) ($consulta['cliente_registrado'] ?? 0),
             'editCliente' => isset($consulta['edit'])
                 ? $this->clienteDAO->obtener((int) $consulta['edit'])
                 : null,
