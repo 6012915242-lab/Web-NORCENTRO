@@ -38,9 +38,7 @@ final class GestionClientesServicio
             }
         }
 
-        if (! preg_match('/^\d{8}$/', $dni)) {
-            throw new DomainException('El DNI debe contener exactamente 8 dígitos numéricos.');
-        }
+        Validador::dni($dni, 'El DNI debe contener exactamente 8 dígitos numéricos.');
 
         $patronNombre = "/^[\p{L}\p{M}][\p{L}\p{M} .'-]*$/u";
 
@@ -52,16 +50,16 @@ final class GestionClientesServicio
             throw new DomainException('Ingresa apellidos válidos (entre 2 y 100 caracteres).');
         }
 
-        if ($telefono !== '' && (mb_strlen($telefono) > 20 || ! preg_match('/^[+0-9 ()-]{7,20}$/', $telefono))) {
-            throw new DomainException('Ingresa un número de teléfono válido (7 a 20 caracteres).');
+        if ($telefono !== '') {
+            Validador::telefonoFlexible($telefono, 'Ingresa un número de teléfono válido (7 a 20 caracteres).');
         }
 
         if (mb_strlen($direccion) > 180 || mb_strlen($correo) > 120) {
             throw new DomainException('La dirección o el correo superan la longitud máxima permitida.');
         }
 
-        if ($correo !== '' && ! filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-            throw new DomainException('Ingresa un correo válido.');
+        if ($correo !== '') {
+            Validador::correo($correo, 'Ingresa un correo válido.');
         }
 
         if ($clienteDAO->existeDni($dni, $esEdicion ? (int) $id : null)) {

@@ -33,13 +33,14 @@ final class ValidacionPedidoServicio
         if (mb_strlen($nombres) < 2 || mb_strlen($nombres) > 100 || mb_strlen($apellidos) < 2 || mb_strlen($apellidos) > 100) {
             throw new InvalidArgumentException('Escribe tus nombres y apellidos.');
         }
-        if (! preg_match('/^\d{8}$/', $dni)) {
-            throw new InvalidArgumentException('El DNI debe tener 8 dígitos.');
+        try {
+            Validador::dni($dni, 'El DNI debe tener 8 dígitos.');
+            Validador::telefonoFlexible($telefono, 'Ingresa un celular válido.');
+            Validador::correo($correo, 'Ingresa un correo válido.');
+        } catch (\DomainException $error) {
+            throw new InvalidArgumentException($error->getMessage(), 0, $error);
         }
-        if (! preg_match('/^[+0-9 ()-]{7,20}$/', $telefono)) {
-            throw new InvalidArgumentException('Ingresa un celular válido.');
-        }
-        if (! filter_var($correo, FILTER_VALIDATE_EMAIL) || strlen($correo) > 120) {
+        if (strlen($correo) > 120) {
             throw new InvalidArgumentException('Ingresa un correo válido.');
         }
         if (! in_array($modalidad, ['Contado', 'Crédito'], true)) {

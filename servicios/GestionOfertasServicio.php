@@ -40,14 +40,21 @@ final class GestionOfertasServicio
         $inicio = TextoEntrada::normalizar($entrada['fecha_inicio'] ?? '');
         $fin = TextoEntrada::normalizar($entrada['fecha_fin'] ?? '');
 
-        if (! $idMoto || $idMoto < 1 || mb_strlen($titulo) < 3 || mb_strlen($titulo) > 100 || mb_strlen($descripcion) > 255) {
+        Validador::textoRequerido($titulo, 100, 'Revisa el modelo seleccionado, el título y la descripción de la oferta.');
+        if (! $idMoto || $idMoto < 1 || mb_strlen($titulo) < 3 || mb_strlen($descripcion) > 255) {
             throw new DomainException('Revisa el modelo seleccionado, el título y la descripción de la oferta.');
+        }
+
+        if ($normal !== false && $oferta !== false) {
+            $mensajePrecios = 'Ingresa precios válidos de hasta dos decimales; el promocional debe ser menor al normal.';
+            Validador::montoPositivo((float) $normal, $mensajePrecios);
+            Validador::montoPositivo((float) $oferta, $mensajePrecios);
         }
 
         $normalTexto = $entrada['precio_normal'] ?? null;
         $ofertaTexto = $entrada['precio_oferta'] ?? null;
         if (
-            $normal === false || $oferta === false || $normal <= 0 || $oferta <= 0 || $oferta >= $normal
+            $normal === false || $oferta === false || $oferta >= $normal
             || ! is_scalar($normalTexto) || ! is_scalar($ofertaTexto)
             || ! preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', trim((string) $normalTexto))
             || ! preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', trim((string) $ofertaTexto))

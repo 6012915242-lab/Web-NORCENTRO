@@ -33,19 +33,23 @@ final class GestionMotosServicio
 
         $anioValido = ($anio !== false && $anio >= 1970 && $anio <= (int) date('Y') + 2);
 
+        Validador::textoRequerido($modelo, 100, 'Revisa la marca y el nombre del modelo (2 a 100 caracteres).');
+
         if (
             ($esEdicion && (! $id || $id < 1))
             || ! $marcaId
             || $marcaId < 1
             || mb_strlen($modelo) < 2
-            || mb_strlen($modelo) > 100
         ) {
             throw new DomainException('Revisa la marca y el nombre del modelo (2 a 100 caracteres).');
         }
 
+        if ($precio !== false) {
+            Validador::montoPositivo((float) $precio, 'Revisa la cilindrada, el año y el precio de la motocicleta.');
+        }
+
         if (
             $precio === false
-            || $precio <= 0
             || $precio > 1000000
             || ! is_scalar($entrada['precio'] ?? null)
             || ! preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', trim((string) $entrada['precio']))
