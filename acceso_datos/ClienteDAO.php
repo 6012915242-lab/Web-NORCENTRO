@@ -10,6 +10,10 @@ use App\Nucleo\ModeloBaseORM;
 /** Guarda y consulta la información de los clientes en MySQL. */
 final class ClienteDAO extends ModeloBaseORM
 {
+    protected const TABLA = 'clientes';
+
+    protected const ENTIDAD = Cliente::class;
+
     public function listar(string $buscar = ''): array
     {
         $consultaSQL = 'SELECT * FROM clientes WHERE estado="Activo"';
@@ -22,10 +26,8 @@ final class ClienteDAO extends ModeloBaseORM
                 'term3' => $terminoBusqueda];
         }
         $consultaSQL .= ' ORDER BY apellidos,nombres';
-        $consulta = $this->conexion->prepare($consultaSQL);
-        $consulta->execute($parametros);
 
-        return $consulta->fetchAll();
+        return $this->obtenerTodos($consultaSQL, $parametros);
     }
 
     public function buscarActivos(string $buscar = '', int $limite = 20): array
@@ -47,22 +49,18 @@ final class ClienteDAO extends ModeloBaseORM
                 'term5' => $terminoBusqueda];
         }
         $consultaSQL .= ' ORDER BY apellidos,nombres LIMIT '.$limite;
-        $consulta = $this->conexion->prepare($consultaSQL);
-        $consulta->execute($parametros);
 
-        return $consulta->fetchAll();
+        return $this->obtenerTodos($consultaSQL, $parametros);
     }
 
     public function obtenerActivo(int $id): ?array
     {
-        $consulta = $this->conexion->prepare('
-            SELECT id, dni, nombres, apellidos, telefono, correo
-            FROM clientes
-            WHERE id = :id AND estado = "Activo"
-        ');
-        $consulta->execute(['id' => $id]);
-
-        return $consulta->fetch() ?: null;
+        return $this->obtenerUno(
+            'SELECT id, dni, nombres, apellidos, telefono, correo
+             FROM clientes
+             WHERE id = :id AND estado = "Activo"',
+            ['id' => $id]
+        );
     }
 
     public function obtener(int $id): ?array
@@ -76,13 +74,9 @@ final class ClienteDAO extends ModeloBaseORM
     /** Recupera un cliente como entidad para aplicar reglas de negocio tipadas. */
     public function obtenerEntidad(int $id): ?Cliente
     {
-        return $this->hidratarEntidad(
-            Cliente::class,
-            'SELECT id, dni, nombres, apellidos, telefono, direccion, correo, estado
-             FROM clientes
-             WHERE id = :id',
-            ['id' => $id]
-        );
+        $cliente = $this->buscarPorId($id);
+
+        return $cliente instanceof Cliente ? $cliente : null;
     }
 
     public function existeDni(string $dni, ?int $excepto = null): bool
@@ -100,25 +94,12 @@ final class ClienteDAO extends ModeloBaseORM
 
     public function guardar(array $datos): int
     {
-        $this->ejecutar(
-            'INSERT INTO clientes (dni, nombres, apellidos, telefono, direccion, correo)
-             VALUES (:dni, :nombres, :apellidos, :telefono, :direccion, :correo)',
-            $datos
-        );
-
-        return $this->ultimoIdInsertado();
+        return $this->insertar($this->columnasEditables($datos));
     }
 
     public function actualizar(int $id, array $datos): void
     {
-        $datos['id'] = $id;
-        $this->ejecutar(
-            'UPDATE clientes
-             SET dni = :dni, nombres = :nombres, apellidos = :apellidos,
-                 telefono = :telefono, direccion = :direccion, correo = :correo
-             WHERE id = :id',
-            $datos
-        );
+        $this->actualizarPorId($id, $this->columnasEditables($datos));
     }
 
     public function desactivar(int $id): bool
@@ -129,5 +110,13 @@ final class ClienteDAO extends ModeloBaseORM
         );
 
         return $filasActualizadas === 1;
+    }
+
+    /** Solo se permiten las columnas que el formulario puede modificar. */
+    private function columnasEditables(array $datos): array
+    {
+        $columnas = ['dni', 'nombres', 'apellidos', 'telefono', 'direccion', 'correo'];
+
+        return array_intersect_key($datos, array_flip($columnas)) + array_fill_keys($columnas, null);
     }
 }
