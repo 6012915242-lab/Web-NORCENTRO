@@ -12,6 +12,7 @@ final class MotorVistas
     public function renderizar(string $pagina, array $datos): string
     {
         $vista = $this->directorioVistas.'/paginas/'.$pagina.'.php';
+        /** Si la página no existe, muestra la vista de error 404. */
         if (! is_file($vista)) {
             http_response_code(404);
             $vista = $this->directorioVistas.'/paginas/no_encontrado.php';

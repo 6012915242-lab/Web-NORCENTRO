@@ -22,6 +22,7 @@ final class InicioServicio
                 }
 
                 $motosDestacadas[] = $moto;
+                /** Conserva la primera coincidencia según el orden de preferencias. */
                 break 2;
             }
         }
@@ -37,6 +38,7 @@ final class InicioServicio
                 continue;
             }
 
+            /** Compara descuentos relativos para elegir la oferta destacada. */
             $descuento = ($precioNormal - $precioOferta) / $precioNormal;
             if ($descuento > $mayorDescuento) {
                 $mayorDescuento = $descuento;

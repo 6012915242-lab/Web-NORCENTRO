@@ -32,6 +32,7 @@ final class CatalogoFiltrosServicio
             }
         }
 
+        /** Descarta un modelo que no pertenece a las opciones disponibles. */
         if ($modeloSeleccionado !== '' && ! isset($modelosCatalogo[$modeloSeleccionado])) {
             $modeloSeleccionado = '';
         }

@@ -58,6 +58,7 @@ final class PaginaControlador
                 $this->pedidoDAO->contarSolicitudesCreditoPendientes();
         }
 
+        /** Inicio y catálogo comparten las consultas de motos y ofertas. */
         if (in_array($pagina, ['inicio', 'catalogo'], true)) {
             $datos = array_replace($datos, $this->prepararCatalogo($pagina, $consulta));
         }
