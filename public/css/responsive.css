@@ -1964,7 +1964,6 @@ body.page-inicio .footer {
   margin: 0 0 14px;
 }
 
-
 @media (max-width: 700px) {
   .detail-gallery {
     grid-template-columns: minmax(0, 1fr);
@@ -1984,7 +1983,14 @@ body.page-inicio .footer {
     height: 76px;
     scroll-snap-align: start;
   }
-  .detail-gallery .detail-image { min-height: 230px; }
-  .detail-gallery .detail-image img { height: 210px; }
-  .detail-gallery-caption { margin-top: 8px; font-size: 12px; }
+  .detail-gallery .detail-image {
+    min-height: 230px;
+  }
+  .detail-gallery .detail-image img {
+    height: 210px;
+  }
+  .detail-gallery-caption {
+    margin-top: 8px;
+    font-size: 12px;
+  }
 }

@@ -9,6 +9,7 @@ use App\Configuracion\Herramientas;
 use App\Servicios\EvaluacionCreditoServicio;
 use DomainException;
 
+/** Controlador delgado de ventas y pagos de cuotas: delega las reglas de negocio en la capa de servicios. */
 final class VentaControlador
 {
     private EvaluacionCreditoServicio $servicioCredito;

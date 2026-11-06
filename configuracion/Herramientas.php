@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Configuracion;
@@ -15,7 +16,7 @@ final class Herramientas
     /** Muestra un importe con el formato de moneda usado en la tienda. */
     public static function formatearDinero(mixed $importe): string
     {
-        return 'S/ ' . number_format((float) $importe, 2, '.', ',');
+        return 'S/ '.number_format((float) $importe, 2, '.', ',');
     }
 
     /** Comprueba la ruta de una foto y usa una imagen de respaldo si no existe. */
@@ -33,15 +34,16 @@ final class Herramientas
             return $imagenRespaldo;
         }
 
-        $archivo = dirname(__DIR__) . '/public/' . $ruta;
+        $archivo = dirname(__DIR__).'/public/'.$ruta;
+
         return is_file($archivo) ? $ruta : $imagenRespaldo;
     }
 
     /** Prepara un mensaje breve según el tiempo restante de una oferta. */
     public static function textoOferta(string $fechaFin): string
     {
-        $fin = new \DateTimeImmutable($fechaFin . ' 23:59:59');
-        $ahora = new \DateTimeImmutable();
+        $fin = new \DateTimeImmutable($fechaFin.' 23:59:59');
+        $ahora = new \DateTimeImmutable;
 
         if ($fin < $ahora) {
             return '';
@@ -70,7 +72,8 @@ final class Herramientas
         }
 
         $token = self::escaparHtml($_SESSION['_csrf']);
-        return '<input type="hidden" name="_csrf" value="' . $token . '">';
+
+        return '<input type="hidden" name="_csrf" value="'.$token.'">';
     }
 
     /** Verifica el código de seguridad antes de procesar un formulario. */
@@ -86,7 +89,7 @@ final class Herramientas
             && $tokenRecibido !== ''
             && hash_equals($tokenGuardado, $tokenRecibido);
 
-        if ($peticionPost && !$tokenValido) {
+        if ($peticionPost && ! $tokenValido) {
             http_response_code(403);
             exit('La sesión del formulario venció. Regresa e inténtalo de nuevo.');
         }
@@ -96,7 +99,7 @@ final class Herramientas
     public static function redirigir(string $pagina, array $parametros = []): never
     {
         $consulta = http_build_query(['page' => $pagina] + $parametros);
-        header('Location: index.php?' . $consulta);
+        header('Location: index.php?'.$consulta);
         exit;
     }
 

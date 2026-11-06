@@ -16,7 +16,7 @@
     button.addEventListener("click", () => {
       const amount = button.closest(".pay-form")?.querySelector('input[name="monto"]');
       if (!amount) {
-          return;
+        return;
       }
       amount.value = amount.max;
       amount.focus();
@@ -24,7 +24,7 @@
   );
   const refreshMoto = () => {
     if (!unit || !preview) {
-        return;
+      return;
     }
     const option = unit.selectedOptions[0];
     if (!option || !option.value) {
@@ -53,12 +53,12 @@
     );
   const refreshMode = () => {
     if (creditFields && mode) {
-        creditFields.classList.toggle("visible", mode.value === "Crédito");
+      creditFields.classList.toggle("visible", mode.value === "Crédito");
     }
   };
   const refreshQuote = () => {
     if (!quote) {
-        return;
+      return;
     }
     const selectedClient = clientSelect?.selectedOptions[0];
     const selectedUnit = unit?.selectedOptions[0];
@@ -82,7 +82,7 @@
     const put = (id, value) => {
       const element = document.querySelector(id);
       if (element) {
-          element.textContent = value;
+        element.textContent = value;
       }
     };
     put(
@@ -132,7 +132,7 @@
     ["#sale-client-current", "#sale-bike-client"].forEach((selector) => {
       const field = document.querySelector(selector);
       if (field) {
-          field.value = clientId;
+        field.value = clientId;
       }
     });
     refreshQuote();
@@ -164,14 +164,14 @@
       .forEach((button) => button.addEventListener("click", () => homePromo.close()));
     homePromo.addEventListener("click", (event) => {
       if (event.target === homePromo) {
-          homePromo.close();
+        homePromo.close();
       }
     });
     homePromo.addEventListener("close", rememberDismissal, { once: true });
     if (!seen)
       window.setTimeout(() => {
         if (!homePromo.open) {
-            homePromo.showModal();
+          homePromo.showModal();
         }
       }, 180);
   }
@@ -203,9 +203,8 @@
     mainPhoto.src = button.dataset.gallerySrc;
     mainPhoto.alt = button.dataset.galleryAlt || "";
     if (galleryCaption) {
-      galleryCaption.textContent = button.dataset.galleryLabel
-        || button.dataset.galleryAlt
-        || "Vista de la motocicleta";
+      galleryCaption.textContent =
+        button.dataset.galleryLabel || button.dataset.galleryAlt || "Vista de la motocicleta";
     }
     const colorGroup = button.dataset.colorGroup;
     if (colorGroup) {
@@ -312,7 +311,7 @@
   const stepPhoto = (delta) => {
     const visible = visibleGalleryButtons();
     if (visible.length < 2) {
-        return;
+      return;
     }
     let index = visible.findIndex((button) => button.classList.contains("active"));
     index = (index + delta + visible.length) % visible.length;
@@ -322,10 +321,10 @@
   galleryNext?.addEventListener("click", () => stepPhoto(1));
   mainPhoto?.addEventListener("keydown", (event) => {
     if (event.key === "ArrowLeft") {
-        stepPhoto(-1);
+      stepPhoto(-1);
     }
     if (event.key === "ArrowRight") {
-        stepPhoto(1);
+      stepPhoto(1);
     }
   });
   // Cada color abre su propia galería para evitar mezclar fotografías.

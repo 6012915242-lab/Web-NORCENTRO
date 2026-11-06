@@ -7,6 +7,7 @@ namespace App\Servicios;
 use App\AccesoDatos\OfertaDAO;
 use DomainException;
 
+/** Reglas de negocio de ofertas: precios coherentes, fechas válidas y moto activa. */
 final class GestionOfertasServicio
 {
     public function desactivarOferta(OfertaDAO $ofertaDAO, int $id): void

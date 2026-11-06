@@ -9,6 +9,7 @@ use App\Configuracion\Herramientas;
 use App\Servicios\GestionClientesServicio;
 use DomainException;
 
+/** Controlador delgado de clientes: recibe el formulario, delega en GestionClientesServicio y redirige con un aviso. */
 final class ClienteControlador
 {
     private GestionClientesServicio $servicioComercial;

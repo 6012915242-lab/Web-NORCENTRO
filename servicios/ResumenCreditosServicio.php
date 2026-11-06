@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Servicios;
 
+/** Calcula los indicadores de la cartera de créditos (activos, vencidos y saldo pendiente). */
 final class ResumenCreditosServicio
 {
     public function calcular(array $creditos, array $cuotas, array $solicitudes): array

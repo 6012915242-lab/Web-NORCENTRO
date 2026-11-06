@@ -7,6 +7,7 @@ namespace App\Servicios;
 use App\AccesoDatos\ClienteDAO;
 use DomainException;
 
+/** Reglas de negocio de clientes: valida los datos, evita DNI duplicados y guarda mediante ClienteDAO. */
 final class GestionClientesServicio
 {
     public function desactivarCliente(ClienteDAO $clienteDAO, int $id): void

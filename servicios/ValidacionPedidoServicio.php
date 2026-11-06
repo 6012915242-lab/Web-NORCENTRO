@@ -109,7 +109,7 @@ final class ValidacionPedidoServicio
             $articulos[] = [
                 'moto_id' => $motoId,
                 'color_id' => $colorId,
-                'cantidad' => $cantidad
+                'cantidad' => $cantidad,
             ];
         }
 

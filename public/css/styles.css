@@ -1334,7 +1334,7 @@ td small {
 }
 .home-hero-model strong {
   font:
-    900 clamp(20px, 2.7vw, 38px)/0.93 Manrope,
+    900 clamp(20px, 2.7vw, 38px) / 0.93 Manrope,
     Arial,
     sans-serif;
   font-style: italic;
@@ -1684,8 +1684,7 @@ body.page-inicio .top-action a {
   padding: 145px max(calc((100vw - 1240px) / 2), 7%) 92px;
   color: #fff;
   background-color: #202226;
-  background-image:
-    linear-gradient(
+  background-image: linear-gradient(
       90deg,
       rgba(10, 12, 16, 0.91) 0%,
       rgba(10, 12, 16, 0.77) 33%,
@@ -1716,7 +1715,7 @@ body.page-inicio .top-action a {
   margin: 0;
   text-transform: uppercase;
   font:
-    italic 900 clamp(42px, 4.4vw, 68px)/1.02 Manrope,
+    italic 900 clamp(42px, 4.4vw, 68px) / 1.02 Manrope,
     "DM Sans",
     sans-serif;
   letter-spacing: -1.8px;
@@ -2066,8 +2065,7 @@ body.page-inicio .top-action a {
     align-items: flex-start;
     padding: 204px 22px 45px;
     background-position: 62% center;
-    background-image:
-      linear-gradient(
+    background-image: linear-gradient(
         90deg,
         rgba(9, 11, 14, 0.9) 0%,
         rgba(9, 11, 14, 0.72) 48%,
@@ -2224,8 +2222,7 @@ body.page-inicio .footer {
   }
 }
 .home-slide.cover-slide {
-  background-image:
-    linear-gradient(
+  background-image: linear-gradient(
       90deg,
       rgba(9, 11, 14, 0.82) 0%,
       rgba(9, 11, 14, 0.66) 31%,
@@ -2291,7 +2288,7 @@ body.page-inicio .footer {
   margin: 0;
   text-transform: uppercase;
   font:
-    italic 900 clamp(44px, 5.2vw, 78px)/0.98 Manrope,
+    italic 900 clamp(44px, 5.2vw, 78px) / 0.98 Manrope,
     "DM Sans",
     sans-serif;
   letter-spacing: -2.1px;

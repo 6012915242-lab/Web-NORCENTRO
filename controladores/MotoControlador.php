@@ -9,6 +9,7 @@ use App\Configuracion\Herramientas;
 use App\Servicios\GestionMotosServicio;
 use DomainException;
 
+/** Controlador delgado de motocicletas e inventario: delega la validación y el guardado en GestionMotosServicio. */
 final class MotoControlador
 {
     private GestionMotosServicio $servicioComercial;

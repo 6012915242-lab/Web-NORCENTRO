@@ -9,6 +9,7 @@ use App\Configuracion\Herramientas;
 use App\Servicios\GestionOfertasServicio;
 use DomainException;
 
+/** Controlador delgado de ofertas: delega las reglas de precios y fechas en GestionOfertasServicio. */
 final class OfertaControlador
 {
     private GestionOfertasServicio $servicioComercial;

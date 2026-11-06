@@ -2,7 +2,7 @@
 (() => {
   const page = document.querySelector(".checkout-result[data-request-id]");
   if (!page || !page.dataset.requestId || page.dataset.mode !== "Contado") {
-      return;
+    return;
   }
   const message = page.querySelector("[data-order-message]");
   const badge = page.querySelector("[data-order-status]");
@@ -21,7 +21,7 @@
       );
       const data = await response.json();
       if (!response.ok || !data.ok) {
-          return;
+        return;
       }
       badge.textContent = data.estado;
       badge.className = `pill ${data.estado === "Pagado" ? "green" : data.estado === "Cancelado" ? "gray" : "amber"}`;

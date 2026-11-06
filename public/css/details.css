@@ -650,7 +650,6 @@
   }
 }
 
-
 /* Galería de ángulos: miniaturas con nombre y pie sincronizado. */
 .detail-gallery {
   grid-template-columns: 100px minmax(0, 1fr);

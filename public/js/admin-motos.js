@@ -23,9 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       counter.classList.remove("error-text");
-      counter.textContent = total > 0
-        ? `${total} fotografía(s) seleccionada(s).`
-        : "Selecciona entre 1 y 10 fotografías.";
+      counter.textContent =
+        total > 0
+          ? `${total} fotografía(s) seleccionada(s).`
+          : "Selecciona entre 1 y 10 fotografías.";
     });
 
     removeButton?.addEventListener("click", () => {

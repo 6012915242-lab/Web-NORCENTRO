@@ -7,6 +7,7 @@ namespace App\Servicios;
 use App\AccesoDatos\MotoDAO;
 use DomainException;
 
+/** Reglas de negocio del catálogo: valida motos, colores, fotos subidas y unidades de inventario. */
 final class GestionMotosServicio
 {
     public function desactivarMoto(MotoDAO $motoDAO, int $id): void

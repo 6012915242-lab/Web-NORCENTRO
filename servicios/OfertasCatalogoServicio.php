@@ -14,7 +14,7 @@ final class OfertasCatalogoServicio
         foreach ($ofertas as $oferta) {
             $motoId = (int) $oferta['moto_id'];
 
-            if (!isset($ofertasPorMoto[$motoId])) {
+            if (! isset($ofertasPorMoto[$motoId])) {
                 $ofertasPorMoto[$motoId] = $oferta;
             }
         }
