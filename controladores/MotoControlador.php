@@ -53,23 +53,12 @@ final class MotoControlador
         Herramientas::redirigir('motos');
     }
 
-    public function agregarUnidadInventario(array $post): never
+    /** Guarda el número de serie y el color de una unidad del inventario. */
+    public function actualizarUnidad(array $post): never
     {
         try {
-            $this->servicioComercial->validarYRegistrarUnidad($this->dao, $post);
-            Herramientas::mostrarAviso('success', 'Unidad registrada en el inventario.');
-        } catch (DomainException $error) {
-            Herramientas::mostrarAviso('error', $error->getMessage());
-        }
-
-        Herramientas::redirigir('inventario');
-    }
-
-    public function asignarColorUnidad(array $post): never
-    {
-        try {
-            $this->servicioComercial->validarYAsignarColor($this->dao, $post);
-            Herramientas::mostrarAviso('success', 'Color de la unidad actualizado.');
+            $this->servicioComercial->validarYActualizarUnidad($this->dao, $post);
+            Herramientas::mostrarAviso('success', 'Unidad actualizada.');
         } catch (DomainException $error) {
             Herramientas::mostrarAviso('error', $error->getMessage());
         }

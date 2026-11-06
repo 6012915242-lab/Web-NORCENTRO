@@ -6,64 +6,14 @@ use App\Configuracion\Herramientas;
     <div>
         <span class="eyebrow">Unidades físicas</span>
         <h1>Inventario</h1>
-        <p>Registra cada unidad por su código de serie y consulta su estado actual.</p>
+        <p>
+            Las unidades se crean desde <a class="text-link" href="index.php?page=motos">Gestión de motos</a>
+            (por color) con un código automático. Aquí puedes reemplazarlo por el número de chasis o
+            de motor y corregir el color.
+        </p>
     </div>
     <span class="inventory-total"><?= count($elementos) ?> unidades mostradas</span>
 </div>
-
-<?php if ($usuarioPuede('inventario.gestionar')): ?>
-    <section class="panel inventory-register">
-        <div class="panel-head">
-            <div>
-                <h2>Registrar unidad</h2>
-                <p class="muted">La unidad se guardará en la base de datos como disponible.</p>
-            </div>
-        </div>
-
-        <form method="post" class="form-grid">
-            <?= Herramientas::campoCsrf() ?>
-            <input type="hidden" name="action" value="agregar_unidad_inventario">
-
-            <label>
-                Motocicleta
-                <select name="moto_id" required data-moto-inventario>
-                    <option value="">Seleccionar modelo</option>
-                    <?php foreach ($motosInventario as $moto): ?>
-                        <option value="<?= (int) $moto['id'] ?>">
-                            <?= Herramientas::escaparHtml($moto['marca'] . ' ' . $moto['modelo']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
-
-            <label>
-                Color
-                <select name="color_id" data-color-inventario>
-                    <option value="">Color por asignar</option>
-                    <?php foreach ($coloresInventario as $idMotoColor => $coloresMoto): ?>
-                        <?php foreach ($coloresMoto as $colorMoto): ?>
-                            <option value="<?= (int) $colorMoto['id'] ?>" data-moto="<?= (int) $idMotoColor ?>" hidden>
-                                <?= Herramientas::escaparHtml($colorMoto['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endforeach; ?>
-                </select>
-                <small>Solo aparecen los colores registrados para el modelo elegido.</small>
-            </label>
-
-            <label>
-                Código de serie
-                <input name="codigo_serie" maxlength="50" minlength="3"
-                       pattern="[A-Za-z0-9][A-Za-z0-9-]{2,49}" autocomplete="off" required>
-                <small>Usa el número de serie de la unidad.</small>
-            </label>
-
-            <div class="form-actions full">
-                <button class="button primary">Guardar en inventario</button>
-            </div>
-        </form>
-    </section>
-<?php endif; ?>
 
 <section class="panel">
     <div class="panel-head">
@@ -112,7 +62,19 @@ use App\Configuracion\Herramientas;
         <label class="inventory-filter-search" for="buscar-inventario">
             <span>Marca, modelo o código de serie</span>
             <input id="buscar-inventario" name="inventario_q" type="search" maxlength="100"
-                   placeholder="Ej.: Pulsar NS160" value="<?= Herramientas::escaparHtml($busquedaInventario) ?>">
+                   placeholder="Ej.: Pulsar NS160, azul o NC-55-003" list="inventario-sugerencias"
+                   autocomplete="off" value="<?= Herramientas::escaparHtml($busquedaInventario) ?>">
+            <datalist id="inventario-sugerencias">
+                <?php foreach (array_unique(array_column($elementos, 'codigo_serie')) as $codigoSugerido): ?>
+                    <option value="<?= Herramientas::escaparHtml($codigoSugerido) ?>"></option>
+                <?php endforeach; ?>
+                <?php foreach (array_unique(array_map(
+                    static fn (array $unidad): string => $unidad['marca'] . ' ' . $unidad['modelo'],
+                    $elementos
+                )) as $modeloSugerido): ?>
+                    <option value="<?= Herramientas::escaparHtml($modeloSugerido) ?>"></option>
+                <?php endforeach; ?>
+            </datalist>
         </label>
         <label class="inventory-filter-state" for="estado-inventario">
             <span>Estado</span>
@@ -141,6 +103,7 @@ use App\Configuracion\Herramientas;
                 </tr>
             </thead>
             <tbody>
+                <?php $puedeEditarUnidades = $usuarioPuede('inventario.gestionar'); ?>
                 <?php foreach ($elementos as $unidadInventario): ?>
                     <?php
                     $claseEstado = 'amber';
@@ -158,30 +121,45 @@ use App\Configuracion\Herramientas;
                                 <b><?= Herramientas::escaparHtml($unidadInventario['marca'] . ' ' . $unidadInventario['modelo']) ?></b>
                             </div>
                         </td>
+                        <?php
+                        $coloresDeLaMoto = $coloresInventario[(int) $unidadInventario['moto_id']] ?? [];
+                        $esEditable = $puedeEditarUnidades && $unidadInventario['estado'] !== 'Vendida';
+                        $idFormulario = 'unidad-' . (int) $unidadInventario['id'];
+                        ?>
                         <td>
-                            <?php $coloresDeLaMoto = $coloresInventario[(int) $unidadInventario['moto_id']] ?? []; ?>
-                            <?php if ($coloresDeLaMoto && $unidadInventario['estado'] !== 'Vendida'): ?>
-                                <form method="post" class="inventory-color-form">
-                                    <?= Herramientas::campoCsrf() ?>
-                                    <input type="hidden" name="action" value="asignar_color_unidad">
-                                    <input type="hidden" name="unidad_id" value="<?= (int) $unidadInventario['id'] ?>">
-                                    <select name="color_id" aria-label="Color de la unidad <?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>"
-                                            data-enviar-al-cambiar>
-                                        <option value="">Color por asignar</option>
-                                        <?php foreach ($coloresDeLaMoto as $colorMoto): ?>
-                                            <option value="<?= (int) $colorMoto['id'] ?>"
-                                                <?= (int) $colorMoto['id'] === (int) $unidadInventario['color_id'] ? 'selected' : '' ?>>
-                                                <?= Herramientas::escaparHtml($colorMoto['nombre']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <noscript><button class="button subtle">Guardar</button></noscript>
-                                </form>
+                            <?php if ($esEditable && $coloresDeLaMoto): ?>
+                                <select name="color_id" form="<?= $idFormulario ?>"
+                                        aria-label="Color de la unidad <?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>">
+                                    <option value="">Color por asignar</option>
+                                    <?php foreach ($coloresDeLaMoto as $colorMoto): ?>
+                                        <option value="<?= (int) $colorMoto['id'] ?>"
+                                            <?= (int) $colorMoto['id'] === (int) $unidadInventario['color_id'] ? 'selected' : '' ?>>
+                                            <?= Herramientas::escaparHtml($colorMoto['nombre']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             <?php else: ?>
+                                <span class="color-dot" style="--swatch-color:<?= Herramientas::escaparHtml($unidadInventario['codigo_hex'] ?? '#cccccc') ?>"></span>
                                 <?= Herramientas::escaparHtml($unidadInventario['color'] ?? 'Color por asignar') ?>
                             <?php endif; ?>
                         </td>
-                        <td><?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?></td>
+                        <td>
+                            <?php if ($esEditable): ?>
+                                <form method="post" id="<?= $idFormulario ?>" class="inventory-unit-form">
+                                    <?= Herramientas::campoCsrf() ?>
+                                    <input type="hidden" name="action" value="actualizar_unidad">
+                                    <input type="hidden" name="unidad_id" value="<?= (int) $unidadInventario['id'] ?>">
+                                    <input name="codigo_serie" required maxlength="50" minlength="3"
+                                           pattern="[A-Za-z0-9][A-Za-z0-9-]{2,49}" autocomplete="off"
+                                           value="<?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>"
+                                           title="Número de chasis (VIN), de motor o código interno"
+                                           aria-label="Código de serie de la unidad">
+                                    <button class="button subtle small-button">Guardar</button>
+                                </form>
+                            <?php else: ?>
+                                <?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <span class="pill <?= $claseEstado ?>">
                                 <?= Herramientas::escaparHtml($unidadInventario['estado']) ?>
@@ -200,5 +178,6 @@ use App\Configuracion\Herramientas;
     </div>
     <p class="muted small inventory-note">
         Las ventas y los pedidos pagados actualizan el estado de cada unidad automáticamente.
+        Las unidades vendidas ya no se pueden modificar.
     </p>
 </section>

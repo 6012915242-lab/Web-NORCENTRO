@@ -191,12 +191,8 @@ final class MotoDAO extends ModeloBaseORM
     {
         return $this->ejecutarEnTransaccion(function () use ($datos): int {
             $id = $this->insertar($this->columnasEditables($datos) + ['estado' => 'Activo']);
-            $unidad = $this->conexion->prepare('INSERT INTO unidades_moto(moto_id,codigo_serie,estado) VALUES(:moto,:serie,"Disponible")');
-            $unidad->bindValue(':moto', $id, PDO::PARAM_INT);
-            for ($i = 1; $i <= (int) $datos['cantidad']; $i++) {
-                $unidad->bindValue(':serie', 'NC-'.$id.'-'.str_pad((string) $i, 3, '0', STR_PAD_LEFT), PDO::PARAM_STR);
-                $unidad->execute();
-            }
+            // Unidades sin color (compatibilidad con el backend Laravel, que envía 'cantidad').
+            $this->crearUnidades($id, null, (int) ($datos['cantidad'] ?? 0));
 
             return $id;
         });
@@ -206,20 +202,100 @@ final class MotoDAO extends ModeloBaseORM
     {
         return $this->ejecutarEnTransaccion(function () use ($datos, $colores): int {
             $id = $this->guardar($datos);
-            $this->guardarGaleriaColores($id, $colores);
+            $idsColores = $this->guardarGaleriaColores($id, $colores);
+            $this->crearUnidadesPorColor($id, $colores, $idsColores);
             $this->asignarColorUnicoASinColor($id);
 
             return $id;
         });
     }
 
-    public function actualizarConGaleria(int $id, array $datos, array $colores): void
+    /**
+     * Actualiza la ficha, agrega colores nuevos y crea unidades.
+     *
+     * @param  array<int, int>  $unidadesColoresExistentes  [color_id => cantidad] para colores ya registrados
+     */
+    public function actualizarConGaleria(int $id, array $datos, array $colores, array $unidadesColoresExistentes = []): void
     {
-        $this->ejecutarEnTransaccion(function () use ($id, $datos, $colores): void {
+        $this->ejecutarEnTransaccion(function () use ($id, $datos, $colores, $unidadesColoresExistentes): void {
             $this->actualizar($id, $datos);
-            $this->guardarGaleriaColores($id, $colores);
+            $idsColores = $this->guardarGaleriaColores($id, $colores);
+            $this->crearUnidadesPorColor($id, $colores, $idsColores);
+
+            foreach ($unidadesColoresExistentes as $idColor => $cantidad) {
+                if (! $this->colorPerteneceAMoto((int) $idColor, $id)) {
+                    throw new \DomainException('Uno de los colores no corresponde a esta motocicleta.');
+                }
+                $this->crearUnidades($id, (int) $idColor, (int) $cantidad);
+            }
             $this->asignarColorUnicoASinColor($id);
         });
+    }
+
+    /** Crea las unidades indicadas en cada color del formulario ('unidades' => cantidad). */
+    private function crearUnidadesPorColor(int $idMoto, array $colores, array $idsColores): void
+    {
+        foreach ($colores as $indice => $color) {
+            $cantidad = (int) ($color['unidades'] ?? 0);
+            if ($cantidad > 0 && isset($idsColores[$indice])) {
+                $this->crearUnidades($idMoto, $idsColores[$indice], $cantidad);
+            }
+        }
+    }
+
+    /** Inserta unidades disponibles con códigos de serie internos consecutivos (NC-<moto>-001...). */
+    private function crearUnidades(int $idMoto, ?int $idColor, int $cantidad): void
+    {
+        if ($cantidad < 1) {
+            return;
+        }
+
+        $columnaColor = $idColor === null ? '' : ', color_id';
+        $valorColor = $idColor === null ? '' : ', :color';
+        $insertar = $this->conexion->prepare(
+            "INSERT INTO unidades_moto (moto_id{$columnaColor}, codigo_serie, estado)
+             VALUES (:moto{$valorColor}, :serie, 'Disponible')"
+        );
+
+        $numero = $this->ultimoNumeroSerieInterno($idMoto);
+        for ($i = 0; $i < $cantidad; $i++) {
+            $numero++;
+            $parametros = ['moto' => $idMoto, 'serie' => $this->formatearSerieInterna($idMoto, $numero)];
+            if ($idColor !== null) {
+                $parametros['color'] = $idColor;
+            }
+            $insertar->execute($parametros);
+        }
+    }
+
+    /** Código interno sugerido para la próxima unidad de un modelo (por ejemplo NC-55-006). */
+    public function siguienteCodigoSerie(int $idMoto): string
+    {
+        return $this->formatearSerieInterna($idMoto, $this->ultimoNumeroSerieInterno($idMoto) + 1);
+    }
+
+    private function ultimoNumeroSerieInterno(int $idMoto): int
+    {
+        $prefijo = 'NC-'.$idMoto.'-';
+        $codigos = $this->preparar(
+            'SELECT codigo_serie FROM unidades_moto WHERE codigo_serie LIKE :prefijo',
+            ['prefijo' => $prefijo.'%']
+        )->fetchAll(PDO::FETCH_COLUMN);
+
+        $ultimo = 0;
+        foreach ($codigos as $codigo) {
+            $sufijo = substr((string) $codigo, strlen($prefijo));
+            if (ctype_digit($sufijo)) {
+                $ultimo = max($ultimo, (int) $sufijo);
+            }
+        }
+
+        return $ultimo;
+    }
+
+    private function formatearSerieInterna(int $idMoto, int $numero): string
+    {
+        return 'NC-'.$idMoto.'-'.str_pad((string) $numero, 3, '0', STR_PAD_LEFT);
     }
 
     /** Si el modelo tiene un solo color, las unidades sin color toman ese color. */
@@ -248,14 +324,18 @@ final class MotoDAO extends ModeloBaseORM
         return array_intersect_key($datos, array_flip($columnas));
     }
 
-    /** Guarda colores y varias tomas por color sin eliminar la galería existente. */
-    public function guardarGaleriaColores(int $motoId, array $colores): void
+    /**
+     * Guarda colores y varias tomas por color sin eliminar la galería existente.
+     * Devuelve el id de cada color en el mismo orden del arreglo recibido.
+     */
+    public function guardarGaleriaColores(int $motoId, array $colores): array
     {
         if ($colores === []) {
-            return;
+            return [];
         }
 
-        $this->ejecutarEnTransaccion(function () use ($motoId, $colores): void {
+        return $this->ejecutarEnTransaccion(function () use ($motoId, $colores): array {
+            $idsColores = [];
             $consultaOrdenColor = $this->preparar(
                 'SELECT COALESCE(MAX(orden), 0) FROM moto_colores WHERE moto_id = :moto_id',
                 ['moto_id' => $motoId]
@@ -279,7 +359,7 @@ final class MotoDAO extends ModeloBaseORM
                  VALUES (:color_id, :ruta, :texto_alt, :orden)'
             );
 
-            foreach ($colores as $color) {
+            foreach ($colores as $indiceColor => $color) {
                 $ordenColor++;
                 $guardarColor->execute([
                     'moto_id' => $motoId,
@@ -288,6 +368,7 @@ final class MotoDAO extends ModeloBaseORM
                     'orden' => $ordenColor,
                 ]);
                 $colorId = (int) $this->conexion->lastInsertId();
+                $idsColores[$indiceColor] = $colorId;
 
                 $consultarOrdenImagen->execute(['color_id' => $colorId]);
                 $ordenImagen = (int) $consultarOrdenImagen->fetchColumn();
@@ -302,6 +383,8 @@ final class MotoDAO extends ModeloBaseORM
                     ]);
                 }
             }
+
+            return $idsColores;
         });
     }
 
@@ -385,8 +468,8 @@ final class MotoDAO extends ModeloBaseORM
         return $this->obtenerTodos($consulta, $parametros);
     }
 
-    /** Cambia el color de una unidad que todavía no se vendió. */
-    public function asignarColorUnidad(int $idUnidad, ?int $idColor): void
+    /** Cambia el código de serie y el color de una unidad que todavía no se vendió. */
+    public function actualizarUnidad(int $idUnidad, string $codigoSerie, ?int $idColor): void
     {
         $unidad = $this->obtenerUno(
             'SELECT id, moto_id, estado FROM unidades_moto WHERE id = :id',
@@ -394,17 +477,25 @@ final class MotoDAO extends ModeloBaseORM
         );
 
         if ($unidad === null || $unidad['estado'] === 'Vendida') {
-            throw new \DomainException('Solo se puede cambiar el color de una unidad que no esté vendida.');
+            throw new \DomainException('Solo se puede modificar una unidad que no esté vendida.');
         }
 
         if ($idColor !== null && ! $this->colorPerteneceAMoto($idColor, (int) $unidad['moto_id'])) {
             throw new \DomainException('El color elegido no corresponde a esa motocicleta.');
         }
 
-        $this->ejecutar(
-            'UPDATE unidades_moto SET color_id = :color WHERE id = :id',
-            ['color' => $idColor, 'id' => $idUnidad]
-        );
+        try {
+            $this->ejecutar(
+                'UPDATE unidades_moto SET codigo_serie = :serie, color_id = :color WHERE id = :id',
+                ['serie' => $codigoSerie, 'color' => $idColor, 'id' => $idUnidad]
+            );
+        } catch (\PDOException $error) {
+            if ((int) ($error->errorInfo[1] ?? 0) === 1062) {
+                throw new \DomainException('Ese código de serie ya pertenece a otra unidad.', 0, $error);
+            }
+
+            throw $error;
+        }
     }
 
     /**
@@ -429,6 +520,22 @@ final class MotoDAO extends ModeloBaseORM
         );
     }
 
+    /** Unidades disponibles de una moto por color: [color_id => cantidad]. */
+    public function disponiblesPorColor(int $idMoto): array
+    {
+        $filas = $this->obtenerTodos(
+            "SELECT color_id, COUNT(*) AS total FROM unidades_moto
+             WHERE moto_id = :moto AND estado = 'Disponible' AND color_id IS NOT NULL
+             GROUP BY color_id",
+            ['moto' => $idMoto]
+        );
+
+        return array_column(array_map(
+            static fn (array $fila): array => ['id' => (int) $fila['color_id'], 'total' => (int) $fila['total']],
+            $filas
+        ), 'total', 'id');
+    }
+
     /** Colores registrados para cada moto: [moto_id => [['id' => .., 'nombre' => ..], ...]]. */
     public function coloresParaInventario(): array
     {
@@ -448,7 +555,10 @@ final class MotoDAO extends ModeloBaseORM
         ) !== null;
     }
 
-    /** Registra una unidad física; el color es opcional y debe pertenecer al modelo. */
+    /**
+     * Registra una unidad física; el color es opcional y debe pertenecer al modelo.
+     * La web crea las unidades desde Gestión de motos; este método lo usa la API Laravel.
+     */
     public function registrarUnidad(int $idMoto, string $codigoSerie, ?int $idColor = null): int
     {
         try {
@@ -473,6 +583,11 @@ final class MotoDAO extends ModeloBaseORM
 
                 if ($idColor !== null && ! $this->colorPerteneceAMoto($idColor, $idMoto)) {
                     throw new \DomainException('El color elegido no corresponde a esa motocicleta.');
+                }
+
+                // Sin número de serie del fabricante se usa el código interno consecutivo.
+                if ($codigoSerie === '') {
+                    $codigoSerie = $this->siguienteCodigoSerie($idMoto);
                 }
 
                 $this->ejecutar(

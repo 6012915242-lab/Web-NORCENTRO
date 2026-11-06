@@ -34,13 +34,13 @@ $puedeDesactivarCliente = $usuarioPuede('clientes.desactivar');
       <?= Herramientas::campoCsrf() ?>
       <input type="hidden" name="action" value="guardar_cliente">
       <input type="hidden" name="id" value="<?= (int) ($formularioCliente['id'] ?? 0) ?>">
-      <label>
-        DNI
-        <input name="dni" maxlength="8" pattern="\d{8}" inputmode="numeric" required
-               value="<?= Herramientas::escaparHtml($formularioCliente['dni'] ?? '') ?>">
-      </label>
-      <div class="form-actions">
-        <button type="button" class="button subtle" data-consultar-dni>Buscar DNI</button>
+      <div class="full dni-lookup">
+        <label for="cliente-dni">DNI</label>
+        <div class="dni-lookup-row">
+          <input id="cliente-dni" name="dni" maxlength="8" pattern="\d{8}" inputmode="numeric" required
+                 value="<?= Herramientas::escaparHtml($formularioCliente['dni'] ?? '') ?>">
+          <button type="button" class="button subtle" data-consultar-dni>Buscar DNI</button>
+        </div>
       </div>
       <p class="full" data-mensaje-dni role="status" aria-live="polite"></p>
       <label>

@@ -69,12 +69,8 @@ final class DespachadorAcciones
                 (new MotoControlador($this->motoDAO))->desactivar((int) ($datos['id'] ?? 0));
                 break;
 
-            case 'agregar_unidad_inventario':
-                (new MotoControlador($this->motoDAO))->agregarUnidadInventario($datos);
-                break;
-
-            case 'asignar_color_unidad':
-                (new MotoControlador($this->motoDAO))->asignarColorUnidad($datos);
+            case 'actualizar_unidad':
+                (new MotoControlador($this->motoDAO))->actualizarUnidad($datos);
                 break;
 
             case 'guardar_cliente':

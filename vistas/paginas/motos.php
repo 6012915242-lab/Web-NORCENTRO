@@ -91,13 +91,6 @@ $esAdministrador = $usuarioPuede('motos.gestionar');
           >
         </label>
 
-        <?php if (!$editMoto): ?>
-          <label>
-            Unidades iniciales
-            <input type="number" min="1" max="200" name="cantidad" required value="1">
-          </label>
-        <?php endif; ?>
-
         <label class="full">
           Descripción
           <textarea name="descripcion" rows="3" maxlength="1200"><?= Herramientas::escaparHtml($formularioMoto['descripcion'] ?? '') ?></textarea>
@@ -135,13 +128,28 @@ $esAdministrador = $usuarioPuede('motos.gestionar');
                   ></span>
                   <div>
                     <strong><?= Herramientas::escaparHtml($colorExistente['nombre']) ?></strong>
-                    <small><?= count($colorExistente['imagenes']) ?> fotografía(s) guardada(s)</small>
+                    <small>
+                      <?= count($colorExistente['imagenes']) ?> fotografía(s) ·
+                      <?= (int) ($disponiblesPorColor[(int) $colorExistente['id']] ?? 0) ?> disponible(s)
+                    </small>
                   </div>
+                  <label class="moto-color-units">
+                    Agregar unidades
+                    <input
+                      type="number"
+                      name="unidades_existentes[<?= (int) $colorExistente['id'] ?>]"
+                      min="0"
+                      max="200"
+                      value="0"
+                      aria-label="Unidades nuevas de color <?= Herramientas::escaparHtml($colorExistente['nombre']) ?>"
+                    >
+                  </label>
                 </article>
               <?php endforeach; ?>
             </div>
             <p class="moto-gallery-help">
-              Para agregar más tomas a un color existente, escribe exactamente el mismo nombre.
+              Para sumar unidades a un color existente, escribe la cantidad en su casilla.
+              Para agregar más fotos a un color, escribe abajo exactamente el mismo nombre.
             </p>
           <?php endif; ?>
 
@@ -161,6 +169,11 @@ $esAdministrador = $usuarioPuede('motos.gestionar');
                 <label>
                   Muestra
                   <input name="colores[0][codigo_hex]" type="color" value="#c92836">
+                </label>
+                <label class="moto-color-units-field">
+                  Unidades de este color
+                  <input name="colores[0][unidades]" type="number" min="0" max="200" value="0">
+                  <small>Se crean con código de serie automático. Déjalo en 0 si aún no hay stock.</small>
                 </label>
               </div>
               <label class="moto-angle-files">

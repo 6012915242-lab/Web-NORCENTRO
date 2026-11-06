@@ -104,7 +104,6 @@ final class PaginaControlador
                 $datos['estadoInventario']
             );
             $puedeGestionar = in_array('inventario.gestionar', $permisosUsuario, true);
-            $datos['motosInventario'] = $puedeGestionar ? $this->motoDAO->listar() : [];
             $datos['coloresInventario'] = $puedeGestionar ? $this->motoDAO->coloresParaInventario() : [];
             $datos['stockPorColor'] = $this->motoDAO->stockPorColor();
         }
@@ -229,6 +228,9 @@ final class PaginaControlador
             'coloresEdicion' => $editMoto !== null
                 ? $this->motoDAO->coloresPublicos((int) $editMoto['id'])
                 : [],
+            'disponiblesPorColor' => $editMoto !== null
+                ? $this->motoDAO->disponiblesPorColor((int) $editMoto['id'])
+                : [],
         ];
     }
 
@@ -252,7 +254,7 @@ final class PaginaControlador
         $busquedaClientes = mb_substr(trim((string) ($consulta['cliente_q'] ?? '')), 0, 100);
         $busquedaMoto = mb_substr(trim((string) ($consulta['moto_q'] ?? '')), 0, 100);
         $listaClientes = $this->clienteDAO->buscarActivos($busquedaClientes, 20);
-        $listaUnidades = $this->motoDAO->unidadesDisponibles($busquedaMoto, 30);
+        $listaUnidades = $this->motoDAO->unidadesDisponibles($busquedaMoto, 100);
         $idSolicitudCreditoVenta = (int) ($consulta['pedido_id'] ?? 0);
         $idClienteVentaSeleccionado = $idSolicitudCreditoVenta > 0
             ? ($this->pedidoDAO->clienteAprobadoPorPedido($idSolicitudCreditoVenta) ?? 0)

@@ -69,6 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
     clone.querySelectorAll("input").forEach((input) => {
       if (input.type === "color") {
         input.value = "#cccccc";
+      } else if (input.type === "number") {
+        input.value = "0";
       } else {
         input.value = "";
       }

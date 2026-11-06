@@ -546,8 +546,49 @@
   vertical-align: middle;
 }
 
-.inventory-color-form select {
+td > select[form] {
   min-width: 9rem;
   padding: 0.3rem 0.5rem;
   font-size: 0.85rem;
+}
+
+/* Gestión de motos: unidades por color */
+.moto-color-units-field {
+  grid-column: 1 / -1;
+}
+
+.moto-color-units {
+  display: grid;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.moto-color-units input {
+  width: 5.5rem;
+  padding: 6px 8px;
+}
+
+.moto-existing-colors {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.moto-color-units {
+  white-space: nowrap;
+}
+
+/* Inventario: edición en línea del código de serie */
+.inventory-unit-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.inventory-unit-form input {
+  min-width: 10rem;
+  padding: 6px 8px;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 0.85rem;
+  text-transform: uppercase;
 }

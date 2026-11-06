@@ -348,27 +348,63 @@
   });
 })();
 
-// Inventario: muestra solo los colores del modelo elegido y guarda el color de una unidad al cambiarlo.
+// Ventas: filtra las unidades mientras se escribe y elige sola la unidad si solo queda una.
 (() => {
-  const selectorMoto = document.querySelector("[data-moto-inventario]");
-  const selectorColor = document.querySelector("[data-color-inventario]");
-  if (selectorMoto && selectorColor) {
-    const filtrarColores = () => {
-      selectorColor.querySelectorAll("option[data-moto]").forEach((opcion) => {
-        opcion.hidden = opcion.dataset.moto !== selectorMoto.value;
-      });
-      const elegido = selectorColor.selectedOptions[0];
-      if (elegido && elegido.hidden) {
-        selectorColor.value = "";
-      }
-    };
-    selectorMoto.addEventListener("change", filtrarColores);
-    filtrarColores();
+  const buscador = document.querySelector("[data-buscador-unidades]");
+  const selector = document.querySelector("#unit-select");
+  const estado = document.querySelector("[data-buscador-unidades-estado]");
+  if (!buscador || !selector) {
+    return;
   }
 
-  document
-    .querySelectorAll("[data-enviar-al-cambiar]")
-    .forEach((selector) =>
-      selector.addEventListener("change", () => selector.form.requestSubmit()),
+  // Compara sin mayúsculas ni tildes: "Crédito" y "credito" coinciden.
+  const normalizar = (texto) => texto.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const opciones = [...selector.querySelectorAll("option[value]:not([value=''])")];
+  const textoEstadoOriginal = estado?.textContent.trim() || "";
+
+  const filtrar = () => {
+    const palabras = normalizar(buscador.value.trim()).split(/\s+/).filter(Boolean);
+    let visibles = [];
+
+    opciones.forEach((opcion) => {
+      const texto = normalizar(`${opcion.dataset.model} ${opcion.dataset.series}`);
+      const coincide = palabras.every((palabra) => texto.includes(palabra));
+      opcion.hidden = !coincide;
+      opcion.disabled = !coincide;
+      if (coincide) {
+        visibles.push(opcion);
+      }
+    });
+
+    selector.querySelectorAll("optgroup").forEach((grupo) => {
+      grupo.hidden = ![...grupo.children].some((opcion) => !opcion.hidden);
+    });
+
+    // Si la serie escrita es exacta o solo queda una unidad, se selecciona automáticamente.
+    const exacta = visibles.find(
+      (opcion) => normalizar(opcion.dataset.series) === normalizar(buscador.value.trim()),
     );
+    const elegida = exacta || (visibles.length === 1 ? visibles[0] : null);
+    if (elegida && selector.value !== elegida.value) {
+      selector.value = elegida.value;
+      selector.dispatchEvent(new Event("change"));
+    } else if (selector.selectedOptions[0]?.hidden) {
+      selector.value = "";
+      selector.dispatchEvent(new Event("change"));
+    }
+
+    if (estado) {
+      estado.textContent = palabras.length
+        ? `${visibles.length} unidad(es) coinciden con "${buscador.value.trim()}".` +
+          (visibles.length === 0
+            ? ' Presiona "Buscar moto" para buscar en todo el inventario.'
+            : "")
+        : textoEstadoOriginal;
+    }
+  };
+
+  buscador.addEventListener("input", filtrar);
+  if (buscador.value.trim() !== "") {
+    filtrar();
+  }
 })();

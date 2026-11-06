@@ -1994,3 +1994,41 @@ body.page-inicio .footer {
     font-size: 12px;
   }
 }
+
+/* Inventario: el filtro se acomoda en varias líneas cuando el panel es angosto. */
+.inventory-filter {
+  display: flex;
+  flex-wrap: wrap;
+}
+.inventory-filter-search {
+  flex: 1 1 240px;
+}
+.inventory-filter-state {
+  flex: 0 1 190px;
+}
+.inventory-filter-actions {
+  flex: 0 0 auto;
+}
+
+/* Clientes: el botón "Buscar DNI" queda alineado al lado del campo. */
+.dni-lookup {
+  display: grid;
+  gap: 6px;
+}
+.dni-lookup-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.dni-lookup-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.dni-lookup-row .button {
+  flex: none;
+  min-height: 44px;
+  white-space: nowrap;
+}
+[data-mensaje-dni]:empty {
+  display: none;
+}
