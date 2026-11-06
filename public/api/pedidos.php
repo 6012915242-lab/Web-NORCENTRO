@@ -7,6 +7,7 @@ require_once dirname(__DIR__, 2).'/autoload.php';
 use App\AccesoDatos\PedidoDAO;
 use App\Configuracion\BaseDatos;
 use App\Middlewares\SeguridadMiddleware;
+use App\Middlewares\ApiMiddleware;
 use App\Servicios\PagoMercadoPago;
 use App\Servicios\ValidacionPedidoServicio;
 
@@ -63,27 +64,17 @@ try {
             'estado' => $pedido['estado'],
         ]);
     }
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        responder(405, ['ok' => false, 'message' => 'Método no permitido.']);
-    }
+    ApiMiddleware::exigirMetodo(['POST'], 'message', JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $datosRecibidos = json_decode((string) file_get_contents('php://input'), true);
     if (! is_array($datosRecibidos)) {
         responder(400, ['ok' => false, 'message' => 'Solicitud JSON no válida.']);
     }
-    $csrf = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $datosRecibidos['csrf'] ?? null;
-    $tokenSesion = $_SESSION['_csrf'] ?? null;
-    if (
-        ! is_string($csrf)
-        || ! is_string($tokenSesion)
-        || $csrf === ''
-        || $tokenSesion === ''
-        || ! hash_equals($tokenSesion, $csrf)
-    ) {
-        responder(403, [
-            'ok' => false,
-            'message' => 'La sesión venció. Recarga la página e inténtalo otra vez.',
-        ]);
-    }
+    ApiMiddleware::validarCsrfJson(
+        $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $datosRecibidos['csrf'] ?? null,
+        'La sesión venció. Recarga la página e inténtalo otra vez.',
+        'message',
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    );
     $datosPedido = (new ValidacionPedidoServicio)->validar($datosRecibidos);
     $modalidad = $datosPedido['modalidad'];
     $idSolicitud = $datosPedido['request_id'];
