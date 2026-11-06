@@ -26,7 +26,23 @@ final class SeguridadMiddleware
             session_start();
         }
 
+        self::enviarCabecerasSeguridad();
         self::validarTiempoSesion();
+    }
+
+    /** Cabeceras HTTP que reducen ataques de clickjacking, MIME sniffing y XSS. */
+    public static function enviarCabecerasSeguridad(): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        header('X-Frame-Options: DENY');
+        header('X-Content-Type-Options: nosniff');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+        header("Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'");
+        header_remove('X-Powered-By');
     }
 
     public static function sanearArregloEntrada(array $entrada): array
