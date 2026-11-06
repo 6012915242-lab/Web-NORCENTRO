@@ -49,5 +49,18 @@ class CatalogoTest extends TestCase
     public function test_filtra_por_modelo(): void
     {
         $this->getJson('/api/motos?buscar=otra')->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson('/api/motos?buscar=Pulsar')->assertOk()->assertJsonCount(1, 'data');
+    }
+
+    public function test_filtra_por_marca_sin_incluir_motos_inactivas(): void
+    {
+        $this->getJson('/api/motos?buscar=Bajaj')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.modelo', 'Pulsar');
+
+        DB::table('marcas')->where('id', 1)->update(['estado' => 'Inactivo']);
+
+        $this->getJson('/api/motos?buscar=Bajaj')->assertOk()->assertJsonCount(0, 'data');
     }
 }

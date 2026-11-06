@@ -23,7 +23,14 @@ class CatalogoServicio
     {
         return $this->consultaPublica()
             ->when($buscar !== '', static function (Builder $consulta) use ($buscar): void {
-                $consulta->where('modelo', 'like', '%'.$buscar.'%');
+                $termino = '%'.$buscar.'%';
+
+                $consulta->where(static function (Builder $filtro) use ($termino): void {
+                    $filtro->where('modelo', 'like', $termino)
+                        ->orWhereHas('marca', static function (Builder $marca) use ($termino): void {
+                            $marca->where('nombre', 'like', $termino);
+                        });
+                });
             })
             ->orderBy('modelo')
             ->paginate(20);

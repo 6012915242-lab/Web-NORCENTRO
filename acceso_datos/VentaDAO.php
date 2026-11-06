@@ -263,6 +263,18 @@ final class VentaDAO extends ModeloBaseORM
         ')->fetchAll();
     }
 
+    /** Obtiene las cuotas de un crédito en el orden de su cronograma. */
+    public function cuotasDeCredito(int $creditoId): array
+    {
+        return $this->obtenerTodos(
+            'SELECT *
+             FROM cuotas
+             WHERE credito_id = :credito
+             ORDER BY numero',
+            ['credito' => $creditoId]
+        );
+    }
+
     public function detallesCreditos(array $identificadores): array
     {
         $identificadores = array_values(array_unique(array_filter(

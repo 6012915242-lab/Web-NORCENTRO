@@ -310,44 +310,70 @@ final class PedidoDAO extends ModeloBaseORM
     public function evaluarSolicitudCredito(int $id, string $decision): void
     {
         $estado = match ($decision) {
-            'aprobar' => 'Crédito aprobado', 'rechazar' => 'Crédito no aprobado', default => throw new \InvalidArgumentException('Selecciona una decisión válida.')
+            'aprobar' => 'Crédito aprobado',
+            'rechazar' => 'Crédito no aprobado',
+            default => throw new \InvalidArgumentException('Selecciona una decisión válida.'),
         };
         $this->conexion->beginTransaction();
         try {
-            $consulta = $this->conexion->prepare('SELECT nombres,apellidos,dni,telefono,correo,estado FROM pedidos WHERE id=:id AND modalidad="Crédito" FOR UPDATE');
+            $consulta = $this->conexion->prepare('
+                SELECT nombres, apellidos, dni, telefono, correo, estado
+                FROM pedidos
+                WHERE id = :id AND modalidad = "Crédito"
+                FOR UPDATE
+            ');
             $consulta->execute(['id' => $id]);
             $solicitud = $consulta->fetch();
             if (! $solicitud || $solicitud['estado'] !== 'En revisión de crédito') {
                 throw new \DomainException('La solicitud ya fue evaluada o no está disponible.');
             }
             if ($decision === 'aprobar') {
-                $consulta = $this->conexion->prepare('SELECT id,estado FROM clientes WHERE dni=:dni');
+                $consulta = $this->conexion->prepare('
+                    SELECT id, estado
+                    FROM clientes
+                    WHERE dni = :dni
+                ');
                 $consulta->execute(['dni' => $solicitud['dni']]);
                 $cliente = $consulta->fetch();
                 if (! $cliente) {
-                    $consulta = $this->conexion->prepare('INSERT INTO clientes(dni,nombres,apellidos,telefono,correo) VALUES(:dni,:nombres,:apellidos,:telefono,:correo)');
-                    $consulta->execute(['dni' => $solicitud['dni'],
+                    $consulta = $this->conexion->prepare('
+                        INSERT INTO clientes (dni, nombres, apellidos, telefono, correo)
+                        VALUES (:dni, :nombres, :apellidos, :telefono, :correo)
+                    ');
+                    $consulta->execute([
+                        'dni' => $solicitud['dni'],
                         'nombres' => $solicitud['nombres'],
                         'apellidos' => $solicitud['apellidos'],
                         'telefono' => $solicitud['telefono'],
-                        'correo' => $solicitud['correo']]);
+                        'correo' => $solicitud['correo'],
+                    ]);
                 } elseif ($cliente['estado'] !== 'Activo') {
-                    $consulta = $this->conexion->prepare('UPDATE clientes SET estado="Activo" WHERE id=:id');
+                    $consulta = $this->conexion->prepare('
+                        UPDATE clientes
+                        SET estado = "Activo"
+                        WHERE id = :id
+                    ');
                     $consulta->execute(['id' => $cliente['id']]);
                 }
             }
-            $consulta = $this->conexion->prepare('UPDATE pedidos SET estado=:estado WHERE id=:id AND estado="En revisión de crédito"');
-            $consulta->execute(['estado' => $estado,
-                'id' => $id]);
+            $consulta = $this->conexion->prepare('
+                UPDATE pedidos
+                SET estado = :estado
+                WHERE id = :id AND estado = "En revisión de crédito"
+            ');
+            $consulta->execute([
+                'estado' => $estado,
+                'id' => $id,
+            ]);
             if ($consulta->rowCount() !== 1) {
                 throw new \DomainException('La solicitud ya fue evaluada o no está disponible.');
             }
             $this->conexion->commit();
-        } catch (\Throwable $e) {
+        } catch (\Throwable $error) {
             if ($this->conexion->inTransaction()) {
                 $this->conexion->rollBack();
             }
-            throw $e;
+            throw $error;
         }
     }
 

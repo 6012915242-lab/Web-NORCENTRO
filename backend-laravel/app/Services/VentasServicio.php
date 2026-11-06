@@ -39,15 +39,13 @@ class VentasServicio
 
     public function cuotas(int $creditoId): array
     {
-        if ($this->dao()->obtenerCredito($creditoId) === null) {
+        $ventasDAO = $this->dao();
+
+        if ($ventasDAO->obtenerCredito($creditoId) === null) {
             throw (new ModelNotFoundException)->setModel(Credito::class, [$creditoId]);
         }
 
-        return DB::table('cuotas')
-            ->where('credito_id', $creditoId)
-            ->orderBy('numero')
-            ->get()
-            ->all();
+        return $ventasDAO->cuotasDeCredito($creditoId);
     }
 
     public function registrarPago(array $datos): void
