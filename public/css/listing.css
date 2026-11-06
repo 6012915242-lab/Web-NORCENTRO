@@ -533,3 +533,21 @@
     max-width: 120px;
   }
 }
+
+/* Inventario: color de cada unidad */
+.color-dot {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.35rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  background: var(--swatch-color, #cccccc);
+  vertical-align: middle;
+}
+
+.inventory-color-form select {
+  min-width: 9rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+}

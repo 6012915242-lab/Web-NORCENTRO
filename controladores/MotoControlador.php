@@ -64,4 +64,16 @@ final class MotoControlador
 
         Herramientas::redirigir('inventario');
     }
+
+    public function asignarColorUnidad(array $post): never
+    {
+        try {
+            $this->servicioComercial->validarYAsignarColor($this->dao, $post);
+            Herramientas::mostrarAviso('success', 'Color de la unidad actualizado.');
+        } catch (DomainException $error) {
+            Herramientas::mostrarAviso('error', $error->getMessage());
+        }
+
+        Herramientas::redirigir('inventario');
+    }
 }

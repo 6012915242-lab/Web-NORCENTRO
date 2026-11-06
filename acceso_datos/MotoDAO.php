@@ -207,6 +207,7 @@ final class MotoDAO extends ModeloBaseORM
         return $this->ejecutarEnTransaccion(function () use ($datos, $colores): int {
             $id = $this->guardar($datos);
             $this->guardarGaleriaColores($id, $colores);
+            $this->asignarColorUnicoASinColor($id);
 
             return $id;
         });
@@ -217,7 +218,22 @@ final class MotoDAO extends ModeloBaseORM
         $this->ejecutarEnTransaccion(function () use ($id, $datos, $colores): void {
             $this->actualizar($id, $datos);
             $this->guardarGaleriaColores($id, $colores);
+            $this->asignarColorUnicoASinColor($id);
         });
+    }
+
+    /** Si el modelo tiene un solo color, las unidades sin color toman ese color. */
+    private function asignarColorUnicoASinColor(int $idMoto): void
+    {
+        $colores = $this->obtenerTodos('SELECT id FROM moto_colores WHERE moto_id = :moto', ['moto' => $idMoto]);
+        if (count($colores) !== 1) {
+            return;
+        }
+
+        $this->ejecutar(
+            'UPDATE unidades_moto SET color_id = :color WHERE moto_id = :moto AND color_id IS NULL',
+            ['color' => (int) $colores[0]['id'], 'moto' => $idMoto]
+        );
     }
 
     public function actualizar(int $id, array $datos): void
@@ -308,22 +324,26 @@ final class MotoDAO extends ModeloBaseORM
         $limite = max(1, min(100, $limite));
         $consultaSQL = "
             SELECT u.id AS unidad_id, u.codigo_serie, m.id AS moto_id,
-                   m.modelo, m.precio, m.imagen, ma.nombre AS marca
+                   m.modelo, m.precio, m.imagen, ma.nombre AS marca,
+                   u.color_id, mc.nombre AS color, mc.codigo_hex
             FROM unidades_moto u
             JOIN motos m ON m.id = u.moto_id
             JOIN marcas ma ON ma.id = m.marca_id
+            LEFT JOIN moto_colores mc ON mc.id = u.color_id
             WHERE u.estado = 'Disponible' AND m.estado = 'Activo' AND ma.estado = 'Activo'
         ";
         $parametros = [];
         if ($buscar !== '') {
-            $consultaSQL .= ' AND (ma.nombre LIKE :term1 OR m.modelo LIKE :term2 OR CONCAT(ma.nombre," ",m.modelo) LIKE :term3 OR u.codigo_serie LIKE :term4)';
+            $consultaSQL .= ' AND (ma.nombre LIKE :term1 OR m.modelo LIKE :term2 OR CONCAT(ma.nombre," ",m.modelo) LIKE :term3 OR u.codigo_serie LIKE :term4 OR mc.nombre LIKE :term5)';
             $terminoBusqueda = '%'.$buscar.'%';
             $parametros = ['term1' => $terminoBusqueda,
                 'term2' => $terminoBusqueda,
                 'term3' => $terminoBusqueda,
-                'term4' => $terminoBusqueda];
+                'term4' => $terminoBusqueda,
+                'term5' => $terminoBusqueda];
         }
-        $consultaSQL .= ' ORDER BY ma.nombre,m.modelo,u.codigo_serie LIMIT '.$limite;
+        // Las unidades sin color asignado quedan al final de cada modelo.
+        $consultaSQL .= ' ORDER BY ma.nombre, m.modelo, u.color_id IS NULL, mc.orden, u.codigo_serie LIMIT '.$limite;
         $consulta = $this->preparar($consultaSQL, $parametros);
 
         return $consulta->fetchAll();
@@ -332,21 +352,26 @@ final class MotoDAO extends ModeloBaseORM
     public function inventario(string $busqueda = '', string $estado = ''): array
     {
         $consulta = '
-            SELECT u.id, u.codigo_serie, u.estado, m.modelo, m.imagen, ma.nombre AS marca
+            SELECT u.id, u.moto_id, u.codigo_serie, u.estado, u.color_id,
+                   mc.nombre AS color, mc.codigo_hex,
+                   m.modelo, m.imagen, ma.nombre AS marca
             FROM unidades_moto u
             JOIN motos m ON m.id = u.moto_id
             JOIN marcas ma ON ma.id = m.marca_id
+            LEFT JOIN moto_colores mc ON mc.id = u.color_id
             WHERE 1 = 1
         ';
         $parametros = [];
 
         if ($busqueda !== '') {
-            $consulta .= ' AND (u.codigo_serie LIKE :serie OR m.modelo LIKE :modelo OR ma.nombre LIKE :marca)';
+            $consulta .= ' AND (u.codigo_serie LIKE :serie OR m.modelo LIKE :modelo
+                OR ma.nombre LIKE :marca OR mc.nombre LIKE :color)';
             $termino = '%'.$busqueda.'%';
             $parametros = [
                 'serie' => $termino,
                 'modelo' => $termino,
                 'marca' => $termino,
+                'color' => $termino,
             ];
         }
 
@@ -360,10 +385,74 @@ final class MotoDAO extends ModeloBaseORM
         return $this->obtenerTodos($consulta, $parametros);
     }
 
-    public function registrarUnidad(int $idMoto, string $codigoSerie): int
+    /** Cambia el color de una unidad que todavía no se vendió. */
+    public function asignarColorUnidad(int $idUnidad, ?int $idColor): void
+    {
+        $unidad = $this->obtenerUno(
+            'SELECT id, moto_id, estado FROM unidades_moto WHERE id = :id',
+            ['id' => $idUnidad]
+        );
+
+        if ($unidad === null || $unidad['estado'] === 'Vendida') {
+            throw new \DomainException('Solo se puede cambiar el color de una unidad que no esté vendida.');
+        }
+
+        if ($idColor !== null && ! $this->colorPerteneceAMoto($idColor, (int) $unidad['moto_id'])) {
+            throw new \DomainException('El color elegido no corresponde a esa motocicleta.');
+        }
+
+        $this->ejecutar(
+            'UPDATE unidades_moto SET color_id = :color WHERE id = :id',
+            ['color' => $idColor, 'id' => $idUnidad]
+        );
+    }
+
+    /**
+     * Stock por modelo y color: cuántas unidades hay disponibles, reservadas y vendidas.
+     * Las unidades sin color aparecen como "Color por asignar".
+     */
+    public function stockPorColor(): array
+    {
+        return $this->obtenerTodos(
+            "SELECT m.id AS moto_id, ma.nombre AS marca, m.modelo,
+                    COALESCE(mc.nombre, 'Color por asignar') AS color, mc.codigo_hex,
+                    SUM(u.estado = 'Disponible') AS disponibles,
+                    SUM(u.estado = 'Reservada') AS reservadas,
+                    SUM(u.estado = 'Vendida') AS vendidas
+             FROM unidades_moto u
+             JOIN motos m ON m.id = u.moto_id
+             JOIN marcas ma ON ma.id = m.marca_id
+             LEFT JOIN moto_colores mc ON mc.id = u.color_id
+             WHERE m.estado = 'Activo'
+             GROUP BY m.id, ma.nombre, m.modelo, mc.id, mc.nombre, mc.codigo_hex, mc.orden
+             ORDER BY ma.nombre, m.modelo, mc.id IS NULL, mc.orden"
+        );
+    }
+
+    /** Colores registrados para cada moto: [moto_id => [['id' => .., 'nombre' => ..], ...]]. */
+    public function coloresParaInventario(): array
+    {
+        $colores = [];
+        foreach ($this->obtenerTodos('SELECT id, moto_id, nombre FROM moto_colores ORDER BY moto_id, orden, id') as $fila) {
+            $colores[(int) $fila['moto_id']][] = ['id' => (int) $fila['id'], 'nombre' => $fila['nombre']];
+        }
+
+        return $colores;
+    }
+
+    private function colorPerteneceAMoto(int $idColor, int $idMoto): bool
+    {
+        return $this->obtenerUno(
+            'SELECT 1 FROM moto_colores WHERE id = :color AND moto_id = :moto',
+            ['color' => $idColor, 'moto' => $idMoto]
+        ) !== null;
+    }
+
+    /** Registra una unidad física; el color es opcional y debe pertenecer al modelo. */
+    public function registrarUnidad(int $idMoto, string $codigoSerie, ?int $idColor = null): int
     {
         try {
-            return $this->ejecutarEnTransaccion(function () use ($idMoto, $codigoSerie): int {
+            return $this->ejecutarEnTransaccion(function () use ($idMoto, $codigoSerie, $idColor): int {
                 $bloqueo = $this->conexion->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite'
                     ? ''
                     : ' FOR UPDATE';
@@ -382,11 +471,16 @@ final class MotoDAO extends ModeloBaseORM
                     throw new \DomainException('Selecciona una motocicleta activa.');
                 }
 
+                if ($idColor !== null && ! $this->colorPerteneceAMoto($idColor, $idMoto)) {
+                    throw new \DomainException('El color elegido no corresponde a esa motocicleta.');
+                }
+
                 $this->ejecutar(
-                    'INSERT INTO unidades_moto (moto_id, codigo_serie, estado)
-                     VALUES (:moto, :serie, :estado)',
+                    'INSERT INTO unidades_moto (moto_id, color_id, codigo_serie, estado)
+                     VALUES (:moto, :color, :serie, :estado)',
                     [
                         'moto' => $idMoto,
+                        'color' => $idColor,
                         'serie' => $codigoSerie,
                         'estado' => 'Disponible',
                     ]

@@ -17,6 +17,7 @@ final class AutorizacionRbacMiddleware
         'guardar_moto' => 'motos.gestionar',
         'desactivar_moto' => 'motos.gestionar',
         'agregar_unidad_inventario' => 'inventario.gestionar',
+        'asignar_color_unidad' => 'inventario.gestionar',
         'guardar_cliente' => 'clientes.gestionar',
         'desactivar_cliente' => 'clientes.desactivar',
         'guardar_oferta' => 'ofertas.gestionar',

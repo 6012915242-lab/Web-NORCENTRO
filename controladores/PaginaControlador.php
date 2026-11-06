@@ -103,9 +103,10 @@ final class PaginaControlador
                 $datos['busquedaInventario'],
                 $datos['estadoInventario']
             );
-            $datos['motosInventario'] = in_array('inventario.gestionar', $permisosUsuario, true)
-                ? $this->motoDAO->listar()
-                : [];
+            $puedeGestionar = in_array('inventario.gestionar', $permisosUsuario, true);
+            $datos['motosInventario'] = $puedeGestionar ? $this->motoDAO->listar() : [];
+            $datos['coloresInventario'] = $puedeGestionar ? $this->motoDAO->coloresParaInventario() : [];
+            $datos['stockPorColor'] = $this->motoDAO->stockPorColor();
         }
 
         if ($pagina === 'ventas') {
@@ -307,20 +308,21 @@ final class PaginaControlador
     }
 
     /**
-     * Agrupa las unidades disponibles por modelo para el selector de ventas:
-     * cada modelo aparece una vez y debajo se listan sus números de serie.
+     * Agrupa las unidades disponibles por modelo y color para el selector de ventas:
+     * cada combinación aparece una vez y debajo se listan sus números de serie.
      */
     private function agruparUnidadesPorModelo(array $unidades): array
     {
         $grupos = [];
         foreach ($unidades as $unidad) {
-            $motoId = (int) $unidad['moto_id'];
-            $grupos[$motoId] ??= [
+            $clave = (int) $unidad['moto_id'].':'.(int) ($unidad['color_id'] ?? 0);
+            $grupos[$clave] ??= [
                 'nombre' => $unidad['marca'].' '.$unidad['modelo'],
+                'color' => $unidad['color'] ?? 'Color por asignar',
                 'precio' => (float) $unidad['precio'],
                 'unidades' => [],
             ];
-            $grupos[$motoId]['unidades'][] = $unidad;
+            $grupos[$clave]['unidades'][] = $unidad;
         }
 
         return array_values($grupos);

@@ -26,7 +26,7 @@ use App\Configuracion\Herramientas;
 
             <label>
                 Motocicleta
-                <select name="moto_id" required>
+                <select name="moto_id" required data-moto-inventario>
                     <option value="">Seleccionar modelo</option>
                     <?php foreach ($motosInventario as $moto): ?>
                         <option value="<?= (int) $moto['id'] ?>">
@@ -34,6 +34,21 @@ use App\Configuracion\Herramientas;
                         </option>
                     <?php endforeach; ?>
                 </select>
+            </label>
+
+            <label>
+                Color
+                <select name="color_id" data-color-inventario>
+                    <option value="">Color por asignar</option>
+                    <?php foreach ($coloresInventario as $idMotoColor => $coloresMoto): ?>
+                        <?php foreach ($coloresMoto as $colorMoto): ?>
+                            <option value="<?= (int) $colorMoto['id'] ?>" data-moto="<?= (int) $idMotoColor ?>" hidden>
+                                <?= Herramientas::escaparHtml($colorMoto['nombre']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </select>
+                <small>Solo aparecen los colores registrados para el modelo elegido.</small>
             </label>
 
             <label>
@@ -49,6 +64,47 @@ use App\Configuracion\Herramientas;
         </form>
     </section>
 <?php endif; ?>
+
+<section class="panel">
+    <div class="panel-head">
+        <div>
+            <h2>Stock por color</h2>
+            <p class="muted">Cuántas unidades hay de cada modelo y color.</p>
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Motocicleta</th>
+                    <th>Color</th>
+                    <th>Disponibles</th>
+                    <th>Reservadas</th>
+                    <th>Vendidas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($stockPorColor as $filaStock): ?>
+                    <tr>
+                        <td><?= Herramientas::escaparHtml($filaStock['marca'] . ' ' . $filaStock['modelo']) ?></td>
+                        <td>
+                            <span class="color-dot" style="--swatch-color:<?= Herramientas::escaparHtml($filaStock['codigo_hex'] ?? '#cccccc') ?>"></span>
+                            <?= Herramientas::escaparHtml($filaStock['color']) ?>
+                        </td>
+                        <td><b><?= (int) $filaStock['disponibles'] ?></b></td>
+                        <td><?= (int) $filaStock['reservadas'] ?></td>
+                        <td><?= (int) $filaStock['vendidas'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (!$stockPorColor): ?>
+                    <tr>
+                        <td colspan="5" class="empty">Todavía no hay unidades registradas.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
 
 <section class="panel">
     <form method="get" action="index.php" class="inventory-filter" role="search">
@@ -79,6 +135,7 @@ use App\Configuracion\Herramientas;
             <thead>
                 <tr>
                     <th>Motocicleta</th>
+                    <th>Color</th>
                     <th>Código de serie</th>
                     <th>Estado</th>
                 </tr>
@@ -101,6 +158,29 @@ use App\Configuracion\Herramientas;
                                 <b><?= Herramientas::escaparHtml($unidadInventario['marca'] . ' ' . $unidadInventario['modelo']) ?></b>
                             </div>
                         </td>
+                        <td>
+                            <?php $coloresDeLaMoto = $coloresInventario[(int) $unidadInventario['moto_id']] ?? []; ?>
+                            <?php if ($coloresDeLaMoto && $unidadInventario['estado'] !== 'Vendida'): ?>
+                                <form method="post" class="inventory-color-form">
+                                    <?= Herramientas::campoCsrf() ?>
+                                    <input type="hidden" name="action" value="asignar_color_unidad">
+                                    <input type="hidden" name="unidad_id" value="<?= (int) $unidadInventario['id'] ?>">
+                                    <select name="color_id" aria-label="Color de la unidad <?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>"
+                                            data-enviar-al-cambiar>
+                                        <option value="">Color por asignar</option>
+                                        <?php foreach ($coloresDeLaMoto as $colorMoto): ?>
+                                            <option value="<?= (int) $colorMoto['id'] ?>"
+                                                <?= (int) $colorMoto['id'] === (int) $unidadInventario['color_id'] ? 'selected' : '' ?>>
+                                                <?= Herramientas::escaparHtml($colorMoto['nombre']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <noscript><button class="button subtle">Guardar</button></noscript>
+                                </form>
+                            <?php else: ?>
+                                <?= Herramientas::escaparHtml($unidadInventario['color'] ?? 'Color por asignar') ?>
+                            <?php endif; ?>
+                        </td>
                         <td><?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?></td>
                         <td>
                             <span class="pill <?= $claseEstado ?>">
@@ -112,7 +192,7 @@ use App\Configuracion\Herramientas;
 
                 <?php if (!$elementos): ?>
                     <tr>
-                        <td colspan="3" class="empty">No se encontraron unidades para esta búsqueda.</td>
+                        <td colspan="4" class="empty">No se encontraron unidades para esta búsqueda.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

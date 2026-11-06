@@ -73,6 +73,10 @@ final class DespachadorAcciones
                 (new MotoControlador($this->motoDAO))->agregarUnidadInventario($datos);
                 break;
 
+            case 'asignar_color_unidad':
+                (new MotoControlador($this->motoDAO))->asignarColorUnidad($datos);
+                break;
+
             case 'guardar_cliente':
                 (new ClienteControlador($this->clienteDAO))->guardar(
                     $datos,

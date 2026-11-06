@@ -11,7 +11,7 @@ use App\Configuracion\Herramientas;
   <title><?= Herramientas::escaparHtml($titulo)?></title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix">
-  <link rel="stylesheet" href="css/listing.css?v=20261103-gallery-admin">
+  <link rel="stylesheet" href="css/listing.css?v=20261106-colores-unidad">
   <link rel="stylesheet" href="css/responsive.css?v=20261105-inventario">
 </head>
 <body class="page-<?= Herramientas::escaparHtml($pagina)?><?= $mensajeError ? ' page-error' : ''?>">
@@ -155,7 +155,7 @@ if ($usuarioActual && !in_array($pagina, $paginasSinPanelLateral, true)):?>
   <span>Norcentro S.A.C.</span>
   <span>Precios y disponibilidad sujetos a confirmación.</span>
 </footer>
-<script src="js/app.js?v=20261103-recargo-credito" defer></script>
+<script src="js/app.js?v=20261106-colores-unidad" defer></script>
 <script src="js/cart.js?v=20260929-credit-review" defer></script>
 <?php if ($pagina === 'compra'): ?>
   <script src="js/order-status.js?v=20260927-mp" defer></script>

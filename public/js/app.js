@@ -347,3 +347,28 @@
     );
   });
 })();
+
+// Inventario: muestra solo los colores del modelo elegido y guarda el color de una unidad al cambiarlo.
+(() => {
+  const selectorMoto = document.querySelector("[data-moto-inventario]");
+  const selectorColor = document.querySelector("[data-color-inventario]");
+  if (selectorMoto && selectorColor) {
+    const filtrarColores = () => {
+      selectorColor.querySelectorAll("option[data-moto]").forEach((opcion) => {
+        opcion.hidden = opcion.dataset.moto !== selectorMoto.value;
+      });
+      const elegido = selectorColor.selectedOptions[0];
+      if (elegido && elegido.hidden) {
+        selectorColor.value = "";
+      }
+    };
+    selectorMoto.addEventListener("change", filtrarColores);
+    filtrarColores();
+  }
+
+  document
+    .querySelectorAll("[data-enviar-al-cambiar]")
+    .forEach((selector) =>
+      selector.addEventListener("change", () => selector.form.requestSubmit()),
+    );
+})();

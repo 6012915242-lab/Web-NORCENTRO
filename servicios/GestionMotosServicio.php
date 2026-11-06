@@ -296,7 +296,34 @@ final class GestionMotosServicio
             );
         }
 
-        return $motoDAO->registrarUnidad((int) $idMoto, $codigoSerie);
+        return $motoDAO->registrarUnidad((int) $idMoto, $codigoSerie, $this->leerColor($entrada));
+    }
+
+    /** Asigna (o quita) el color de una unidad del inventario. */
+    public function validarYAsignarColor(MotoDAO $motoDAO, array $entrada): void
+    {
+        $idUnidad = filter_var($entrada['unidad_id'] ?? null, FILTER_VALIDATE_INT);
+        if (! $idUnidad || $idUnidad < 1) {
+            throw new DomainException('Selecciona una unidad válida.');
+        }
+
+        $motoDAO->asignarColorUnidad((int) $idUnidad, $this->leerColor($entrada));
+    }
+
+    /** El color llega como id; vacío significa "color por asignar". */
+    private function leerColor(array $entrada): ?int
+    {
+        $valor = trim((string) ($entrada['color_id'] ?? ''));
+        if ($valor === '') {
+            return null;
+        }
+
+        $idColor = filter_var($valor, FILTER_VALIDATE_INT);
+        if (! $idColor || $idColor < 1) {
+            throw new DomainException('Selecciona un color válido.');
+        }
+
+        return (int) $idColor;
     }
 
     /** Si el modelo empieza con el nombre de la marca ("Yamaha FZ25"), deja solo "FZ25". */
