@@ -1,0 +1,1 @@
+-- El esquema inicial se ejecuta desde sql/norcentro_web.sql.

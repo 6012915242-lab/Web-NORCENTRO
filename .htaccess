@@ -2,7 +2,7 @@
     RewriteEngine On
 
     # La aplicación pública no necesita acceso directo a estas carpetas.
-    RewriteRule ^(?:acceso_datos|configuracion|controladores|middlewares|modelos|nucleo|servicios|scripts|sql|storage|vistas)(?:/|$) - [F,NC,L]
+    RewriteRule ^(?:acceso_datos|configuracion|controladores|middlewares|modelos|nucleo|servicios|scripts|sql|storage|vistas|migraciones)(?:/|$) - [F,NC,L]
     RewriteRule ^autoload\.php$ - [F,NC,L]
 
     # Laravel solo debe servir archivos desde su directorio public.
