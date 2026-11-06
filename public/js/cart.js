@@ -56,6 +56,7 @@
   const submit = dialog.querySelector("[data-cart-submit]");
   const currency = (value) =>
     `S/ ${Number(value || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  // Escapa los datos antes de insertarlos en el HTML del carrito.
   const escape = (value) =>
     String(value ?? "").replace(
       /[&<>"']/g,
@@ -122,6 +123,7 @@
     }
     const id = Number(button.dataset.id);
     const colorId = Number(button.dataset.colorId || 0);
+    // Una moto con otro color se considera un artículo diferente.
     const existing = cart.find(
       (item) => Number(item.id) === id && Number(item.colorId || 0) === colorId,
     );
@@ -130,6 +132,7 @@
     } else {
       cart.push(createItem(button, id, colorId));
     }
+    // Al cambiar el carrito, el siguiente envío necesita otro identificador.
     checkout.dataset.requestId = "";
     render();
     const oldLabel = button.textContent;
@@ -220,6 +223,7 @@
       return;
     }
     const formData = new FormData(checkout);
+    // El servidor volverá a verificar los precios y la disponibilidad.
     const payload = {
       request_id: checkout.dataset.requestId || (checkout.dataset.requestId = crypto.randomUUID()),
       csrf: formData.get("_csrf"),
