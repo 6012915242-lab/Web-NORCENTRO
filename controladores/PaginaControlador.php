@@ -79,7 +79,15 @@ final class PaginaControlador
         }
 
         if ($pagina === 'inventario') {
-            $datos['elementos'] = $this->motoDAO->inventario();
+            $datos['busquedaInventario'] = mb_substr(trim((string) ($consulta['inventario_q'] ?? '')), 0, 100);
+            $estadoInventario = (string) ($consulta['estado_inventario'] ?? '');
+            $datos['estadoInventario'] = in_array($estadoInventario, ['Disponible', 'Reservada', 'Vendida'], true)
+                ? $estadoInventario
+                : '';
+            $datos['elementos'] = $this->motoDAO->inventario(
+                $datos['busquedaInventario'],
+                $datos['estadoInventario']
+            );
             $datos['motosInventario'] = in_array('inventario.gestionar', $permisosUsuario, true)
                 ? $this->motoDAO->listar()
                 : [];

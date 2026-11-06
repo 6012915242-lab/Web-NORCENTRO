@@ -8,7 +8,7 @@ use App\Configuracion\Herramientas;
         <h1>Inventario</h1>
         <p>Registra cada unidad por su código de serie y consulta su estado actual.</p>
     </div>
-    <span class="inventory-total"><?= count($elementos) ?> unidades registradas</span>
+    <span class="inventory-total"><?= count($elementos) ?> unidades mostradas</span>
 </div>
 
 <?php if ($usuarioPuede('inventario.gestionar')): ?>
@@ -51,6 +51,23 @@ use App\Configuracion\Herramientas;
 <?php endif; ?>
 
 <section class="panel">
+    <form method="get" action="index.php" class="search-form" role="search">
+        <input type="hidden" name="page" value="inventario">
+        <label for="buscar-inventario">Marca, modelo o código de serie</label>
+        <input id="buscar-inventario" name="inventario_q" type="search" maxlength="100"
+               value="<?= Herramientas::escaparHtml($busquedaInventario) ?>">
+        <label for="estado-inventario">Estado</label>
+        <select id="estado-inventario" name="estado_inventario">
+            <option value="">Todos</option>
+            <?php foreach (['Disponible', 'Reservada', 'Vendida'] as $estado): ?>
+                <option value="<?= $estado ?>" <?= $estadoInventario === $estado ? 'selected' : '' ?>>
+                    <?= $estado ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <button class="button small-button">Buscar</button>
+        <a href="index.php?page=inventario">Mostrar todos</a>
+    </form>
     <div class="table-wrap">
         <table>
             <thead>
@@ -89,7 +106,7 @@ use App\Configuracion\Herramientas;
 
                 <?php if (!$elementos): ?>
                     <tr>
-                        <td colspan="3" class="empty">Aún no hay unidades registradas.</td>
+                        <td colspan="3" class="empty">No se encontraron unidades para esta búsqueda.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

@@ -318,15 +318,31 @@ final class MotoDAO extends ModeloBaseORM
         return $consulta->fetchAll();
     }
 
-    public function inventario(): array
+    public function inventario(string $busqueda = '', string $estado = ''): array
     {
-        return $this->conexion->query('
+        $consulta = '
             SELECT u.id, u.codigo_serie, u.estado, m.modelo, m.imagen, ma.nombre AS marca
             FROM unidades_moto u
             JOIN motos m ON m.id = u.moto_id
             JOIN marcas ma ON ma.id = m.marca_id
-            ORDER BY u.estado, ma.nombre, m.modelo, u.codigo_serie
-        ')->fetchAll();
+            WHERE 1 = 1
+        ';
+        $parametros = [];
+
+        if ($busqueda !== '') {
+            $consulta .= ' AND (u.codigo_serie LIKE :serie OR m.modelo LIKE :modelo OR ma.nombre LIKE :marca)';
+            $termino = '%'.$busqueda.'%';
+            $parametros = ['serie' => $termino, 'modelo' => $termino, 'marca' => $termino];
+        }
+
+        if (in_array($estado, ['Disponible', 'Reservada', 'Vendida'], true)) {
+            $consulta .= ' AND u.estado = :estado';
+            $parametros['estado'] = $estado;
+        }
+
+        $consulta .= ' ORDER BY u.estado, ma.nombre, m.modelo, u.codigo_serie';
+
+        return $this->obtenerTodos($consulta, $parametros);
     }
 
     public function registrarUnidad(int $idMoto, string $codigoSerie): int
