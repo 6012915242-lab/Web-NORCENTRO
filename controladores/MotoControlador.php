@@ -63,6 +63,11 @@ final class MotoControlador
             Herramientas::mostrarAviso('error', $error->getMessage());
         }
 
-        Herramientas::redirigir('inventario');
+        // Vuelve a la misma fila y con el mismo filtro que tenía el usuario.
+        $filtro = array_filter([
+            'inventario_q' => mb_substr((string) ($post['inventario_q'] ?? ''), 0, 100),
+            'estado_inventario' => (string) ($post['estado_inventario'] ?? ''),
+        ], static fn (string $valor): bool => $valor !== '');
+        Herramientas::redirigir('inventario', $filtro, 'unidad-'.(int) ($post['unidad_id'] ?? 0));
     }
 }

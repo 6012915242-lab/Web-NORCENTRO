@@ -11,7 +11,7 @@ use App\Configuracion\Herramientas;
   <title><?= Herramientas::escaparHtml($titulo)?></title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/details.css?v=20261103-gallery-fix">
-  <link rel="stylesheet" href="css/listing.css?v=20261106-editar-unidad">
+  <link rel="stylesheet" href="css/listing.css?v=20261106-anclas">
   <link rel="stylesheet" href="css/responsive.css?v=20261106-alineacion">
 </head>
 <body class="page-<?= Herramientas::escaparHtml($pagina)?><?= $mensajeError ? ' page-error' : ''?>">
@@ -168,6 +168,9 @@ if ($usuarioActual && !in_array($pagina, $paginasSinPanelLateral, true)):?>
 <?php endif; ?>
 <?php if ($pagina === 'clientes'): ?>
   <script src="js/consulta-dni.js" defer></script>
+<?php endif; ?>
+<?php if ($pagina === 'inventario'): ?>
+  <script src="js/inventario.js?v=20261106-ajax" defer></script>
 <?php endif; ?>
 </body>
 </html>

@@ -592,3 +592,26 @@ td > select[form] {
   font-size: 0.85rem;
   text-transform: uppercase;
 }
+
+/* Al volver de una búsqueda o de "Guardar", la sección queda visible y la fila se resalta. */
+#unidades-inventario,
+.inventory-unit-row {
+  scroll-margin-top: 16px;
+}
+
+.inventory-unit-row:target td {
+  animation: fila-resaltada 2.5s ease-out;
+}
+
+@keyframes fila-resaltada {
+  from {
+    background: #fff4d6;
+  }
+  to {
+    background: transparent;
+  }
+}
+
+.inventory-unit-row.fila-guardada td {
+  animation: fila-resaltada 2.5s ease-out;
+}

@@ -12,10 +12,10 @@ use App\Configuracion\Herramientas;
             de motor y corregir el color.
         </p>
     </div>
-    <span class="inventory-total"><?= count($elementos) ?> unidades mostradas</span>
+    <span class="inventory-total" data-total-inventario><?= count($elementos) ?> unidades mostradas</span>
 </div>
 
-<section class="panel">
+<section class="panel" id="stock-por-color">
     <div class="panel-head">
         <div>
             <h2>Stock por color</h2>
@@ -56,8 +56,8 @@ use App\Configuracion\Herramientas;
     </div>
 </section>
 
-<section class="panel">
-    <form method="get" action="index.php" class="inventory-filter" role="search">
+<section class="panel" id="unidades-inventario">
+    <form method="get" action="index.php#unidades-inventario" class="inventory-filter" role="search" data-filtro-inventario>
         <input type="hidden" name="page" value="inventario">
         <label class="inventory-filter-search" for="buscar-inventario">
             <span>Marca, modelo o código de serie</span>
@@ -89,7 +89,7 @@ use App\Configuracion\Herramientas;
         </label>
         <div class="inventory-filter-actions">
             <button class="button primary">Buscar</button>
-            <a class="button subtle" href="index.php?page=inventario">Mostrar todos</a>
+            <a class="button subtle" href="index.php?page=inventario#unidades-inventario">Mostrar todos</a>
         </div>
     </form>
     <div class="table-wrap">
@@ -113,7 +113,7 @@ use App\Configuracion\Herramientas;
                         $claseEstado = 'red';
                     }
                     ?>
-                    <tr>
+                    <tr id="unidad-<?= (int) $unidadInventario['id'] ?>" class="inventory-unit-row">
                         <td>
                             <div class="table-product">
                                 <img src="<?= Herramientas::escaparHtml(Herramientas::rutaImagen($unidadInventario['imagen'])) ?>"
@@ -124,7 +124,7 @@ use App\Configuracion\Herramientas;
                         <?php
                         $coloresDeLaMoto = $coloresInventario[(int) $unidadInventario['moto_id']] ?? [];
                         $esEditable = $puedeEditarUnidades && $unidadInventario['estado'] !== 'Vendida';
-                        $idFormulario = 'unidad-' . (int) $unidadInventario['id'];
+                        $idFormulario = 'form-unidad-' . (int) $unidadInventario['id'];
                         ?>
                         <td>
                             <?php if ($esEditable && $coloresDeLaMoto): ?>
@@ -149,6 +149,8 @@ use App\Configuracion\Herramientas;
                                     <?= Herramientas::campoCsrf() ?>
                                     <input type="hidden" name="action" value="actualizar_unidad">
                                     <input type="hidden" name="unidad_id" value="<?= (int) $unidadInventario['id'] ?>">
+                                    <input type="hidden" name="inventario_q" value="<?= Herramientas::escaparHtml($busquedaInventario) ?>">
+                                    <input type="hidden" name="estado_inventario" value="<?= Herramientas::escaparHtml($estadoInventario) ?>">
                                     <input name="codigo_serie" required maxlength="50" minlength="3"
                                            pattern="[A-Za-z0-9][A-Za-z0-9-]{2,49}" autocomplete="off"
                                            value="<?= Herramientas::escaparHtml($unidadInventario['codigo_serie']) ?>"

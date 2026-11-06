@@ -96,10 +96,15 @@ final class Herramientas
     }
 
     /** Construye una dirección interna y lleva al usuario a la página solicitada. */
-    public static function redirigir(string $pagina, array $parametros = []): never
+    /**
+     * Lleva al usuario a una página interna. El ancla opcional (#seccion) hace que
+     * el navegador vuelva a esa parte de la página en lugar de subir al inicio.
+     */
+    public static function redirigir(string $pagina, array $parametros = [], string $ancla = ''): never
     {
         $consulta = http_build_query(['page' => $pagina] + $parametros);
-        header('Location: index.php?'.$consulta);
+        $fragmento = preg_match('/^[A-Za-z][A-Za-z0-9_-]*$/', $ancla) === 1 ? '#'.$ancla : '';
+        header('Location: index.php?'.$consulta.$fragmento);
         exit;
     }
 
